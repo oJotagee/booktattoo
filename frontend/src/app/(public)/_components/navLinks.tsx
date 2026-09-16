@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
-import Link from "next/link";
+import { LogIn } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 interface NavLinksProps {
   navItems: { href: string; label: string }[];
@@ -15,10 +15,8 @@ export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
         <Button
           key={item.href}
           className="shadow-none text-base hover:brightness-75 duration-300"
-          variant={"ghost"}
-          render={
-            <Link href={item.href} />
-          }
+          variant={'ghost'}
+          render={<Link href={item.href} />}
           nativeButton={false}
           onClick={() => setIsMenuOpen(false)}
         >
@@ -34,13 +32,11 @@ export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
           Acessar painel
         </Link>
       ) : (
-        <Button 
-          className="flex items-center justify-center gap-2 cursor-pointer bg-orange-600 text-white hover:brightness-75 duration-300 py-1 px-4 rounded-md font-semibold"
-        >
+        <Button className="flex items-center justify-center gap-2 cursor-pointer bg-orange-600 text-white hover:brightness-75 duration-300 py-1 px-4 rounded-md font-semibold">
           <LogIn />
           Painel
         </Button>
       )}
     </>
-  )
+  );
 }

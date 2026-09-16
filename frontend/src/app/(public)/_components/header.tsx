@@ -1,10 +1,10 @@
-"use client"
+'use client';
 
-import { Menu } from "lucide-react";
-import { useState } from "react";
-import Link from "next/link";
+import { Menu } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -12,8 +12,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
-import { NavLinks } from "./navLinks";
+} from '@/components/ui/sheet';
+import { NavLinks } from './navLinks';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,9 +21,9 @@ export function Header() {
   const session = null;
 
   const navItems = [
-    { href: "/flash", label: "Flash" },
-    { href: "/artistas", label: "Artistas" },
-  ]
+    { href: '/flash', label: 'Flash' },
+    { href: '/artistas', label: 'Artistas' },
+  ];
 
   return (
     <header className="fixed top-0 left-0 z-50 w-full py-4 px-6 bg-black">
@@ -41,27 +41,18 @@ export function Header() {
           <SheetTrigger
             className="md:hidden"
             render={
-              <Button
-                className="text-white hover:bg-transparent"
-                variant={"ghost"}
-                size={"icon"}
-              />
+              <Button className="text-white hover:bg-transparent" variant={'ghost'} size={'icon'} />
             }
           >
             <Menu className="w-8 h-8" />
           </SheetTrigger>
 
-          <SheetContent
-            side="right"
-            className="w-[240px] sm:w-[300px] z-[9999]"
-          >
+          <SheetContent side="right" className="w-[240px] sm:w-[300px] z-[9999]">
             <SheetHeader>
               <SheetTitle className="font-bold">Menu</SheetTitle>
-              <SheetDescription>
-                Veja nossos links.
-              </SheetDescription>
+              <SheetDescription>Veja nossos links.</SheetDescription>
             </SheetHeader>
-            
+
             <nav className="flex flex-col space-y-4 mt-6 px-4">
               <NavLinks navItems={navItems} session={session} setIsMenuOpen={setIsMenuOpen} />
             </nav>
@@ -69,5 +60,5 @@ export function Header() {
         </Sheet>
       </div>
     </header>
-  )
+  );
 }

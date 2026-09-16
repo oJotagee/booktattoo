@@ -1,9 +1,8 @@
-import Image from "next/image";
-import { ArrowRight } from "lucide-react";
-
-import HeroImg from "../../../../public/hero.jpg";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import HeroImg from '../../../../public/hero.jpg';
 
 export function Hero() {
   return (
@@ -26,13 +25,12 @@ export function Hero() {
         </p>
 
         <h1 className="mt-4 font-serif text-5xl md:text-7xl text-white leading-tight">
-          Arte na pele,{" "}
-          <span className="text-orange-500 italic">pronta</span> para você.
+          Arte na pele, <span className="text-orange-500 italic">pronta</span> para você.
         </h1>
 
         <p className="mt-6 text-base text-white/50 max-w-lg">
-          Escolha entre dezenas de designs flash exclusivos criados pelos
-          nossos artistas. Reserve online, pague o sinal e venha tatuar.
+          Escolha entre dezenas de designs flash exclusivos criados pelos nossos artistas. Reserve
+          online, pague o sinal e venha tatuar.
         </p>
 
         <div className="mt-8 flex items-center gap-3 flex-wrap">
@@ -43,7 +41,7 @@ export function Hero() {
             Ver flashs disponíveis
             <ArrowRight />
           </Button>
-          <Link href={"#howWorks"}>
+          <Link href={'#howWorks'}>
             <Button
               variant="outline"
               size="lg"

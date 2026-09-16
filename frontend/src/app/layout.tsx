@@ -1,5 +1,5 @@
-import { Roboto, Playfair_Display } from 'next/font/google';
 import type { Metadata } from 'next';
+import { Playfair_Display, Roboto } from 'next/font/google';
 import { cn } from '@/lib/utils';
 
 import { Providers } from './providers';
@@ -34,9 +34,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       )}
     >
       <body className="min-h-full flex flex-col dark">
-        <Providers>
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
