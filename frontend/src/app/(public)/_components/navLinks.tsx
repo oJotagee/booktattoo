@@ -1,6 +1,7 @@
 import { LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { signIn } from 'next-auth/react';
 
 interface NavLinksProps {
   navItems: { href: string; label: string }[];
@@ -9,6 +10,10 @@ interface NavLinksProps {
 }
 
 export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
+  async function handleRegister(provider: string) {
+    await signIn(provider, { redirectTo: "/dashboard" })
+  }
+
   return (
     <>
       {navItems.map((item) => (
@@ -32,7 +37,10 @@ export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
           Acessar painel
         </Link>
       ) : (
-        <Button className="flex items-center justify-center gap-2 cursor-pointer bg-orange-600 text-white hover:brightness-75 duration-300 py-1 px-4 rounded-md font-semibold">
+        <Button
+          className="flex items-center justify-center gap-2 cursor-pointer bg-orange-600 text-white hover:brightness-75 duration-300 py-1 px-4 rounded-md font-semibold"
+          onClick={() => handleRegister('github')}
+        >
           <LogIn />
           Painel
         </Button>

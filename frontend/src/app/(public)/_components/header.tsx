@@ -1,8 +1,8 @@
 'use client';
 
 import { Menu } from 'lucide-react';
-import Link from 'next/link';
 import { useState } from 'react';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,11 +14,11 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { NavLinks } from './navLinks';
+import { useSession } from 'next-auth/react';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const session = null;
+  const { data: session, status } = useSession();
 
   const navItems = [
     { href: '/flash', label: 'Flash' },
