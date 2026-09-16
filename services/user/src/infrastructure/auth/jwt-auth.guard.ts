@@ -1,0 +1,44 @@
+import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+
+import type { SessionClaims } from '@/application/port/session-token-issuer.port';
+
+import { AUTH_TOKEN_PAYLOAD } from './auth.constant';
+import jwtConfig from '../config/jwt.config';
+
+type IncomingRequest = {
+  headers: { authorization?: string };
+  [AUTH_TOKEN_PAYLOAD]?: SessionClaims;
+};
+
+@Injectable()
+export class JwtAuthGuard implements CanActivate {
+  constructor(
+    private readonly jwtService: JwtService,
+    @Inject(jwtConfig.KEY) private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+  ) { }
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<IncomingRequest>();
+    const token = this.extractTokenFromHeader(request);
+
+    if (!token) throw new UnauthorizedException('Missing bearer token.');
+
+    try {
+      const payload = await this.jwtService.verifyAsync<SessionClaims>(token, this.jwtConfiguration);
+      request[AUTH_TOKEN_PAYLOAD] = payload;
+      return true;
+    } catch {
+      throw new UnauthorizedException('Invalid or expired token.');
+    }
+  }
+
+  extractTokenFromHeader(request: IncomingRequest): string | undefined {
+    const authorization = request?.headers?.authorization;
+
+    if (!authorization) return;
+
+    return authorization.split(' ')[1];
+  }
+}

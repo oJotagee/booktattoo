@@ -1,0 +1,53 @@
+import type { ConfigType } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+
+import { UpdateUserContactInfoUseCase } from '@/application/use-cases/update-user-contact-info.use-case';
+import { REFRESH_TOKEN_REPOSITORY } from '@/application/port/refresh-token-repository.port';
+import { FindUserByIdUseCase } from '@/application/use-cases/find-user-by-id.use-case';
+import { RefreshTokenUseCase } from '@/application/use-cases/refresh-token.use-case';
+import { RegisterUserUseCase } from '@/application/use-cases/register-user.use-case';
+import { SESSION_TOKEN_ISSUER } from '@/application/port/session-token-issuer.port';
+import { OAuthUpsertUseCase } from '@/application/use-cases/oauth-upsert.use-case';
+import { ACCOUNT_REPOSITORY } from '@/application/port/account-repository.port';
+import { PASSWORD_HASHER } from '@/application/port/password-hasher.port';
+import { TOKEN_GENERATOR } from '@/application/port/token-generator.port';
+import { USER_REPOSITORY } from '@/application/port/user-repository.port';
+import { LoginUseCase } from '@/application/use-cases/login.use-case';
+
+import { PrismaRefreshTokenRepository } from './infrastructure/repository/prisma-refresh-token.repository';
+import { PrismaAccountRepository } from './infrastructure/repository/prisma-account.repository';
+import { PrismaUserRepository } from './infrastructure/repository/prisma-user.repository';
+import { JwtSessionTokenIssuer } from './infrastructure/auth/jwt-session-token-issuer';
+import { BcryptPasswordHasher } from './infrastructure/crypto/bcrypt-password-hasher';
+import { NodeTokenGenerator } from './infrastructure/crypto/node-token-generator';
+import { UsersController } from './presentation/controllers/users.controller';
+import { PrismaService } from './infrastructure/prisma/prisma.service';
+import { JwtAuthGuard } from './infrastructure/auth/jwt-auth.guard';
+import jwtConfig from './infrastructure/config/jwt.config';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true, load: [jwtConfig] }),
+    JwtModule.registerAsync(jwtConfig.asProvider()),
+  ],
+  controllers: [UsersController],
+  providers: [
+    PrismaService,
+    JwtAuthGuard,
+    RegisterUserUseCase,
+    LoginUseCase,
+    OAuthUpsertUseCase,
+    RefreshTokenUseCase,
+    FindUserByIdUseCase,
+    UpdateUserContactInfoUseCase,
+    { provide: USER_REPOSITORY, useClass: PrismaUserRepository },
+    { provide: ACCOUNT_REPOSITORY, useClass: PrismaAccountRepository },
+    { provide: REFRESH_TOKEN_REPOSITORY, useClass: PrismaRefreshTokenRepository },
+    { provide: PASSWORD_HASHER, useClass: BcryptPasswordHasher },
+    { provide: TOKEN_GENERATOR, useClass: NodeTokenGenerator },
+    { provide: SESSION_TOKEN_ISSUER, useClass: JwtSessionTokenIssuer },
+  ],
+})
+export class AppModule { }

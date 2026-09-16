@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "types": ["bun-types", "node"],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./services/user"
+    }
+  ],
+  "include": ["services/**/*.ts", "services/**/*.tsx"],
+  "exclude": ["node_modules", "dist", "build"]
+}

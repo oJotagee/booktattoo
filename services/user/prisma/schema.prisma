@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  VACATION
+}
+
+model User {
+  id               String     @id @default(cuid())
+  name             String?
+  email            String     @unique
+  emailVerified    DateTime?
+  image            String?
+  passwordHash     String? // null se só login social
+  address          String?
+  phone            String?
+  status           UserStatus @default(ACTIVE)
+  times            String[]   @default([])
+  stripeCustomerId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts      Account[]
+  refreshTokens RefreshToken[]
+  subscription  Subscription?
+  services      Service[]
+  reminders     Reminder[]
+}
+
+model Account {
+  userId            String
+  type              String // "oauth" | "credentials"
+  provider          String // "google" | "github" | "credentials"
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Reminder {
+  id          String @id @default(cuid())
+  description String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Service {
+  id       String  @id @default(cuid())
+  name     String
+  price    Int
+  duration Int
+  status   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+enum SubscriptionPlan {
+  BASIC
+  PROFESSIONAL
+}
+
+model Subscription {
+  id      String           @id @default(cuid())
+  status  String
+  plan    SubscriptionPlan @default(BASIC)
+  priceId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+}
