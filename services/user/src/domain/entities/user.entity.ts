@@ -16,6 +16,7 @@ type UserProps = {
   passwordHash: string | null;
   address: string | null;
   phone: string | null;
+  bio: string | null;
   status: UserStatus;
   times: string[];
   stripeCustomerId: string | null;
@@ -31,6 +32,7 @@ type UserCreateInput = {
   image: string | null;
   address: string | null;
   phone: string | null;
+  bio: string | null;
   status: UserStatus;
   times: string[];
   stripeCustomerId: string | null;
@@ -42,6 +44,8 @@ type UpdateContactInfoInput = {
   image?: string | null;
   address?: string | null;
   phone?: string | null;
+  bio?: string | null;
+  times?: string[];
 };
 
 type UserRestoreInput = {
@@ -53,6 +57,7 @@ type UserRestoreInput = {
   passwordHash: string | null;
   address: string | null;
   phone: string | null;
+  bio: string | null;
   status: UserStatus;
   times: string[];
   stripeCustomerId: string | null;
@@ -93,6 +98,10 @@ export class UserEntity {
     return this.userProps.address;
   }
 
+  get bio(): string | null {
+    return this.userProps.bio;
+  }
+
   get phone(): string | null {
     return this.userProps.phone;
   }
@@ -129,6 +138,7 @@ export class UserEntity {
       passwordHash: input.password ?? null,
       address: input.address ?? null,
       phone: input.phone ?? null,
+      bio: input.bio ?? null,
       status: input.status,
       times: input.times,
       stripeCustomerId: input.stripeCustomerId ?? null,
@@ -150,6 +160,8 @@ export class UserEntity {
       image: input.image ?? this.image,
       address: input.address ?? this.address,
       phone: input.phone ?? this.phone,
+      bio: input.bio ?? this.bio,
+      times: input.times ?? this.times,
       updatedAt: new Date(),
     });
   }
@@ -187,6 +199,7 @@ export class UserEntity {
       email: this.email.toString(),
       emailVerified: this.emailVerified,
       image: this.image,
+      bio: this.bio,
       address: this.address,
       phone: this.phone,
       status: this.status,

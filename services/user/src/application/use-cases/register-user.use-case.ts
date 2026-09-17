@@ -44,6 +44,7 @@ export class RegisterUserUseCase {
       image: null,
       address: null,
       phone: null,
+      bio: null,
       status: UserStatus.ACTIVE,
       times: [],
       stripeCustomerId: null,

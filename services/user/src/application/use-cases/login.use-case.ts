@@ -28,6 +28,11 @@ type LoginOutput = {
     name: string;
     email: string;
     image: string | null;
+    address: string | null;
+    phone: string | null;
+    bio: string | null;
+    times: string[];
+    status: string;
   };
 };
 
@@ -39,7 +44,7 @@ export class LoginUseCase {
     @Inject(TOKEN_GENERATOR) private readonly tokenGenerator: TokenGenerator,
     @Inject(SESSION_TOKEN_ISSUER) private readonly sessionTokenIssuer: SessionTokenIssuer,
     @Inject(REFRESH_TOKEN_REPOSITORY) private readonly refreshTokens: RefreshTokenRepository,
-  ) {}
+  ) { }
 
   async execute({ email, password }: LoginInput): Promise<LoginOutput> {
     const user = await this.users.findByEmail(email);
@@ -72,6 +77,11 @@ export class LoginUseCase {
         name: user.name,
         email: user.email.toString(),
         image: user.image,
+        address: user.address,
+        phone: user.phone,
+        bio: user.bio,
+        times: user.times,
+        status: user.status,
       },
     };
   }

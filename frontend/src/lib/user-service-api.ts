@@ -1,3 +1,4 @@
+import { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
 import axios from 'axios';
 
 export const userServiceApi = axios.create({
@@ -13,5 +14,10 @@ export type UserServiceSession = {
     name: string;
     email: string;
     image?: string | null;
+    address?: string | null;
+    phone?: string | null;
+    bio?: string | null;
+    status: UserStatus;
+    times: string[];
   };
 };

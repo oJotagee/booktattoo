@@ -1,20 +1,36 @@
+import { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
 import type { DefaultSession } from 'next-auth';
 
-declare module 'next-auth' {
+declare module "next-auth" {
   interface Session {
     accessToken: string;
-    user: DefaultSession['user'] & { id: string };
+    expires?: string;
+    user: UserProps & DefaultSession["user"]
   }
 
-  interface User {
-    accessToken?: string;
-    refreshToken?: string;
-  }
+  interface User extends UserProps { }
+}
+
+interface UserProps {
+  id: string;
+  name: string;
+  email: string;
+  image?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  bio?: string | null;
+  status: UserStatus;
+  times: string[];
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
     accessToken?: string;
     refreshToken?: string;
+    address?: string | null;
+    phone?: string | null;
+    bio?: string | null;
+    status?: UserStatus;
+    times?: string[];
   }
 }

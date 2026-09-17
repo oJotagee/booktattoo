@@ -1,11 +1,14 @@
 import { LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
+import type { Session } from 'next-auth';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage, AvatarBadge } from '@/components/ui/avatar';
+import { clsx } from 'cn';
 
 interface NavLinksProps {
   navItems: { href: string; label: string }[];
-  session: any;
+  session: Session | null;
   setIsMenuOpen: (isOpen: boolean) => void;
 }
 
@@ -13,6 +16,10 @@ export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
   async function handleRegister(provider: string) {
     await signIn(provider, { redirectTo: '/dashboard' });
   }
+
+  const imageUser = session?.user?.image ?? undefined;
+  const initialsUser = session?.user?.name?.split(' ').map(n => n[0]).join('') ?? 'CN';
+  const statusUser = session?.user?.status ?? 'offline';
 
   return (
     <>
@@ -32,9 +39,18 @@ export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
       {session ? (
         <Link
           href="/dashboard"
-          className="flex items-center justify-center gap-2 bg-orange-600 text-white hover:brightness-75 duration-300 py-1 px-4 rounded-md font-semibold"
+          className="flex items-center justify-center gap-2 text-white shadow-none text-base hover:brightness-75 duration-300"
         >
-          Acessar painel
+          <Avatar>
+            <AvatarImage src={imageUser} />
+            <AvatarFallback>{initialsUser}</AvatarFallback>
+            <AvatarBadge className={clsx({
+              'bg-green-500': statusUser === 'ACTIVE',
+              'bg-red-500': statusUser === 'INACTIVE',
+              'bg-yellow-500': statusUser === 'VACATION',
+            })} />
+          </Avatar>
+          Dashboard
         </Link>
       ) : (
         <Button

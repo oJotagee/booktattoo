@@ -36,6 +36,11 @@ type OAuthUpsertOutput = {
     id: string;
     name: string;
     email: string;
+    address?: string | null;
+    phone?: string | null;
+    bio?: string | null;
+    times: string[];
+    status: string;
   };
 };
 
@@ -47,7 +52,7 @@ export class OAuthUpsertUseCase {
     @Inject(TOKEN_GENERATOR) private readonly tokenGenerator: TokenGenerator,
     @Inject(SESSION_TOKEN_ISSUER) private readonly sessionTokenIssuer: SessionTokenIssuer,
     @Inject(REFRESH_TOKEN_REPOSITORY) private readonly refreshTokens: RefreshTokenRepository,
-  ) {}
+  ) { }
 
   async execute(input: OAuthUpsertInput): Promise<OAuthUpsertOutput> {
     const email = Email.create({ value: input.email });
@@ -84,6 +89,11 @@ export class OAuthUpsertUseCase {
         id: user.id,
         name: user.name,
         email: user.email.toString(),
+        address: user.address,
+        phone: user.phone,
+        bio: user.bio,
+        times: user.times,
+        status: user.status,
       },
     };
   }
@@ -120,6 +130,7 @@ export class OAuthUpsertUseCase {
         image: input.image,
         address: null,
         phone: null,
+        bio: null,
         status: UserStatus.ACTIVE,
         times: [],
         stripeCustomerId: null,

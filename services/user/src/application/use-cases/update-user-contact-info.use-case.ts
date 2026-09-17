@@ -11,6 +11,8 @@ type UpdateUserContactInfoInput = {
   image?: string | null;
   address?: string | null;
   phone?: string | null;
+  bio?: string | null;
+  times?: string[];
 };
 
 type UpdateUserContactInfoOutput = {
@@ -19,6 +21,8 @@ type UpdateUserContactInfoOutput = {
   image: string | null;
   address: string | null;
   phone: string | null;
+  bio: string | null;
+  times: string[];
   updatedAt: Date;
 };
 
@@ -41,6 +45,8 @@ export class UpdateUserContactInfoUseCase {
       image: input.image,
       address: input.address,
       phone: input.phone,
+      bio: input.bio,
+      times: input.times,
     });
 
     await this.users.update(updatedUser);
@@ -51,6 +57,8 @@ export class UpdateUserContactInfoUseCase {
       image: updatedUser.image,
       address: updatedUser.address,
       phone: updatedUser.phone,
+      bio: updatedUser.bio,
+      times: updatedUser.times,
       updatedAt: updatedUser.updatedAt,
     };
   }

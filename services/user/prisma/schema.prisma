@@ -22,6 +22,7 @@ model User {
   passwordHash     String? // null se só login social
   address          String?
   phone            String?
+  bio              String?
   status           UserStatus @default(ACTIVE)
   times            String[]   @default([])
   stripeCustomerId String?

@@ -19,6 +19,9 @@ export class UserResponseDto {
   @ApiProperty({ example: '+55 11 90000-0000', nullable: true })
   phone!: string | null;
 
+  @ApiProperty({ example: 'Profissional especializado em...', nullable: true })
+  bio!: string | null;
+
   @ApiProperty({ example: 'active' })
   status!: string;
 
@@ -61,6 +64,12 @@ export class UserInfoResponse {
 
   @ApiProperty({ example: '+55 11 90000-0000', nullable: true })
   phone!: string | null;
+
+  @ApiProperty({ example: 'Profissional especializado em...', nullable: true })
+  bio!: string | null;
+
+  @ApiProperty({ example: ['08:00', '08:30'] })
+  times!: string[];
 
   @ApiProperty({ example: '2024-06-01T12:00:00Z' })
   updatedAt!: Date;

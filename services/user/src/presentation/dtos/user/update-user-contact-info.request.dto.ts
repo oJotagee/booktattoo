@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserContactInfoRequestDto {
   @ApiProperty({ example: 'Maria Silva', required: false })
@@ -21,4 +21,15 @@ export class UpdateUserContactInfoRequestDto {
   @IsOptional()
   @IsString()
   phone?: string | null;
+
+  @ApiProperty({ example: 'Profissional especializado em...', required: false, nullable: true })
+  @IsOptional()
+  @IsString()
+  bio?: string | null;
+
+  @ApiProperty({ example: ['08:00', '08:30'], required: false, type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  times?: string[];
 }
