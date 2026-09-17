@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
+import { type ArgumentsHost, Catch, type ExceptionFilter, HttpStatus } from '@nestjs/common';
 
 import { AccountAlreadyLinkedError, InvalidAccountError } from '@/domain/errors/account.error';
 import { InvalidEmailError } from '@/domain/errors/email.error';

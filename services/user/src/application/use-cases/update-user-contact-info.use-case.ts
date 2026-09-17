@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { UserNotFoundError } from '@/domain/errors/user.error';
-import { Email } from '@/domain/value-objects/email.vo';
 
 import type { UserRepository } from '../port/user-repository.port';
 import { USER_REPOSITORY } from '../port/user-repository.port';
@@ -9,7 +8,6 @@ import { USER_REPOSITORY } from '../port/user-repository.port';
 type UpdateUserContactInfoInput = {
   userId: string;
   name?: string;
-  email?: string;
   image?: string | null;
   address?: string | null;
   phone?: string | null;
@@ -18,7 +16,6 @@ type UpdateUserContactInfoInput = {
 type UpdateUserContactInfoOutput = {
   id: string;
   name: string;
-  email: string;
   image: string | null;
   address: string | null;
   phone: string | null;
@@ -32,13 +29,15 @@ export class UpdateUserContactInfoUseCase {
     private readonly users: UserRepository,
   ) {}
 
-  async execute({ userId, ...input }: UpdateUserContactInfoInput): Promise<UpdateUserContactInfoOutput> {
+  async execute({
+    userId,
+    ...input
+  }: UpdateUserContactInfoInput): Promise<UpdateUserContactInfoOutput> {
     const user = await this.users.findById(userId);
     if (!user) throw new UserNotFoundError(userId);
 
     const updatedUser = user.updateContactInfo({
       name: input.name,
-      email: input.email !== undefined ? Email.create({ value: input.email }) : undefined,
       image: input.image,
       address: input.address,
       phone: input.phone,
@@ -49,7 +48,6 @@ export class UpdateUserContactInfoUseCase {
     return {
       id: updatedUser.id,
       name: updatedUser.name,
-      email: updatedUser.email.toString(),
       image: updatedUser.image,
       address: updatedUser.address,
       phone: updatedUser.phone,

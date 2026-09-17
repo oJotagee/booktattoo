@@ -1,15 +1,20 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  type CanActivate,
+  type ExecutionContext,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
-import type { SessionClaims } from '@/application/port/session-token-issuer.port';
-
+import type { PayloadSession } from '@/application/port/session-token-issuer.port';
 import { AUTH_TOKEN_PAYLOAD } from './auth.constant';
 import jwtConfig from '../config/jwt.config';
 
 type IncomingRequest = {
   headers: { authorization?: string };
-  [AUTH_TOKEN_PAYLOAD]?: SessionClaims;
+  [AUTH_TOKEN_PAYLOAD]?: PayloadSession;
 };
 
 @Injectable()
@@ -26,7 +31,10 @@ export class JwtAuthGuard implements CanActivate {
     if (!token) throw new UnauthorizedException('Missing bearer token.');
 
     try {
-      const payload = await this.jwtService.verifyAsync<SessionClaims>(token, this.jwtConfiguration);
+      const payload = await this.jwtService.verifyAsync<PayloadSession>(
+        token,
+        this.jwtConfiguration,
+      );
       request[AUTH_TOKEN_PAYLOAD] = payload;
       return true;
     } catch {

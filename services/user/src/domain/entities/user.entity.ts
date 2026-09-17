@@ -1,10 +1,10 @@
 import { InvalidUserError, UserAlreadyInStatusError } from '../errors/user.error';
-import { Email } from '../value-objects/email.vo';
+import type { Email } from '../value-objects/email.vo';
 
 export enum UserStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
-  VACATION = 'VACATION'
+  VACATION = 'VACATION',
 }
 
 type UserProps = {
@@ -39,7 +39,6 @@ type UserCreateInput = {
 
 type UpdateContactInfoInput = {
   name?: string;
-  email?: Email;
   image?: string | null;
   address?: string | null;
   phone?: string | null;
@@ -145,14 +144,9 @@ export class UserEntity {
   }
 
   updateContactInfo(input: UpdateContactInfoInput): UserEntity {
-    const emailChanged = input.email !== undefined && !input.email.equals(this.email);
-
     return new UserEntity({
       ...this.userProps,
       name: input.name ?? this.name,
-      email: input.email ?? this.email,
-      // e-mail novo ainda não foi confirmado — exige nova verificação
-      emailVerified: emailChanged ? null : this.emailVerified,
       image: input.image ?? this.image,
       address: input.address ?? this.address,
       phone: input.phone ?? this.phone,
@@ -169,13 +163,21 @@ export class UserEntity {
   deactivate(): UserEntity {
     if (this.status === UserStatus.INACTIVE) throw new UserAlreadyInStatusError(this.status);
 
-    return new UserEntity({ ...this.userProps, status: UserStatus.INACTIVE, updatedAt: new Date() });
+    return new UserEntity({
+      ...this.userProps,
+      status: UserStatus.INACTIVE,
+      updatedAt: new Date(),
+    });
   }
 
   setOnVacation(): UserEntity {
     if (this.status === UserStatus.VACATION) throw new UserAlreadyInStatusError(this.status);
 
-    return new UserEntity({ ...this.userProps, status: UserStatus.VACATION, updatedAt: new Date() });
+    return new UserEntity({
+      ...this.userProps,
+      status: UserStatus.VACATION,
+      updatedAt: new Date(),
+    });
   }
 
   toSafeJSON(): Omit<UserProps, 'email' | 'passwordHash'> & { email: string } {

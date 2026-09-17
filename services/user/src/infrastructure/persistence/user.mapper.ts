@@ -1,6 +1,6 @@
 import type { UserModel as PrismaUser } from '@generated/prisma/models';
 
-import { UserEntity, UserStatus } from '@/domain/entities/user.entity';
+import { UserEntity, type UserStatus } from '@/domain/entities/user.entity';
 import { Email } from '@/domain/value-objects/email.vo';
 
 export class UserMapper {

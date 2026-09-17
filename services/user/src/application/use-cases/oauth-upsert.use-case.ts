@@ -1,19 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { AccountEntity, AccountProvider } from '@/domain/entities/account.entity';
+import { AccountEntity, type AccountProvider } from '@/domain/entities/account.entity';
 import { RefreshTokenEntity } from '@/domain/entities/refresh-token.entity';
 import { UserEntity, UserStatus } from '@/domain/entities/user.entity';
 import { Email } from '@/domain/value-objects/email.vo';
-
+import type { AccountRepository } from '../port/account-repository.port';
+import { ACCOUNT_REPOSITORY } from '../port/account-repository.port';
 import type { RefreshTokenRepository } from '../port/refresh-token-repository.port';
 import { REFRESH_TOKEN_REPOSITORY } from '../port/refresh-token-repository.port';
 import type { SessionTokenIssuer } from '../port/session-token-issuer.port';
-import type { AccountRepository } from '../port/account-repository.port';
 import { SESSION_TOKEN_ISSUER } from '../port/session-token-issuer.port';
-import { ACCOUNT_REPOSITORY } from '../port/account-repository.port';
 import type { TokenGenerator } from '../port/token-generator.port';
-import type { UserRepository } from '../port/user-repository.port';
 import { TOKEN_GENERATOR } from '../port/token-generator.port';
+import type { UserRepository } from '../port/user-repository.port';
 import { USER_REPOSITORY } from '../port/user-repository.port';
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -48,7 +47,7 @@ export class OAuthUpsertUseCase {
     @Inject(TOKEN_GENERATOR) private readonly tokenGenerator: TokenGenerator,
     @Inject(SESSION_TOKEN_ISSUER) private readonly sessionTokenIssuer: SessionTokenIssuer,
     @Inject(REFRESH_TOKEN_REPOSITORY) private readonly refreshTokens: RefreshTokenRepository,
-  ) { }
+  ) {}
 
   async execute(input: OAuthUpsertInput): Promise<OAuthUpsertOutput> {
     const email = Email.create({ value: input.email });
@@ -99,6 +98,7 @@ export class OAuthUpsertUseCase {
       expiresAt: input.expiresAt,
       idToken: input.idToken,
     });
+
     await this.accounts.update(refreshedAccount);
 
     const user = await this.users.findById(existingAccount.userId);
@@ -124,6 +124,7 @@ export class OAuthUpsertUseCase {
         times: [],
         stripeCustomerId: null,
       });
+
       await this.users.create(user);
     }
 
@@ -137,6 +138,7 @@ export class OAuthUpsertUseCase {
       expiresAt: input.expiresAt,
       idToken: input.idToken,
     });
+
     await this.accounts.create(account);
 
     return user;

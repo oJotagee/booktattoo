@@ -1,9 +1,9 @@
+import { isAxiosError } from 'axios';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import GitHub from 'next-auth/providers/github';
-import { isAxiosError } from 'axios';
 
-import { userServiceApi, UserServiceSession } from './user-service-api';
+import { type UserServiceSession, userServiceApi } from './user-service-api';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: 'jwt' },

@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-
-import { RefreshTokenNotFoundError } from '@/domain/errors/refresh-token.error';
 import { RefreshTokenEntity } from '@/domain/entities/refresh-token.entity';
+import { RefreshTokenNotFoundError } from '@/domain/errors/refresh-token.error';
 import { UserNotFoundError } from '@/domain/errors/user.error';
 
 import type { RefreshTokenRepository } from '../port/refresh-token-repository.port';
@@ -9,8 +8,8 @@ import { REFRESH_TOKEN_REPOSITORY } from '../port/refresh-token-repository.port'
 import type { SessionTokenIssuer } from '../port/session-token-issuer.port';
 import { SESSION_TOKEN_ISSUER } from '../port/session-token-issuer.port';
 import type { TokenGenerator } from '../port/token-generator.port';
-import type { UserRepository } from '../port/user-repository.port';
 import { TOKEN_GENERATOR } from '../port/token-generator.port';
+import type { UserRepository } from '../port/user-repository.port';
 import { USER_REPOSITORY } from '../port/user-repository.port';
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -31,7 +30,7 @@ export class RefreshTokenUseCase {
     @Inject(TOKEN_GENERATOR) private readonly tokenGenerator: TokenGenerator,
     @Inject(SESSION_TOKEN_ISSUER) private readonly sessionTokenIssuer: SessionTokenIssuer,
     @Inject(REFRESH_TOKEN_REPOSITORY) private readonly refreshTokens: RefreshTokenRepository,
-  ) { }
+  ) {}
 
   async execute({ refreshToken }: RefreshTokenInput): Promise<RefreshTokenOutput> {
     const tokenHash = this.tokenGenerator.hashOpaqueToken(refreshToken);

@@ -7,11 +7,6 @@ export class UpdateUserContactInfoRequestDto {
   @IsString()
   name?: string;
 
-  @ApiProperty({ example: 'maria-nova@example.com', required: false })
-  @IsOptional()
-  @IsEmail()
-  email?: string;
-
   @ApiProperty({ required: false, nullable: true })
   @IsOptional()
   @IsString()

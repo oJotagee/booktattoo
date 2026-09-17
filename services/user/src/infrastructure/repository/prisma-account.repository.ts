@@ -1,18 +1,16 @@
-import { Injectable } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@generated/prisma/internal/prismaNamespace';
-
-import { AccountEntity, AccountProvider } from '@/domain/entities/account.entity';
-import { AccountAlreadyLinkedError } from '@/domain/errors/account.error';
+import { Injectable } from '@nestjs/common';
 import type { AccountRepository } from '@/application/port/account-repository.port';
-
-import { PrismaService } from '../prisma/prisma.service';
+import type { AccountEntity, AccountProvider } from '@/domain/entities/account.entity';
+import { AccountAlreadyLinkedError } from '@/domain/errors/account.error';
 import { AccountMapper } from '../persistence/account.mapper';
+import { PrismaService } from '../prisma/prisma.service';
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
 
 @Injectable()
 export class PrismaAccountRepository implements AccountRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async findByProvider(
     provider: AccountProvider,

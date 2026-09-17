@@ -1,9 +1,9 @@
 'use client';
 
 import { Menu } from 'lucide-react';
-import { useState } from 'react';
 import Link from 'next/link';
-
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -14,7 +14,6 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { NavLinks } from './navLinks';
-import { useSession } from 'next-auth/react';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

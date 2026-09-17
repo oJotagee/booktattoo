@@ -5,8 +5,8 @@ import { UserAlreadyExistsError } from '@/domain/errors/user.error';
 import { Email } from '@/domain/value-objects/email.vo';
 
 import type { PasswordHasher } from '../port/password-hasher.port';
-import type { UserRepository } from '../port/user-repository.port';
 import { PASSWORD_HASHER } from '../port/password-hasher.port';
+import type { UserRepository } from '../port/user-repository.port';
 import { USER_REPOSITORY } from '../port/user-repository.port';
 
 type RegisterUserInput = {
@@ -27,7 +27,7 @@ export class RegisterUserUseCase {
   constructor(
     @Inject(USER_REPOSITORY) private readonly users: UserRepository,
     @Inject(PASSWORD_HASHER) private readonly passwordHasher: PasswordHasher,
-  ) { }
+  ) {}
 
   async execute({ name, email, password }: RegisterUserInput): Promise<RegisterUserOutput> {
     const emailVo = Email.create({ value: email });

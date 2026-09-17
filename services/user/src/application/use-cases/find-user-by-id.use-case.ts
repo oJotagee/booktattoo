@@ -12,6 +12,8 @@ type FindUserByIdOutput = {
   image: string | null;
   address: string | null;
   phone: string | null;
+  status: string;
+  times: string[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -35,6 +37,8 @@ export class FindUserByIdUseCase {
       image: user.image,
       address: user.address,
       phone: user.phone,
+      status: user.status,
+      times: user.times,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

@@ -1,4 +1,4 @@
-import { RefreshTokenEntity } from '@/domain/entities/refresh-token.entity';
+import type { RefreshTokenEntity } from '@/domain/entities/refresh-token.entity';
 
 export const REFRESH_TOKEN_REPOSITORY = Symbol('REFRESH_TOKEN_REPOSITORY');
 

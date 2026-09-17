@@ -1,8 +1,7 @@
-import { Playfair_Display, Roboto } from 'next/font/google';
 import type { Metadata } from 'next';
-import { cn } from '@/lib/utils';
-
+import { Playfair_Display, Roboto } from 'next/font/google';
 import { SessionAuthProvider } from '@/components/session-auth';
+import { cn } from '@/lib/utils';
 import { Providers } from './providers';
 
 import './globals.css';
@@ -36,9 +35,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     >
       <body className="min-h-full flex flex-col dark">
         <Providers>
-          <SessionAuthProvider>
-            {children}
-          </SessionAuthProvider>
+          <SessionAuthProvider>{children}</SessionAuthProvider>
         </Providers>
       </body>
     </html>

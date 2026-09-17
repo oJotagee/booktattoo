@@ -1,7 +1,7 @@
 import { LogIn } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { signIn } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
 
 interface NavLinksProps {
   navItems: { href: string; label: string }[];
@@ -11,7 +11,7 @@ interface NavLinksProps {
 
 export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
   async function handleRegister(provider: string) {
-    await signIn(provider, { redirectTo: "/dashboard" })
+    await signIn(provider, { redirectTo: '/dashboard' });
   }
 
   return (

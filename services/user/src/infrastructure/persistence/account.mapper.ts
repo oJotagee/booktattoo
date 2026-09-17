@@ -1,6 +1,6 @@
 import type { AccountModel as PrismaAccount } from '@generated/prisma/models';
 
-import { AccountEntity, AccountProvider } from '@/domain/entities/account.entity';
+import { AccountEntity, type AccountProvider } from '@/domain/entities/account.entity';
 
 export class AccountMapper {
   static toDomain(account: PrismaAccount): AccountEntity {
