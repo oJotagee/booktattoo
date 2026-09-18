@@ -70,11 +70,11 @@ export function DashboardSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className='hidden md:block'>
         <Button
           variant="outline"
           size="icon"
-          className="mx-auto w-full"
+          className="mx-auto w-full cursor-pointer"
           onClick={toggleSidebar}
         >
           <ChevronLeft className="group-data-[collapsible=icon]:rotate-180" />

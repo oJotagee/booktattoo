@@ -1,7 +1,10 @@
+import DashboardHeader from "../_components/header";
+
 export default function PlansPage() {
   return (
-    <div>
+    <>
+      <DashboardHeader title="Planos" subtitle="Gerencie sua assinatura" />
       Planos
-    </div>
+    </>
   );
 }

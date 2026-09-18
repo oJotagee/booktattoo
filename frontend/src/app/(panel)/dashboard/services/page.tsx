@@ -1,7 +1,10 @@
+import DashboardHeader from "../_components/header";
+
 export default function ServicesPage() {
   return (
-    <div>
+    <>
+      <DashboardHeader title="Serviços" subtitle="0 serviços cadastrados" />
       Serviços
-    </div>
+    </>
   );
 }

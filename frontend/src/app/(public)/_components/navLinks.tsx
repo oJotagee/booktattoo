@@ -1,6 +1,5 @@
 import { LogIn } from 'lucide-react';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
 import type { Session } from 'next-auth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage, AvatarBadge } from '@/components/ui/avatar';
@@ -13,10 +12,6 @@ interface NavLinksProps {
 }
 
 export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
-  async function handleRegister(provider: string) {
-    await signIn(provider, { redirectTo: '/dashboard' });
-  }
-
   const imageUser = session?.user?.image ?? undefined;
   const initialsUser = session?.user?.name?.split(' ').map(n => n[0]).join('') ?? 'CN';
   const statusUser = session?.user?.status ?? 'offline';
@@ -55,7 +50,8 @@ export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
       ) : (
         <Button
           className="flex items-center justify-center gap-2 cursor-pointer bg-orange-600 text-white hover:brightness-75 duration-300 py-1 px-4 rounded-md font-semibold"
-          onClick={() => handleRegister('github')}
+          render={<Link href="/login" />}
+          nativeButton={false}
         >
           <LogIn />
           Painel

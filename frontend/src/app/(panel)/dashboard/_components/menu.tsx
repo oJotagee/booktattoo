@@ -49,6 +49,8 @@ export function Menu() {
     mutationFn: updateUserStatus,
     onSuccess: async (result) => {
       if (result) await update({ status: result.status });
+
+      toast.success('Status atualizado com sucesso');
     },
     onError: () => {
       toast.error('Não foi possível atualizar o status');
@@ -60,6 +62,18 @@ export function Menu() {
 
     changeStatus(value as UserStatus);
   }
+
+  function handleSignOut() {
+    toast.promise(
+      signOut({ redirectTo: '/' }),
+      {
+        loading: 'Realizando logout...',
+        success: 'Logout realizado com sucesso',
+        error: 'Não foi possível realizar o logout',
+      }
+    );
+  }
+
 
   return (
     <DropdownMenu>
@@ -106,7 +120,11 @@ export function Menu() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive" onClick={() => signOut({ redirectTo: '/' })}>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={handleSignOut}
+            className="cursor-pointer"
+          >
             <LogOutIcon />
             Sair
           </DropdownMenuItem>

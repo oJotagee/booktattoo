@@ -110,7 +110,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
       times: response.data?.times,
     });
 
-    toast('Perfil atualizado com sucesso');
+    toast.success('Perfil atualizado com sucesso');
   }
 
   return (
