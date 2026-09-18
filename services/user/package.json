@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "bun run --watch src/main.ts",
     "start": "bun run src/main.ts",
+    "test": "bun test tests/unit",
+    "test:integration": "bun test tests/integration",
     "postinstall": "prisma skills sync || exit 0"
   },
   "dependencies": {

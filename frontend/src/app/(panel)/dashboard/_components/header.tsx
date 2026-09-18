@@ -1,5 +1,3 @@
-import getSession from "@/lib/get-session"
-
 import { Menu } from "./menu"
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -8,13 +6,7 @@ interface DashboardHeaderProps {
   subtitle?: string;
 }
 
-export default async function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
-  const session = await getSession()
-
-  const image = session?.user?.image ?? undefined;
-  const initialsUser = session?.user?.name?.split(' ').map(n => n[0]).join('') ?? 'CN';
-  const status = session?.user?.status
-
+export default function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
   return (
     <header className="flex flex-row justify-between gap-4 mb-8">
       <SidebarTrigger className="m-2 md:hidden" />
@@ -23,12 +15,7 @@ export default async function DashboardHeader({ title, subtitle }: DashboardHead
         {subtitle && <h2 className="text-white/30 text-sm md:text-base">{subtitle}</h2>}
       </div>
 
-      <Menu
-        name={session?.user?.name ?? 'User'}
-        image={image}
-        initials={initialsUser}
-        status={status}
-      />
+      <Menu />
     </header>
   );
 }

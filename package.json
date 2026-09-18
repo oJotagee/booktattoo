@@ -10,6 +10,8 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
+    "test:unit": "bun test services/user/tests/unit",
+    "test:integration:user": "bun run --cwd services/user test:integration",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
     "docker:prune": "docker compose down -v --remove-orphans",

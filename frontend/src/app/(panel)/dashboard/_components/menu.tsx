@@ -33,24 +33,17 @@ const STATUS_OPTIONS: { value: UserStatus; label: string }[] = [
   { value: 'VACATION', label: 'Férias' },
 ];
 
-interface UserMenuProps {
-  name: string;
-  image?: string;
-  initials: string;
-  status?: string;
-}
-
-export function Menu({ name, image, initials, status: initialStatus }: UserMenuProps) {
+export function Menu() {
   const { data: session, update } = useSession();
 
-  const status = session?.user?.status ?? initialStatus;
-  const displayName = session?.user?.name ?? name;
-  const displayImage = session?.user?.image ?? image;
+  const status = session?.user?.status;
+  const displayName = session?.user?.name;
+  const displayImage = session?.user?.image ?? undefined;
   const displayInitials =
     session?.user?.name
       ?.split(' ')
       .map((n) => n[0])
-      .join('') ?? initials;
+      .join('');
 
   const { mutate: changeStatus, isPending } = useMutation({
     mutationFn: updateUserStatus,
