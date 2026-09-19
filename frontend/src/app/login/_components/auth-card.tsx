@@ -27,7 +27,7 @@ export function AuthCard() {
 
   return (
     <div className="w-full max-w-md space-y-6">
-      <h1 className="font-serif text-3xl text-white">
+      <h1 className="text-3xl text-white font-semibold">
         {tab === 'login' ? 'Bem-vindo de volta' : 'Criar conta'}
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">

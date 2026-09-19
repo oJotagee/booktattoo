@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 export function Footer() {
   return (
     <footer className="container mx-auto bg-black text-white py-20 space-y-6">
-      <h1 className="text-center font-serif text-4xl md:text-6xl">Pronto para tatuar?</h1>
+      <h1 className="text-center cursor-pointer text-4xl md:text-6xl">Pronto para tatuar?</h1>
 
       <p className="text-center mt-2 text-sm md:text-base text-white/50">
         Escolha seu flash e garanta sua vaga agora mesmo.

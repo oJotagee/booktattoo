@@ -20,12 +20,12 @@ export function Hero() {
       </div>
 
       <div className="container relative flex flex-col items-start justify-center h-full max-w-2xl py-4 px-6 md:px-28">
-        <p className="text-orange-500 text-sm font-semibold tracking-widest uppercase">
+        <p className="text-orange-600 text-sm font-semibold tracking-widest uppercase">
           Flash Tattoo Studio
         </p>
 
-        <h1 className="mt-4 font-serif text-5xl md:text-7xl text-white leading-tight">
-          Arte na pele, <span className="text-orange-500 italic">pronta</span> para você.
+        <h1 className="mt-4 text-5xl md:text-7xl font-semibold text-white leading-tight">
+          Arte na pele, <span className="text-orange-600 italic">pronta</span> para você.
         </h1>
 
         <p className="mt-6 text-base text-white/50 max-w-lg">

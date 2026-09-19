@@ -5,3 +5,34 @@ export function GitHubIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+export function GmailIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M5.5 21h2.75v-7.36L3 9.82V19.5A1.5 1.5 0 0 0 4.5 21h1Z"
+      />
+      <path
+        fill="#34A853"
+        d="M15.75 21h2.75a1.5 1.5 0 0 0 1.5-1.5V9.82l-5.25 3.82V21Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M5.5 21H4.5A1.5 1.5 0 0 1 3 19.5V9.82l8.25 6.02V21H5.5Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M3 9.82 6.14 7.5l5.11 3.72V16L3 9.82Z"
+      />
+      <path
+        fill="#4285F4"
+        d="M21 9.82V19.5a1.5 1.5 0 0 1-1.5 1.5h-1v-9.34l2.5-1.84Z"
+      />
+      <path
+        fill="#C5221F"
+        d="M3 9.82V6.5A1.5 1.5 0 0 1 4.5 5h.36L12 10.36 19.14 5h.36A1.5 1.5 0 0 1 21 6.5v3.32l-9 6.55-9-6.55Z"
+      />
+    </svg>
+  );
+}

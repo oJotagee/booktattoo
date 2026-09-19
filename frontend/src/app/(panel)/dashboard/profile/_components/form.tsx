@@ -3,8 +3,8 @@
 import { useMutation } from '@tanstack/react-query';
 import { Controller } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
-import { ArrowRight } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowRight, Camera } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { cn } from 'cn';
@@ -41,22 +41,45 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ user }: ProfileFormProps) {
-  const profileSchema = useProfileSchema({
-    name: user.name,
-    image: user.image,
-    address: user.address,
-    phone: user.phone,
-    bio: user.bio,
-    status: user.status,
-  });
-
-  const [selectedHour, setSelectedHour] = useState<string[]>(user.times || []);
-  const [dialogIsOpen, setDialogIsOpen] = useState(false);
-
   const { data: session, update } = useSession();
 
-  const displayName = session?.user?.name ?? user.name;
-  const displayImage = session?.user?.image ?? user.image;
+  const currentUser = {
+    name: session?.user?.name ?? user.name,
+    image: session?.user?.image ?? user.image,
+    address: session?.user?.address ?? user.address,
+    phone: session?.user?.phone ?? user.phone,
+    bio: session?.user?.bio ?? user.bio,
+    times: session?.user?.times ?? user.times,
+    status: (session?.user?.status as UserStatus) ?? user.status,
+  };
+
+  const profileSchema = useProfileSchema({
+    name: currentUser.name,
+    address: currentUser.address,
+    phone: currentUser.phone,
+    bio: currentUser.bio,
+    status: currentUser.status,
+  });
+
+  const [selectedHour, setSelectedHour] = useState<string[]>(currentUser.times || []);
+  const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const displayName = currentUser.name;
+  const displayImage = avatarPreview ?? currentUser.image;
+
+  function handleAvatarClick() {
+    fileInputRef.current?.click();
+  }
+
+  function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreview(previewUrl);
+  }
 
   const { mutateAsync: updateProfileMutation, isPending: isSubmitting } = useMutation({
     mutationFn: updateProfile,
@@ -89,7 +112,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
   async function onSubmit(values: ProfileSchemaData) {
     const response = await updateProfileMutation({
       name: values.name,
-      image: values.image,
       address: values.address,
       phone: values.phone,
       bio: values.bio,
@@ -116,20 +138,40 @@ export function ProfileForm({ user }: ProfileFormProps) {
   return (
     <form onSubmit={profileSchema.handleSubmit(onSubmit)} className="space-y-6">
       <Card className="p-4">
-        <CardContent className="flex flex-row items-center gap-3 p-0">
-          <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
-            {displayImage ? (
-              <Image src={displayImage} alt="Foto de perfil" fill className="object-cover" />
-            ) : (
-              <span className="flex size-full items-center justify-center text-lg text-muted-foreground">
-                {displayName?.charAt(0)}
-              </span>
-            )}
+        <CardContent className="flex flex-row items-center gap-4 p-0">
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={handleAvatarClick}
+              aria-label="Alterar foto de perfil"
+              className="group relative block size-24 overflow-hidden rounded-full border-2 border-border bg-muted transition-opacity hover:opacity-90 cursor-pointer"
+            >
+              {displayImage ? (
+                <Image
+                  src={displayImage}
+                  alt="Foto de perfil"
+                  fill
+                  sizes="96px"
+                  className="object-cover"
+                />
+              ) : (
+                <span className="flex size-full items-center justify-center text-3xl font-medium text-muted-foreground">
+                  {displayName?.charAt(0)}
+                </span>
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
           </div>
           <div>
             <p className="font-medium leading-none">{displayName}</p>
-            {user.address && (
-              <p className="mt-1.5 text-sm text-muted-foreground">Artista · {user.address}</p>
+            {currentUser.address && (
+              <p className="mt-1.5 text-sm text-muted-foreground">Artista</p>
             )}
           </div>
         </CardContent>
@@ -195,65 +237,70 @@ export function ProfileForm({ user }: ProfileFormProps) {
                 </Field>
               )}
             />
-
-            <div className="space-y-2">
-              <Label className="font-semibold">Configurar horarios:</Label>
-              <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
-                <DialogTrigger
-                  render={<Button variant={'outline'} className="w-full justify-between" />}
-                >
-                  Clique aqui para selecionar horario
-                  <ArrowRight className="w-5 h-5" />
-                </DialogTrigger>
-
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Selecionar Horario</DialogTitle>
-                    <DialogDescription>Escolha os horarios desejados.</DialogDescription>
-                  </DialogHeader>
-
-                  <section className="py-4">
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Clique nos horarios abaixo para marcar ou desmarcar.
-                    </p>
-
-                    <div className="grid grid-cols-5 gap-2">
-                      {hours.map((hour) => (
-                        <Button
-                          key={hour}
-                          variant={'outline'}
-                          className={cn(
-                            'border-2 rounded h-10',
-                            selectedHour.includes(hour) && 'border-orange-500 text-primary',
-                          )}
-                          onClick={() => toggleHour(hour)}
-                        >
-                          {hour}
-                        </Button>
-                      ))}
-                    </div>
-                  </section>
-
-                  <Button
-                    className="w-full bg-orange-600 text-white hover:brightness-75 duration-300 cursor-pointer"
-                    onClick={() => setDialogIsOpen(false)}
-                  >
-                    Fechar
-                  </Button>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-fit bg-orange-600 text-white hover:brightness-75 duration-300 cursor-pointer px-8"
-              disabled={isSubmitting}
-            >
-              Salvar alterações
-            </Button>
           </FieldGroup>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardContent>
+
+          <div className="space-y-2">
+            <Label className="font-semibold">Configurar horarios:</Label>
+            <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
+              <DialogTrigger
+                render={<Button variant={'outline'} className="w-full justify-between" />}
+              >
+                Clique aqui para selecionar horario
+                <ArrowRight className="w-5 h-5" />
+              </DialogTrigger>
+
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Selecionar Horario</DialogTitle>
+                  <DialogDescription>Escolha os horarios desejados.</DialogDescription>
+                </DialogHeader>
+
+                <section className="py-4">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Clique nos horarios abaixo para marcar ou desmarcar.
+                  </p>
+
+                  <div className="grid grid-cols-5 gap-2">
+                    {hours.map((hour) => (
+                      <Button
+                        key={hour}
+                        variant={'outline'}
+                        className={cn(
+                          'border-2 rounded h-10',
+                          selectedHour.includes(hour) && 'border-orange-600 text-primary',
+                        )}
+                        onClick={() => toggleHour(hour)}
+                      >
+                        {hour}
+                      </Button>
+                    ))}
+                  </div>
+                </section>
+
+                <Button
+                  className="w-full bg-orange-600 text-white hover:brightness-75 duration-300 cursor-pointer"
+                  onClick={() => setDialogIsOpen(false)}
+                >
+                  Fechar
+                </Button>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Button
+        type="submit"
+        className="w-fit bg-orange-600 text-white hover:brightness-75 duration-300 cursor-pointer px-8"
+        disabled={isSubmitting}
+      >
+        Salvar alterações
+      </Button>
     </form>
   );
 }

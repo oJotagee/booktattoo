@@ -6,7 +6,6 @@ import type { UserStatus } from "@/app/(panel)/dashboard/_actions/update-status"
 
 interface UseProfileSchemaProps {
   name: string;
-  image: string | null;
   address: string | null;
   phone: string | null;
   bio: string | null;
@@ -15,7 +14,6 @@ interface UseProfileSchemaProps {
 
 const profileSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
-  image: z.string().nullable(),
   address: z.string(),
   phone: z.string(),
   bio: z.string(),
@@ -24,12 +22,11 @@ const profileSchema = z.object({
 
 export type ProfileSchemaData = z.infer<typeof profileSchema>
 
-export function useProfileSchema({ name, image, address, phone, bio, status }: UseProfileSchemaProps) {
+export function useProfileSchema({ name, address, phone, bio, status }: UseProfileSchemaProps) {
   return useForm<ProfileSchemaData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: name || "",
-      image,
       address: address || "",
       phone: phone || "",
       bio: bio || "",

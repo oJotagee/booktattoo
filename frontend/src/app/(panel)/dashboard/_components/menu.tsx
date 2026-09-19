@@ -37,13 +37,14 @@ export function Menu() {
   const { data: session, update } = useSession();
 
   const status = session?.user?.status;
-  const displayName = session?.user?.name;
+  const displayName = session?.user?.name?.split(' ').slice(0, 2).join(' ');
   const displayImage = session?.user?.image ?? undefined;
   const displayInitials =
     session?.user?.name
       ?.split(' ')
       .map((n) => n[0])
-      .join('');
+      .join('')
+      .toUpperCase();
 
   const { mutate: changeStatus, isPending } = useMutation({
     mutationFn: updateUserStatus,

@@ -7,11 +7,6 @@ export class UpdateUserContactInfoRequestDto {
   @IsString()
   name?: string;
 
-  @ApiProperty({ required: false, nullable: true })
-  @IsOptional()
-  @IsString()
-  image?: string | null;
-
   @ApiProperty({ example: 'Rua Exemplo, 123', required: false, nullable: true })
   @IsOptional()
   @IsString()

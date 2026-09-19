@@ -1,6 +1,9 @@
 import { Footer } from './_components/footer';
 import { Header } from './_components/header';
 import { Hero } from './_components/hero';
+import { HowWorks } from './_components/how-works';
+import { Galery } from './_components/galery';
+import { Team } from './_components/team';
 
 export default function Home() {
   return (
@@ -8,6 +11,12 @@ export default function Home() {
       <Header />
 
       <Hero />
+
+      <HowWorks />
+
+      <Galery />
+
+      <Team />
 
       <Footer />
     </div>

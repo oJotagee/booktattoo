@@ -13,7 +13,7 @@ interface NavLinksProps {
 
 export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
   const imageUser = session?.user?.image ?? undefined;
-  const initialsUser = session?.user?.name?.split(' ').map(n => n[0]).join('') ?? 'CN';
+  const initialsUser = session?.user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() ?? 'CN';
   const statusUser = session?.user?.status ?? 'offline';
 
   return (

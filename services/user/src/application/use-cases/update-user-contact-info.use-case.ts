@@ -8,7 +8,6 @@ import { USER_REPOSITORY } from '../port/user-repository.port';
 type UpdateUserContactInfoInput = {
   userId: string;
   name?: string;
-  image?: string | null;
   address?: string | null;
   phone?: string | null;
   bio?: string | null;
@@ -42,7 +41,6 @@ export class UpdateUserContactInfoUseCase {
 
     const updatedUser = user.updateContactInfo({
       name: input.name,
-      image: input.image,
       address: input.address,
       phone: input.phone,
       bio: input.bio,

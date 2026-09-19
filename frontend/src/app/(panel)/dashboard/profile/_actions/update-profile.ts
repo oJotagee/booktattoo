@@ -7,7 +7,6 @@ import { userServiceApi } from '@/lib/user-service-api';
 
 export type UpdateProfileInput = {
   name?: string;
-  image?: string | null;
   address?: string | null;
   phone?: string | null;
   bio?: string | null;

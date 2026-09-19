@@ -41,7 +41,6 @@ type UserCreateInput = {
 
 type UpdateContactInfoInput = {
   name?: string;
-  image?: string | null;
   address?: string | null;
   phone?: string | null;
   bio?: string | null;
@@ -157,7 +156,6 @@ export class UserEntity {
     return new UserEntity({
       ...this.userProps,
       name: input.name ?? this.name,
-      image: input.image ?? this.image,
       address: input.address ?? this.address,
       phone: input.phone ?? this.phone,
       bio: input.bio ?? this.bio,
