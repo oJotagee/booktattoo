@@ -25,13 +25,13 @@ import { UpdateUserStatusUseCase } from '@/application/use-cases/update-user-sta
 import { UnsupportedAvatarTypeError } from '@/domain/errors/user.error';
 import { JwtAuthGuard } from '../../infrastructure/auth/jwt-auth.guard';
 import { TokenPayload } from '../decorators/token-payload.decorator';
-import type { LoginRequestDto } from '../dtos/auth/login.request.dto';
-import type { OAuthUpsertRequestDto } from '../dtos/auth/oauth-upsert.request.dto';
-import type { RefreshTokenRequestDto } from '../dtos/auth/refresh-token.request.dto';
-import type { RegisterUserRequestDto } from '../dtos/auth/register-user.request.dto';
+import { LoginRequestDto } from '../dtos/auth/login.request.dto';
+import { OAuthUpsertRequestDto } from '../dtos/auth/oauth-upsert.request.dto';
+import { RefreshTokenRequestDto } from '../dtos/auth/refresh-token.request.dto';
+import { RegisterUserRequestDto } from '../dtos/auth/register-user.request.dto';
 import { RefreshedSessionResponseDto, SessionResponseDto } from '../dtos/auth/session.response.dto';
-import type { UpdateUserContactInfoRequestDto } from '../dtos/user/update-user-contact-info.request.dto';
-import type { UpdateUserStatusRequestDto } from '../dtos/user/update-user-status.request.dto';
+import { UpdateUserContactInfoRequestDto } from '../dtos/user/update-user-contact-info.request.dto';
+import { UpdateUserStatusRequestDto } from '../dtos/user/update-user-status.request.dto';
 import {
   UserInfoResponse,
   UserLoginResponseDto,

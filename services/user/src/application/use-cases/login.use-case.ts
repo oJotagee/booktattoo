@@ -31,6 +31,7 @@ type LoginOutput = {
     address: string | null;
     phone: string | null;
     bio: string | null;
+    role: string | null;
     times: string[];
     status: string;
   };
@@ -81,6 +82,7 @@ export class LoginUseCase {
         phone: user.phone,
         bio: user.bio,
         times: user.times,
+        role: user.role,
         status: user.status,
       },
     };

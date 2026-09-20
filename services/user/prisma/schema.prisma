@@ -23,6 +23,7 @@ model User {
   address          String?
   phone            String?
   bio              String?
+  role             String?
   status           UserStatus @default(ACTIVE)
   times            String[]   @default([])
   stripeCustomerId String?

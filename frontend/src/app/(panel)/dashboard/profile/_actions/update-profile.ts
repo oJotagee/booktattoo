@@ -10,6 +10,7 @@ export type UpdateProfileInput = {
   address?: string | null;
   phone?: string | null;
   bio?: string | null;
+  role?: string | null;
   times?: string[];
 };
 
@@ -20,6 +21,7 @@ export type UpdateProfileOutput = {
   address: string | null;
   phone: string | null;
   bio: string | null;
+  role: string | null;
   times: string[];
   updatedAt: string;
 };

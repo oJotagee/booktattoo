@@ -11,6 +11,7 @@ type UpdateUserContactInfoInput = {
   address?: string | null;
   phone?: string | null;
   bio?: string | null;
+  role?: string | null;
   times?: string[];
 };
 
@@ -21,6 +22,7 @@ type UpdateUserContactInfoOutput = {
   address: string | null;
   phone: string | null;
   bio: string | null;
+  role: string | null;
   times: string[];
   updatedAt: Date;
 };
@@ -30,7 +32,7 @@ export class UpdateUserContactInfoUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly users: UserRepository,
-  ) {}
+  ) { }
 
   async execute({
     userId,
@@ -44,6 +46,7 @@ export class UpdateUserContactInfoUseCase {
       address: input.address,
       phone: input.phone,
       bio: input.bio,
+      role: input.role,
       times: input.times,
     });
 
@@ -56,6 +59,7 @@ export class UpdateUserContactInfoUseCase {
       address: updatedUser.address,
       phone: updatedUser.phone,
       bio: updatedUser.bio,
+      role: updatedUser.role,
       times: updatedUser.times,
       updatedAt: updatedUser.updatedAt,
     };

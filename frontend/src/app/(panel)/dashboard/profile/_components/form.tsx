@@ -27,7 +27,6 @@ import { formatPhone } from '@/utils/formatPhone';
 import { updateAvatar } from '../_actions/update-avatar';
 import { updateProfile } from '../_actions/update-profile';
 import { type ProfileSchemaData, useProfileSchema } from './profile-schema';
-import { success } from 'zod';
 
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 const ALLOWED_AVATAR_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -39,6 +38,7 @@ interface ProfileFormProps {
     address: string | null;
     phone: string | null;
     bio: string | null;
+    role: string | null;
     times: string[] | null;
     status: UserStatus;
   };
@@ -53,6 +53,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     address: session?.user?.address ?? user.address,
     phone: session?.user?.phone ?? user.phone,
     bio: session?.user?.bio ?? user.bio,
+    role: session?.user?.role ?? user.role,
     times: session?.user?.times ?? user.times,
     status: (session?.user?.status as UserStatus) ?? user.status,
   };
@@ -62,6 +63,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     address: currentUser.address,
     phone: currentUser.phone,
     bio: currentUser.bio,
+    role: currentUser.role,
     status: currentUser.status,
   });
 
@@ -164,6 +166,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
       address: values.address,
       phone: values.phone,
       bio: values.bio,
+      role: values.role,
       times: selectedHour || [],
     });
 
@@ -189,6 +192,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         address: response.data?.address,
         phone: response.data?.phone,
         bio: response.data?.bio,
+        role: response.data?.role,
         times: response.data?.times,
       }),
       {
@@ -304,6 +308,18 @@ export function ProfileForm({ user }: ProfileFormProps) {
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Bio</FieldLabel>
                   <Textarea {...field} id={field.name} aria-invalid={fieldState.invalid} />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="role"
+              control={profileSchema.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Função</FieldLabel>
+                  <Input {...field} id={field.name} aria-invalid={fieldState.invalid} />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

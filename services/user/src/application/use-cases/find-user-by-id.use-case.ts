@@ -13,6 +13,7 @@ type FindUserByIdOutput = {
   address: string | null;
   phone: string | null;
   bio: string | null;
+  role: string | null;
   status: string;
   times: string[];
   createdAt: Date;
@@ -24,7 +25,7 @@ export class FindUserByIdUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly users: UserRepository,
-  ) {}
+  ) { }
 
   async execute({ id }: { id: string }): Promise<FindUserByIdOutput> {
     const user = await this.users.findById(id);
@@ -39,6 +40,7 @@ export class FindUserByIdUseCase {
       address: user.address,
       phone: user.phone,
       bio: user.bio,
+      role: user.role,
       status: user.status,
       times: user.times,
       createdAt: user.createdAt,

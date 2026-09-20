@@ -22,6 +22,11 @@ export class UpdateUserContactInfoRequestDto {
   @IsString()
   bio?: string | null;
 
+  @ApiProperty({ example: 'Tradicional & Neo', required: false, nullable: true })
+  @IsOptional()
+  @IsString()
+  role?: string | null;
+
   @ApiProperty({ example: ['08:00', '08:30'], required: false, type: [String] })
   @IsOptional()
   @IsArray()

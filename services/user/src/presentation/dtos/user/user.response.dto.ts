@@ -22,6 +22,9 @@ export class UserResponseDto {
   @ApiProperty({ example: 'Profissional especializado em...', nullable: true })
   bio!: string | null;
 
+  @ApiProperty({ example: 'Tradicional & Neo', nullable: true })
+  role!: string | null;
+
   @ApiProperty({ example: 'active' })
   status!: string;
 

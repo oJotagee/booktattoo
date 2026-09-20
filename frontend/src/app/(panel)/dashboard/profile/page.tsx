@@ -12,6 +12,7 @@ export default async function Profile() {
     address: session?.user?.address ?? null,
     phone: session?.user?.phone ?? null,
     bio: session?.user?.bio ?? null,
+    role: session?.user?.role ?? null,
     times: session?.user?.times ?? null,
     status: session?.user?.status as UserStatus,
   };

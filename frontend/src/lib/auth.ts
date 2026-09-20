@@ -48,6 +48,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             address: data.user.address,
             phone: data.user.phone,
             bio: data.user.bio,
+            role: data.user.role,
             status: data.user.status,
             times: data.user.times,
             accessToken: data.accessToken,
@@ -82,6 +83,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       user.address = data.user.address;
       user.phone = data.user.phone;
       user.bio = data.user.bio;
+      user.role = data.user.role;
       user.status = data.user.status;
       user.times = data.user.times;
 
@@ -101,6 +103,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.address = user.address;
         token.phone = user.phone;
         token.bio = user.bio;
+        token.role = user.role;
         token.status = user.status;
         token.times = user.times;
       }
@@ -121,6 +124,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.address = token.address as string | null;
       session.user.phone = token.phone as string | null;
       session.user.bio = token.bio as string | null;
+      session.user.role = token.role as string | null;
       session.user.status = token.status as UserStatus;
       session.user.times = token.times as string[];
 

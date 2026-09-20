@@ -17,6 +17,7 @@ type UserProps = {
   address: string | null;
   phone: string | null;
   bio: string | null;
+  role: string | null;
   status: UserStatus;
   times: string[];
   stripeCustomerId: string | null;
@@ -33,6 +34,7 @@ type UserCreateInput = {
   address: string | null;
   phone: string | null;
   bio: string | null;
+  role: string | null;
   status: UserStatus;
   times: string[];
   stripeCustomerId: string | null;
@@ -44,6 +46,7 @@ type UpdateContactInfoInput = {
   address?: string | null;
   phone?: string | null;
   bio?: string | null;
+  role?: string | null;
   times?: string[];
 };
 
@@ -57,6 +60,7 @@ type UserRestoreInput = {
   address: string | null;
   phone: string | null;
   bio: string | null;
+  role: string | null;
   status: UserStatus;
   times: string[];
   stripeCustomerId: string | null;
@@ -95,6 +99,10 @@ export class UserEntity {
 
   get address(): string | null {
     return this.userProps.address;
+  }
+
+  get role(): string | null {
+    return this.userProps.role;
   }
 
   get bio(): string | null {
@@ -138,6 +146,7 @@ export class UserEntity {
       address: input.address ?? null,
       phone: input.phone ?? null,
       bio: input.bio ?? null,
+      role: input.role ?? null,
       status: input.status,
       times: input.times,
       stripeCustomerId: input.stripeCustomerId ?? null,
@@ -159,6 +168,7 @@ export class UserEntity {
       address: input.address ?? this.address,
       phone: input.phone ?? this.phone,
       bio: input.bio ?? this.bio,
+      role: input.role ?? this.role,
       times: input.times ?? this.times,
       updatedAt: new Date(),
     });
@@ -206,6 +216,7 @@ export class UserEntity {
       emailVerified: this.emailVerified,
       image: this.image,
       bio: this.bio,
+      role: this.role,
       address: this.address,
       phone: this.phone,
       status: this.status,

@@ -19,6 +19,7 @@ interface UserProps {
   address?: string | null;
   phone?: string | null;
   bio?: string | null;
+  role?: string | null;
   status: UserStatus;
   times: string[];
 }
@@ -30,6 +31,7 @@ declare module 'next-auth/jwt' {
     address?: string | null;
     phone?: string | null;
     bio?: string | null;
+    role?: string | null;
     status?: UserStatus;
     times?: string[];
   }

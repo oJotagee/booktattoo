@@ -17,6 +17,7 @@ export type UserServiceSession = {
     address?: string | null;
     phone?: string | null;
     bio?: string | null;
+    role?: string | null;
     status: UserStatus;
     times: string[];
   };
