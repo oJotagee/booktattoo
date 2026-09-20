@@ -1,6 +1,7 @@
 import { describe, expect, it, mock } from 'bun:test';
 
 import type { PayloadSession } from '@/application/port/session-token-issuer.port';
+import { UserStatus } from '@/domain/entities/user.entity';
 import { AuthController } from '@/presentation/controllers/auth.controller';
 
 function buildController() {
@@ -103,7 +104,7 @@ describe('AuthController', () => {
 
   it('delegates updating the status to UpdateUserStatusUseCase', async () => {
     const { controller, updateUserStatus } = buildController();
-    const body = { status: 'INACTIVE' as const };
+    const body = { status: UserStatus.INACTIVE };
 
     await controller.updateMyStatus(payload, body);
 
