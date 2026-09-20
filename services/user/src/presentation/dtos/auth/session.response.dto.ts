@@ -11,7 +11,7 @@ class SessionUserDto {
   email!: string;
 
   @ApiProperty({
-    example: 'https://bookink-assets.s3.us-east-2.amazonaws.com/avatars/...',
+    example: 'https://booktattoo-assets.s3.us-east-2.amazonaws.com/avatars/...',
     nullable: true,
   })
   image!: string | null;

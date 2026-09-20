@@ -29,7 +29,7 @@ export function Header() {
       <div className="container mx-auto flex items-center justify-between text-white">
         <Link href="/" className="font-bold text-2xl">
           Book
-          <span className="text-orange-600">Ink</span>
+          <span className="text-orange-600">Tattoo</span>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-4">

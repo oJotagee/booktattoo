@@ -18,7 +18,10 @@ const steps = [
 
 export function HowWorks() {
   return (
-    <section className="relative w-full py-14 px-6 md:px-28 md:py-22 bg-mist-800/20">
+    <section
+      id="how-it-works"
+      className="relative w-full py-14 px-6 md:px-28 md:py-22 bg-mist-800/20 scroll-mt-20"
+    >
       <h2 className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Como funciona</h2>
       <h1 className="text-white text-3xl md:text-4xl font-bold md:w-sm">
         Simples, rápido e sem complicação

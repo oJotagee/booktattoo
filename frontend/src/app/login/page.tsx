@@ -21,7 +21,7 @@ export default async function Login() {
         <div className="relative flex h-full flex-col justify-between p-10">
           <Link href="/" className="font-bold text-2xl">
             Book
-            <span className="text-orange-600">Ink</span>
+            <span className="text-orange-600">Tattoo</span>
           </Link>
         </div>
       </div>

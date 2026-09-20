@@ -41,7 +41,7 @@ export function Hero() {
             Ver flashs disponíveis
             <ArrowRight />
           </Button>
-          <Link href={'#howWorks'}>
+          <Link href={'#how-it-works'}>
             <Button
               variant="outline"
               size="lg"

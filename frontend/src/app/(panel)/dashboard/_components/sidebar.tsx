@@ -38,7 +38,7 @@ export function DashboardSidebar() {
           className="font-bold text-2xl px-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:text-center"
         >
           <span className="group-data-[collapsible=icon]:hidden">
-            Book<span className="text-orange-600">Ink</span>
+            Book<span className="text-orange-600">Tattoo</span>
           </span>
           <span className="hidden group-data-[collapsible=icon]:inline text-orange-600">
             B

@@ -67,7 +67,7 @@ describe('OAuthUpsertUseCase', () => {
     const user = buildUser({
       id: 'user-1',
       email: 'john.doe@example.com',
-      image: 'https://bookink-assets.s3.us-east-2.amazonaws.com/avatars/user-1/photo.png',
+      image: 'https://booktattoo-assets.s3.us-east-2.amazonaws.com/avatars/user-1/photo.png',
     });
     const account = buildAccount({ userId: 'user-1' });
     accounts.findByProvider = async () => account;
@@ -82,7 +82,7 @@ describe('OAuthUpsertUseCase', () => {
     });
 
     expect(result.user.image).toBe(
-      'https://bookink-assets.s3.us-east-2.amazonaws.com/avatars/user-1/photo.png',
+      'https://booktattoo-assets.s3.us-east-2.amazonaws.com/avatars/user-1/photo.png',
     );
   });
 

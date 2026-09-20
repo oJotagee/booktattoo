@@ -20,7 +20,7 @@ export function Footer() {
       </Button>
 
       <span className="block text-center mt-4 text-white/20 text-sm">
-        © {new Date().getFullYear()} BookInk · Todos os direitos reservados
+        © {new Date().getFullYear()} Book Tattoo · Todos os direitos reservados
       </span>
     </footer>
   );
