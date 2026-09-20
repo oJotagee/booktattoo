@@ -45,6 +45,24 @@ describe('UpdateUserContactInfoUseCase', () => {
     expect(result.bio).toBe('Just a bio update');
   });
 
+  it('updates the role as free text supplied by the user', async () => {
+    const user = buildUser({ id: 'user-1' });
+    users.findById = async () => user;
+
+    const result = await useCase.execute({ userId: 'user-1', role: 'Tradicional & Neo' });
+
+    expect(result.role).toBe('Tradicional & Neo');
+  });
+
+  it('keeps the existing role when not provided', async () => {
+    const user = buildUser({ id: 'user-1', role: 'Tradicional & Neo' });
+    users.findById = async () => user;
+
+    const result = await useCase.execute({ userId: 'user-1', bio: 'Just a bio update' });
+
+    expect(result.role).toBe('Tradicional & Neo');
+  });
+
   it('throws UserNotFoundError when the user does not exist', async () => {
     users.findById = async () => null;
 

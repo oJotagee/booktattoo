@@ -92,10 +92,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, account, trigger, session }) {
       if (account && user) {
         token.accessToken =
-          (account as Record<string, unknown>).userServiceAccessToken ??
+          (account as { userServiceAccessToken?: string }).userServiceAccessToken ??
           (user as { accessToken?: string }).accessToken;
         token.refreshToken =
-          (account as Record<string, unknown>).userServiceRefreshToken ??
+          (account as { userServiceRefreshToken?: string }).userServiceRefreshToken ??
           (user as { refreshToken?: string }).refreshToken;
         token.sub = user.id;
         token.name = user.name;
@@ -117,7 +117,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string;
       session.user.id = token.sub as string;
       session.user.name = token.name as string;
       session.user.image = token.picture as string | null;

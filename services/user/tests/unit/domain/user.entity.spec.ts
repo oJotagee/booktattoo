@@ -13,6 +13,7 @@ function buildUser(status: UserStatus = UserStatus.ACTIVE) {
     address: null,
     phone: null,
     bio: null,
+    role: null,
     status,
     times: [],
     stripeCustomerId: null,
@@ -39,6 +40,7 @@ describe('UserEntity', () => {
         address: null,
         phone: null,
         bio: null,
+        role: null,
         status: UserStatus.ACTIVE,
         times: [],
         stripeCustomerId: null,
@@ -56,6 +58,7 @@ describe('UserEntity', () => {
         address: null,
         phone: null,
         bio: null,
+        role: null,
         status: UserStatus.ACTIVE,
         times: [],
         stripeCustomerId: null,
@@ -70,7 +73,42 @@ describe('UserEntity', () => {
 
     expect(updated.phone).toBe('+55 11 99999-0000');
     expect(updated.name).toBe(user.name);
+    expect(updated.role).toBe(user.role);
     expect(updated.updatedAt.getTime()).toBeGreaterThanOrEqual(user.updatedAt.getTime());
+  });
+
+  it('defaults role to null when not provided on creation', () => {
+    const user = buildUser();
+
+    expect(user.role).toBeNull();
+  });
+
+  it('updates the role via updateContactInfo', () => {
+    const user = buildUser();
+
+    const updated = user.updateContactInfo({ role: 'Tradicional & Neo' });
+
+    expect(updated.role).toBe('Tradicional & Neo');
+  });
+
+  it('keeps the existing role when updateContactInfo does not include it', () => {
+    const user = UserEntity.create({
+      id: 'user-1',
+      name: 'John Doe',
+      email: Email.create({ value: 'john.doe@example.com' }),
+      image: null,
+      address: null,
+      phone: null,
+      bio: null,
+      role: 'Tradicional & Neo',
+      status: UserStatus.ACTIVE,
+      times: [],
+      stripeCustomerId: null,
+    });
+
+    const updated = user.updateContactInfo({ name: 'Jane Doe' });
+
+    expect(updated.role).toBe('Tradicional & Neo');
   });
 
   it('activates an inactive user', () => {
@@ -121,6 +159,7 @@ describe('UserEntity', () => {
     const json = user.toSafeJSON();
 
     expect(json.email).toBe('john.doe@example.com');
+    expect(json.role).toBeNull();
     expect(json).not.toHaveProperty('passwordHash');
   });
 });

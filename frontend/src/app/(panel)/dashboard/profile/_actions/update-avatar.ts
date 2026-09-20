@@ -2,7 +2,7 @@
 
 import { isAxiosError } from 'axios';
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/lib/auth';
+import { getAccessToken } from '@/lib/get-access-token';
 import { userServiceApi } from '@/lib/user-service-api';
 
 export type UpdateAvatarOutput = {
@@ -14,13 +14,13 @@ export type UpdateAvatarOutput = {
 export async function updateAvatar(
   formData: FormData,
 ): Promise<{ data?: UpdateAvatarOutput; error?: string }> {
-  const session = await auth();
-  if (!session?.accessToken) return { error: 'Usuário não autenticado' };
+  const accessToken = await getAccessToken();
+  if (!accessToken) return { error: 'Usuário não autenticado' };
 
   try {
     const { data } = await userServiceApi.put<UpdateAvatarOutput>('/users/me/avatar', formData, {
       headers: {
-        Authorization: `Bearer ${session.accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'multipart/form-data',
       },
     });

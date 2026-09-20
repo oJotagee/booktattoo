@@ -24,6 +24,7 @@ describe('PrismaAccountRepository (integration)', () => {
       address: null,
       phone: null,
       bio: null,
+      role: null,
       status: UserStatus.ACTIVE,
       times: [],
       stripeCustomerId: null,

@@ -9,6 +9,7 @@ export function buildUser(overrides: Partial<{
   address: string | null;
   phone: string | null;
   bio: string | null;
+  role: string | null;
   status: UserStatus;
   times: string[];
   stripeCustomerId: string | null;
@@ -22,6 +23,7 @@ export function buildUser(overrides: Partial<{
     address: overrides.address ?? null,
     phone: overrides.phone ?? null,
     bio: overrides.bio ?? null,
+    role: overrides.role ?? null,
     status: overrides.status ?? UserStatus.ACTIVE,
     times: overrides.times ?? [],
     stripeCustomerId: overrides.stripeCustomerId ?? null,

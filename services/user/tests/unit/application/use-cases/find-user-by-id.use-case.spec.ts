@@ -28,11 +28,21 @@ describe('FindUserByIdUseCase', () => {
       address: user.address,
       phone: user.phone,
       bio: user.bio,
+      role: user.role,
       status: user.status,
       times: user.times,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     });
+  });
+
+  it('includes the role field when the user has one set', async () => {
+    const user = buildUser({ id: 'user-1', role: 'Tradicional & Neo' });
+    users.findById = async () => user;
+
+    const result = await useCase.execute({ id: 'user-1' });
+
+    expect(result.role).toBe('Tradicional & Neo');
   });
 
   it('throws UserNotFoundError when the user does not exist', async () => {
