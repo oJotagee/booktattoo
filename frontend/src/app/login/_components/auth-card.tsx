@@ -4,7 +4,7 @@ import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { GitHubIcon } from './icons';
+import { GitHubIcon, GmailIcon } from './icons';
 import { LoginForm } from './login-form';
 import { RegisterForm } from './register-form';
 import { toast } from 'sonner';
@@ -14,7 +14,9 @@ type Tab = 'login' | 'register';
 export function AuthCard() {
   const [tab, setTab] = useState<Tab>('login');
 
-  const handleLoginClick = () => {
+  const nodeEnv = process.env.NODE_ENV;
+
+  const handleLoginGithubClick = () => {
     toast.promise(
       signIn('github', { callbackUrl: '/dashboard' }),
       {
@@ -24,6 +26,17 @@ export function AuthCard() {
       }
     );
   }
+
+  const handleLoginGoogleClick = () => {
+    toast.promise(
+      signIn('google', { callbackUrl: '/dashboard' }),
+      {
+        loading: 'Realizando login...',
+        success: 'Login realizado com sucesso',
+        error: 'Não foi possível realizar o login',
+      }
+    );
+  };
 
   return (
     <div className="w-full max-w-md space-y-6">
@@ -62,15 +75,27 @@ export function AuthCard() {
       </div>
 
       <div className="mt-6 flex flex-col gap-2">
+        {nodeEnv === 'development' && (
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={handleLoginGithubClick}
+            className="justify-center gap-2 border-white/10 bg-transparent text-white hover:bg-white/10 cursor-pointer"
+          >
+            <GitHubIcon className="size-4" />
+            Continuar com GitHub
+          </Button>
+        )}
         <Button
           type="button"
           variant="outline"
           size="lg"
-          onClick={handleLoginClick}
+          onClick={handleLoginGoogleClick}
           className="justify-center gap-2 border-white/10 bg-transparent text-white hover:bg-white/10 cursor-pointer"
         >
-          <GitHubIcon className="size-4" />
-          Continuar com GitHub
+          <GmailIcon className="size-4" />
+          Continuar com Google
         </Button>
       </div>
 

@@ -2,8 +2,28 @@ import { isAxiosError } from 'axios';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import GitHub from 'next-auth/providers/github';
+import Google from 'next-auth/providers/google';
 import type { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
 import { type UserServiceSession, userServiceApi } from './user-service-api';
+
+const OAUTH_PROVIDERS = ['github', 'google'] as const;
+type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
+
+function isOAuthProvider(provider: string | undefined): provider is OAuthProvider {
+  return OAUTH_PROVIDERS.includes(provider as OAuthProvider);
+}
+
+function resolveOAuthImage(
+  provider: OAuthProvider,
+  profile: unknown,
+  fallback: string | null | undefined,
+) {
+  if (provider === 'github') {
+    return (profile as { avatar_url?: string })?.avatar_url ?? fallback ?? null;
+  }
+
+  return (profile as { picture?: string })?.picture ?? fallback ?? null;
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: 'jwt' },
@@ -40,17 +60,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
     GitHub,
+    Google,
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (account?.provider !== 'github') return true;
+      if (!isOAuthProvider(account?.provider)) return true;
 
       const { data } = await userServiceApi.post<UserServiceSession>('/users/oauth/upsert', {
         provider: account.provider,
         providerAccountId: account.providerAccountId,
         email: user.email,
         name: user.name,
-        image: (profile as { avatar_url?: string })?.avatar_url ?? user.image ?? null,
+        image: resolveOAuthImage(account.provider, profile, user.image),
       });
 
       (account as Record<string, unknown>).userServiceAccessToken = data.accessToken;
