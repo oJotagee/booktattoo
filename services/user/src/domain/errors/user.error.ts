@@ -32,3 +32,10 @@ export class UserAlreadyInStatusError extends Error {
     this.name = 'UserAlreadyInStatusError';
   }
 }
+
+export class UnsupportedAvatarTypeError extends Error {
+  constructor(mimetype: string) {
+    super(`Tipo de arquivo não suportado para avatar: ${mimetype}.`);
+    this.name = 'UnsupportedAvatarTypeError';
+  }
+}

@@ -1,13 +1,17 @@
+"use client";
+
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { Card } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselSlider,
 } from "@/components/ui/carousel";
-import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const flashes = [
   {
@@ -50,6 +54,7 @@ const flashes = [
 
 export function Galery() {
   const isLoading = false;
+  const isMobile = useIsMobile();
 
   return (
     <section className="relative w-full py-14 px-6 md:px-28 md:py-22">
@@ -74,6 +79,8 @@ export function Galery() {
       <Carousel
         opts={{
           align: "start",
+          containScroll: "trimSnaps",
+          slidesToScroll: "auto",
         }}
         className="mt-10 w-full">
         <CarouselContent>
@@ -116,8 +123,8 @@ export function Galery() {
               </CarouselItem>
             ))}
 
-          {!isLoading && (
-            <CarouselItem className="basis-[35%] sm:hidden">
+          {!isLoading && isMobile && (
+            <CarouselItem className="basis-[35%]">
               <Link
                 href="/flash"
                 className="flex h-full flex-col items-center justify-center gap-2 rounded-xl text-white/50 hover:brightness-75 duration-300 py-4">
@@ -127,6 +134,8 @@ export function Galery() {
             </CarouselItem>
           )}
         </CarouselContent>
+
+        <CarouselSlider className="mx-auto max-w-xs" />
       </Carousel>
     </section>
   );

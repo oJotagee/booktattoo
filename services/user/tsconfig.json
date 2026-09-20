@@ -2,7 +2,6 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "preserveSymlinks": true,
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -11,7 +10,7 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "types": ["bun-types"],
+    "types": ["bun-types", "multer"],
     "incremental": true,
     "composite": true,
     "skipLibCheck": true,

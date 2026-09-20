@@ -11,6 +11,7 @@ import {
 import {
   InvalidCredentialsError,
   InvalidUserError,
+  UnsupportedAvatarTypeError,
   UserAlreadyExistsError,
   UserAlreadyInStatusError,
   UserNotFoundError,
@@ -33,6 +34,7 @@ const DOMAIN_ERRORS = [
   RefreshTokenNotFoundError,
   UserAlreadyExistsError,
   AccountAlreadyLinkedError,
+  UnsupportedAvatarTypeError,
 ] as const;
 
 const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
@@ -41,6 +43,7 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [InvalidAccountError, HttpStatus.BAD_REQUEST],
   [InvalidRefreshTokenError, HttpStatus.BAD_REQUEST],
   [UserAlreadyInStatusError, HttpStatus.BAD_REQUEST],
+  [UnsupportedAvatarTypeError, HttpStatus.BAD_REQUEST],
 
   [InvalidCredentialsError, HttpStatus.UNAUTHORIZED],
   [RefreshTokenExpiredError, HttpStatus.UNAUTHORIZED],

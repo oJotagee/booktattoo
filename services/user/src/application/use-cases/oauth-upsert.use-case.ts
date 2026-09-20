@@ -36,6 +36,7 @@ type OAuthUpsertOutput = {
     id: string;
     name: string;
     email: string;
+    image: string | null;
     address?: string | null;
     phone?: string | null;
     bio?: string | null;
@@ -52,7 +53,7 @@ export class OAuthUpsertUseCase {
     @Inject(TOKEN_GENERATOR) private readonly tokenGenerator: TokenGenerator,
     @Inject(SESSION_TOKEN_ISSUER) private readonly sessionTokenIssuer: SessionTokenIssuer,
     @Inject(REFRESH_TOKEN_REPOSITORY) private readonly refreshTokens: RefreshTokenRepository,
-  ) { }
+  ) {}
 
   async execute(input: OAuthUpsertInput): Promise<OAuthUpsertOutput> {
     const email = Email.create({ value: input.email });
@@ -89,6 +90,7 @@ export class OAuthUpsertUseCase {
         id: user.id,
         name: user.name,
         email: user.email.toString(),
+        image: user.image,
         address: user.address,
         phone: user.phone,
         bio: user.bio,

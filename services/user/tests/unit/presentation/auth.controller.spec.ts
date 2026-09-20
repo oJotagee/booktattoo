@@ -1,7 +1,7 @@
 import { describe, expect, it, mock } from 'bun:test';
 
 import type { PayloadSession } from '@/application/port/session-token-issuer.port';
-import { UsersController } from '@/presentation/controllers/users.controller';
+import { AuthController } from '@/presentation/controllers/auth.controller';
 
 function buildController() {
   const registerUser = { execute: mock(async () => ({ id: 'user-1' })) };
@@ -11,8 +11,11 @@ function buildController() {
   const findUserById = { execute: mock(async () => ({ id: 'user-1' })) };
   const updateUserContactInfo = { execute: mock(async () => ({ id: 'user-1' })) };
   const updateUserStatus = { execute: mock(async () => ({ id: 'user-1', status: 'ACTIVE' })) };
+  const updateUserAvatar = {
+    execute: mock(async () => ({ id: 'user-1', image: 'https://bucket/avatars/user-1/file.png' })),
+  };
 
-  const controller = new UsersController(
+  const controller = new AuthController(
     registerUser as never,
     login as never,
     oauthUpsert as never,
@@ -20,6 +23,7 @@ function buildController() {
     findUserById as never,
     updateUserContactInfo as never,
     updateUserStatus as never,
+    updateUserAvatar as never,
   );
 
   return {
@@ -31,12 +35,13 @@ function buildController() {
     findUserById,
     updateUserContactInfo,
     updateUserStatus,
+    updateUserAvatar,
   };
 }
 
 const payload: PayloadSession = { sub: 'user-1', email: 'john.doe@example.com' };
 
-describe('UsersController', () => {
+describe('AuthController', () => {
   it('delegates registration to RegisterUserUseCase', async () => {
     const { controller, registerUser } = buildController();
     const body = { name: 'John Doe', email: 'john.doe@example.com', password: 'secret123' };
@@ -106,5 +111,35 @@ describe('UsersController', () => {
       userId: payload.sub,
       status: body.status,
     });
+  });
+
+  it('delegates updating the avatar to UpdateUserAvatarUseCase', async () => {
+    const { controller, updateUserAvatar } = buildController();
+    const file = {
+      originalname: 'photo.png',
+      mimetype: 'image/png',
+      buffer: Buffer.from('fake-image-content'),
+    } as Express.Multer.File;
+
+    await controller.updateMyAvatar(payload, file);
+
+    expect(updateUserAvatar.execute).toHaveBeenCalledWith({
+      userId: payload.sub,
+      filename: file.originalname,
+      contentType: file.mimetype,
+      body: file.buffer,
+    });
+  });
+
+  it('rejects avatar uploads with unsupported mime types', async () => {
+    const { controller, updateUserAvatar } = buildController();
+    const file = {
+      originalname: 'malware.exe',
+      mimetype: 'application/x-msdownload',
+      buffer: Buffer.from('not-an-image'),
+    } as Express.Multer.File;
+
+    await expect(controller.updateMyAvatar(payload, file)).rejects.toThrow();
+    expect(updateUserAvatar.execute).not.toHaveBeenCalled();
   });
 });

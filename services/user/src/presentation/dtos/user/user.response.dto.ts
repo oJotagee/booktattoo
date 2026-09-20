@@ -85,3 +85,14 @@ export class UserUpdateStatusResponse {
   @ApiProperty({ example: '2024-06-01T12:00:00Z' })
   updatedAt!: Date;
 }
+
+export class UserUpdateAvatarResponse {
+  @ApiProperty({ example: 'a1b2c3d4-e5f6-4a1b-8c9d-1234567890ab' })
+  id!: string;
+
+  @ApiProperty({ example: 'https://bookink-assets.s3.us-east-2.amazonaws.com/avatars/...' })
+  image!: string;
+
+  @ApiProperty({ example: '2024-06-01T12:00:00Z' })
+  updatedAt!: Date;
+}

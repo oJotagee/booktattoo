@@ -9,6 +9,12 @@ class SessionUserDto {
 
   @ApiProperty({ example: 'maria@example.com' })
   email!: string;
+
+  @ApiProperty({
+    example: 'https://bookink-assets.s3.us-east-2.amazonaws.com/avatars/...',
+    nullable: true,
+  })
+  image!: string | null;
 }
 
 export class SessionResponseDto {

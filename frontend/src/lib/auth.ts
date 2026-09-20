@@ -57,6 +57,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       (account as Record<string, unknown>).userServiceRefreshToken = data.refreshToken;
       user.id = data.user.id;
       user.name = data.user.name;
+      user.image = data.user.image;
       user.address = data.user.address;
       user.phone = data.user.phone;
       user.bio = data.user.bio;

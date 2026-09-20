@@ -26,8 +26,11 @@ type CarouselContextProps = {
   api: ReturnType<typeof useEmblaCarousel>[1]
   scrollPrev: () => void
   scrollNext: () => void
+  scrollTo: (index: number) => void
   canScrollPrev: boolean
   canScrollNext: boolean
+  selectedIndex: number
+  scrollSnaps: number[]
 } & CarouselProps
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null)
@@ -60,11 +63,14 @@ function Carousel({
   )
   const [canScrollPrev, setCanScrollPrev] = React.useState(false)
   const [canScrollNext, setCanScrollNext] = React.useState(false)
+  const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([])
 
   const onSelect = React.useCallback((api: CarouselApi) => {
     if (!api) return
     setCanScrollPrev(api.canScrollPrev())
     setCanScrollNext(api.canScrollNext())
+    setSelectedIndex(api.selectedScrollSnap())
   }, [])
 
   const scrollPrev = React.useCallback(() => {
@@ -74,6 +80,13 @@ function Carousel({
   const scrollNext = React.useCallback(() => {
     api?.scrollNext()
   }, [api])
+
+  const scrollTo = React.useCallback(
+    (index: number) => {
+      api?.scrollTo(index)
+    },
+    [api]
+  )
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -95,8 +108,10 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return
+    setScrollSnaps(api.scrollSnapList())
     onSelect(api)
     api.on("reInit", onSelect)
+    api.on("reInit", (api) => setScrollSnaps(api.scrollSnapList()))
     api.on("select", onSelect)
 
     return () => {
@@ -114,8 +129,11 @@ function Carousel({
           orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
         scrollPrev,
         scrollNext,
+        scrollTo,
         canScrollPrev,
         canScrollNext,
+        selectedIndex,
+        scrollSnaps,
       }}
     >
       <div
@@ -231,6 +249,123 @@ function CarouselNext({
   )
 }
 
+function CarouselSlider({ className, ...props }: React.ComponentProps<"div">) {
+  const { api, orientation, selectedIndex, scrollSnaps, scrollTo } =
+    useCarousel()
+  const trackRef = React.useRef<HTMLDivElement>(null)
+  const [progress, setProgress] = React.useState(0)
+  const [isDragging, setIsDragging] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!api) return
+
+    const onScroll = () => {
+      setProgress(Math.min(1, Math.max(0, api.scrollProgress())))
+    }
+
+    onScroll()
+    api.on("scroll", onScroll)
+    api.on("reInit", onScroll)
+
+    return () => {
+      api.off("scroll", onScroll)
+      api.off("reInit", onScroll)
+    }
+  }, [api])
+
+  const thumbWidthPercent = scrollSnaps.length
+    ? Math.min(40, Math.max(12, 100 / scrollSnaps.length))
+    : 20
+
+  const scrollToRatio = React.useCallback(
+    (ratio: number) => {
+      if (!scrollSnaps.length) return
+      const clamped = Math.min(1, Math.max(0, ratio))
+      const targetIndex = Math.round(clamped * (scrollSnaps.length - 1))
+      scrollTo(targetIndex)
+    },
+    [scrollSnaps, scrollTo]
+  )
+
+  const ratioFromPointer = React.useCallback((clientX: number) => {
+    const track = trackRef.current
+    if (!track) return 0
+    const rect = track.getBoundingClientRect()
+    if (rect.width <= 0) return 0
+    const ratio = (clientX - rect.left) / rect.width
+    return Math.min(1, Math.max(0, ratio))
+  }, [])
+
+  const handlePointerDown = React.useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId)
+      } catch {
+        // Pointer capture isn't critical; ignore if unsupported.
+      }
+      setIsDragging(true)
+      scrollToRatio(ratioFromPointer(event.clientX))
+    },
+    [ratioFromPointer, scrollToRatio]
+  )
+
+  const handlePointerMove = React.useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (!isDragging) return
+      scrollToRatio(ratioFromPointer(event.clientX))
+    },
+    [isDragging, ratioFromPointer, scrollToRatio]
+  )
+
+  const handlePointerUp = React.useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      try {
+        event.currentTarget.releasePointerCapture(event.pointerId)
+      } catch {
+        // No-op: capture may already be released.
+      }
+      setIsDragging(false)
+    },
+    []
+  )
+
+  if (orientation !== "horizontal") return null
+  if (scrollSnaps.length <= 1) return null
+
+  const thumbLeft = progress * (100 - thumbWidthPercent)
+
+  return (
+    <div
+      ref={trackRef}
+      data-slot="carousel-slider"
+      role="slider"
+      aria-label="Navegar pelo carrossel"
+      aria-valuenow={selectedIndex + 1}
+      aria-valuemin={1}
+      aria-valuemax={scrollSnaps.length || 1}
+      tabIndex={0}
+      className={cn(
+        "relative mt-4 h-1.5 w-full cursor-pointer touch-none rounded-full bg-white/10",
+        className
+      )}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      {...props}
+    >
+      <div
+        data-slot="carousel-slider-thumb"
+        className={cn(
+          "absolute inset-y-0 rounded-full bg-orange-600/80",
+          !isDragging && "transition-[left] duration-150 ease-out"
+        )}
+        style={{ width: `${thumbWidthPercent}%`, left: `${thumbLeft}%` }}
+      />
+    </div>
+  )
+}
+
 export {
   type CarouselApi,
   Carousel,
@@ -238,5 +373,6 @@ export {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  CarouselSlider,
   useCarousel,
 }

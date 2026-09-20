@@ -1,3 +1,4 @@
+import { StorageModule } from '@bookink/shared/storage';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -12,6 +13,7 @@ import { LoginUseCase } from '@/application/use-cases/login.use-case';
 import { OAuthUpsertUseCase } from '@/application/use-cases/oauth-upsert.use-case';
 import { RefreshTokenUseCase } from '@/application/use-cases/refresh-token.use-case';
 import { RegisterUserUseCase } from '@/application/use-cases/register-user.use-case';
+import { UpdateUserAvatarUseCase } from '@/application/use-cases/update-user-avatar.use-case';
 import { UpdateUserContactInfoUseCase } from '@/application/use-cases/update-user-contact-info.use-case';
 import { UpdateUserStatusUseCase } from '@/application/use-cases/update-user-status.use-case';
 import { JwtAuthGuard } from './infrastructure/auth/jwt-auth.guard';
@@ -23,15 +25,16 @@ import { PrismaService } from './infrastructure/prisma/prisma.service';
 import { PrismaAccountRepository } from './infrastructure/repository/prisma-account.repository';
 import { PrismaRefreshTokenRepository } from './infrastructure/repository/prisma-refresh-token.repository';
 import { PrismaUserRepository } from './infrastructure/repository/prisma-user.repository';
+import { AuthController } from './presentation/controllers/auth.controller';
 import { HealthController } from './presentation/controllers/health.controller';
-import { UsersController } from './presentation/controllers/users.controller';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [jwtConfig] }),
     JwtModule.registerAsync(jwtConfig.asProvider()),
+    StorageModule,
   ],
-  controllers: [UsersController, HealthController],
+  controllers: [AuthController, HealthController],
   providers: [
     PrismaService,
     JwtAuthGuard,
@@ -42,6 +45,7 @@ import { UsersController } from './presentation/controllers/users.controller';
     FindUserByIdUseCase,
     UpdateUserContactInfoUseCase,
     UpdateUserStatusUseCase,
+    UpdateUserAvatarUseCase,
     {
       provide: USER_REPOSITORY,
       useClass: PrismaUserRepository,
@@ -68,4 +72,4 @@ import { UsersController } from './presentation/controllers/users.controller';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

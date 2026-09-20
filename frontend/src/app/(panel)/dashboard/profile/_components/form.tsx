@@ -1,24 +1,16 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import { Controller } from 'react-hook-form';
-import { useSession } from 'next-auth/react';
-import { ArrowRight, Camera } from 'lucide-react';
-import { useRef, useState } from 'react';
-import { toast } from 'sonner';
-import Image from 'next/image';
 import { cn } from 'cn';
-
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { ArrowRight, Camera } from 'lucide-react';
+import Image from 'next/image';
+import { useSession } from 'next-auth/react';
+import { useEffect, useRef, useState } from 'react';
+import { Controller } from 'react-hook-form';
+import { toast } from 'sonner';
 import type { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
-import { type ProfileSchemaData, useProfileSchema } from './profile-schema';
-import { updateProfile } from '../_actions/update-profile';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { formatPhone } from '@/utils/formatPhone';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -27,6 +19,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { formatPhone } from '@/utils/formatPhone';
+import { updateAvatar } from '../_actions/update-avatar';
+import { updateProfile } from '../_actions/update-profile';
+import { type ProfileSchemaData, useProfileSchema } from './profile-schema';
+
+const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+const ALLOWED_AVATAR_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
 interface ProfileFormProps {
   user: {
@@ -69,16 +72,56 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const displayName = currentUser.name;
   const displayImage = avatarPreview ?? currentUser.image;
 
+  // Revoga o object URL do preview anterior sempre que ele muda ou o
+  // componente desmonta, para não vazar memória.
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    };
+  }, [avatarPreview]);
+
   function handleAvatarClick() {
     fileInputRef.current?.click();
   }
 
-  function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+  const { mutateAsync: updateAvatarMutation, isPending: isUploadingAvatar } = useMutation({
+    mutationFn: updateAvatar,
+  });
+
+  async function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Limpa o input para permitir escolher o mesmo arquivo novamente depois.
+    event.target.value = '';
+
+    if (!ALLOWED_AVATAR_MIME_TYPES.includes(file.type)) {
+      toast.error('Formato de imagem não suportado. Use JPEG, PNG ou WEBP.');
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE_BYTES) {
+      toast.error('A imagem deve ter no máximo 5MB.');
+      return;
+    }
+
     const previewUrl = URL.createObjectURL(file);
     setAvatarPreview(previewUrl);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await updateAvatarMutation(formData);
+
+    if (response.error) {
+      toast.error(response.error);
+      setAvatarPreview(null);
+      return;
+    }
+
+    await update({ image: response.data?.image });
+    setAvatarPreview(null);
+    toast.success('Foto de perfil atualizada com sucesso');
   }
 
   const { mutateAsync: updateProfileMutation, isPending: isSubmitting } = useMutation({
@@ -143,8 +186,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <button
               type="button"
               onClick={handleAvatarClick}
+              disabled={isUploadingAvatar}
               aria-label="Alterar foto de perfil"
-              className="group relative block size-24 overflow-hidden rounded-full border-2 border-border bg-muted transition-opacity hover:opacity-90 cursor-pointer"
+              className="group relative block size-24 overflow-hidden rounded-full border-2 border-border bg-muted transition-opacity hover:opacity-90 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
             >
               {displayImage ? (
                 <Image
@@ -159,20 +203,26 @@ export function ProfileForm({ user }: ProfileFormProps) {
                   {displayName?.charAt(0)}
                 </span>
               )}
+              {isUploadingAvatar && (
+                <span className="absolute inset-0 flex items-center justify-center bg-black/40">
+                  <span className="size-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                </span>
+              )}
+              <span className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-black/50 py-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <Camera className="size-3.5 text-white" />
+              </span>
             </button>
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               className="hidden"
               onChange={handleAvatarChange}
             />
           </div>
           <div>
             <p className="font-medium leading-none">{displayName}</p>
-            {currentUser.address && (
-              <p className="mt-1.5 text-sm text-muted-foreground">Artista</p>
-            )}
+            {currentUser.address && <p className="mt-1.5 text-sm text-muted-foreground">Artista</p>}
           </div>
         </CardContent>
       </Card>
@@ -243,7 +293,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
       <Card>
         <CardContent>
-
           <div className="space-y-2">
             <Label className="font-semibold">Configurar horarios:</Label>
             <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>

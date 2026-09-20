@@ -1,32 +1,51 @@
-import { Body, Controller, Get, Patch, Post, Put, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  MaxFileSizeValidator,
+  ParseFilePipe,
+  Patch,
+  Post,
+  Put,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { PayloadSession } from '@/application/port/session-token-issuer.port';
 import { FindUserByIdUseCase } from '@/application/use-cases/find-user-by-id.use-case';
 import { LoginUseCase } from '@/application/use-cases/login.use-case';
 import { OAuthUpsertUseCase } from '@/application/use-cases/oauth-upsert.use-case';
 import { RefreshTokenUseCase } from '@/application/use-cases/refresh-token.use-case';
 import { RegisterUserUseCase } from '@/application/use-cases/register-user.use-case';
+import { UpdateUserAvatarUseCase } from '@/application/use-cases/update-user-avatar.use-case';
 import { UpdateUserContactInfoUseCase } from '@/application/use-cases/update-user-contact-info.use-case';
 import { UpdateUserStatusUseCase } from '@/application/use-cases/update-user-status.use-case';
+import { UnsupportedAvatarTypeError } from '@/domain/errors/user.error';
 import { JwtAuthGuard } from '../../infrastructure/auth/jwt-auth.guard';
 import { TokenPayload } from '../decorators/token-payload.decorator';
-import { LoginRequestDto } from '../dtos/auth/login.request.dto';
-import { OAuthUpsertRequestDto } from '../dtos/auth/oauth-upsert.request.dto';
-import { RefreshTokenRequestDto } from '../dtos/auth/refresh-token.request.dto';
-import { RegisterUserRequestDto } from '../dtos/auth/register-user.request.dto';
+import type { LoginRequestDto } from '../dtos/auth/login.request.dto';
+import type { OAuthUpsertRequestDto } from '../dtos/auth/oauth-upsert.request.dto';
+import type { RefreshTokenRequestDto } from '../dtos/auth/refresh-token.request.dto';
+import type { RegisterUserRequestDto } from '../dtos/auth/register-user.request.dto';
 import { RefreshedSessionResponseDto, SessionResponseDto } from '../dtos/auth/session.response.dto';
-import { UpdateUserContactInfoRequestDto } from '../dtos/user/update-user-contact-info.request.dto';
-import { UpdateUserStatusRequestDto } from '../dtos/user/update-user-status.request.dto';
+import type { UpdateUserContactInfoRequestDto } from '../dtos/user/update-user-contact-info.request.dto';
+import type { UpdateUserStatusRequestDto } from '../dtos/user/update-user-status.request.dto';
 import {
   UserInfoResponse,
   UserLoginResponseDto,
   UserResponseDto,
+  UserUpdateAvatarResponse,
   UserUpdateStatusResponse,
 } from '../dtos/user/user.response.dto';
 
-@ApiTags('users')
+const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_AVATAR_MIME_TYPES = /^image\/(jpeg|jpg|png|webp)$/;
+
+@ApiTags('auth')
 @Controller('users')
-export class UsersController {
+export class AuthController {
   constructor(
     private readonly registerUser: RegisterUserUseCase,
     private readonly login: LoginUseCase,
@@ -35,6 +54,7 @@ export class UsersController {
     private readonly findUserById: FindUserByIdUseCase,
     private readonly updateUserContactInfo: UpdateUserContactInfoUseCase,
     private readonly updateUserStatus: UpdateUserStatusUseCase,
+    private readonly updateUserAvatar: UpdateUserAvatarUseCase,
   ) { }
 
   @Post('register')
@@ -89,5 +109,38 @@ export class UsersController {
     @Body() body: UpdateUserStatusRequestDto,
   ): Promise<UserUpdateStatusResponse> {
     return this.updateUserStatus.execute({ userId: payload.sub, status: body.status });
+  }
+
+  @Put('me/avatar')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOkResponse({ type: UserUpdateAvatarResponse })
+  async updateMyAvatar(
+    @TokenPayload() payload: PayloadSession,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: MAX_AVATAR_SIZE_BYTES })],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<UserUpdateAvatarResponse> {
+    if (!ALLOWED_AVATAR_MIME_TYPES.test(file.mimetype)) {
+      throw new UnsupportedAvatarTypeError(file.mimetype);
+    }
+
+    return this.updateUserAvatar.execute({
+      userId: payload.sub,
+      filename: file.originalname,
+      contentType: file.mimetype,
+      body: file.buffer,
+    });
   }
 }

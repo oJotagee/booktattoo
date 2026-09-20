@@ -164,6 +164,14 @@ export class UserEntity {
     });
   }
 
+  updateImage(image: string): UserEntity {
+    return new UserEntity({
+      ...this.userProps,
+      image,
+      updatedAt: new Date(),
+    });
+  }
+
   activate(): UserEntity {
     if (this.status === UserStatus.ACTIVE) throw new UserAlreadyInStatusError(this.status);
 
