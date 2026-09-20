@@ -27,6 +27,7 @@ import { formatPhone } from '@/utils/formatPhone';
 import { updateAvatar } from '../_actions/update-avatar';
 import { updateProfile } from '../_actions/update-profile';
 import { type ProfileSchemaData, useProfileSchema } from './profile-schema';
+import { success } from 'zod';
 
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 const ALLOWED_AVATAR_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -72,8 +73,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const displayName = currentUser.name;
   const displayImage = avatarPreview ?? currentUser.image;
 
-  // Revoga o object URL do preview anterior sempre que ele muda ou o
-  // componente desmonta, para não vazar memória.
   useEffect(() => {
     return () => {
       if (avatarPreview) URL.revokeObjectURL(avatarPreview);
@@ -92,7 +91,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Limpa o input para permitir escolher o mesmo arquivo novamente depois.
     event.target.value = '';
 
     if (!ALLOWED_AVATAR_MIME_TYPES.includes(file.type)) {
@@ -119,9 +117,17 @@ export function ProfileForm({ user }: ProfileFormProps) {
       return;
     }
 
-    await update({ image: response.data?.image });
-    setAvatarPreview(null);
-    toast.success('Foto de perfil atualizada com sucesso');
+    toast.promise(
+      update({ image: response.data?.image }),
+      {
+        loading: 'Atualizando foto de perfil...',
+        success: 'Foto de perfil atualizada com sucesso',
+        error: 'Não foi possível atualizar a foto de perfil',
+      }
+    );
+
+    // await update({ image: response.data?.image });
+    // setAvatarPreview(null);
   }
 
   const { mutateAsync: updateProfileMutation, isPending: isSubmitting } = useMutation({
@@ -166,16 +172,31 @@ export function ProfileForm({ user }: ProfileFormProps) {
       return;
     }
 
-    await update({
-      name: response.data?.name,
-      image: response.data?.image,
-      address: response.data?.address,
-      phone: response.data?.phone,
-      bio: response.data?.bio,
-      times: response.data?.times,
-    });
+    // await update({
+    //   name: response.data?.name,
+    //   image: response.data?.image,
+    //   address: response.data?.address,
+    //   phone: response.data?.phone,
+    //   bio: response.data?.bio,
+    //   times: response.data?.times,
+    // });
+    // toast.success('Perfil atualizado com sucesso');
 
-    toast.success('Perfil atualizado com sucesso');
+    toast.promise(
+      update({
+        name: response.data?.name,
+        image: response.data?.image,
+        address: response.data?.address,
+        phone: response.data?.phone,
+        bio: response.data?.bio,
+        times: response.data?.times,
+      }),
+      {
+        loading: 'Atualizando perfil...',
+        success: 'Perfil atualizado com sucesso',
+        error: 'Não foi possível atualizar o perfil',
+      }
+    );
   }
 
   return (

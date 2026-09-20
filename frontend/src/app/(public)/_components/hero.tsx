@@ -34,13 +34,15 @@ export function Hero() {
         </p>
 
         <div className="mt-8 flex items-center gap-3 flex-wrap">
-          <Button
-            size="lg"
-            className="bg-orange-600 text-white hover:brightness-75 duration-300 h-11 px-6 font-semibold cursor-pointer"
-          >
-            Ver flashs disponíveis
-            <ArrowRight />
-          </Button>
+          <Link href={'/flash'}>
+            <Button
+              size="lg"
+              className="bg-orange-600 text-white hover:brightness-75 duration-300 h-11 px-6 font-semibold cursor-pointer"
+            >
+              Ver flashs disponíveis
+              <ArrowRight />
+            </Button>
+          </Link>
           <Link href={'#how-it-works'}>
             <Button
               variant="outline"
