@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { cn } from 'cn';
-import { ArrowRight, Camera } from 'lucide-react';
+import { ArrowRight, Camera, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useEffect, useRef, useState } from 'react';
@@ -385,6 +385,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         className="w-fit bg-orange-600 text-white hover:brightness-75 duration-300 cursor-pointer px-8"
         disabled={isSubmitting}
       >
+        {isSubmitting && <Loader2 className="size-4 animate-spin" />}
         Salvar alterações
       </Button>
     </form>
