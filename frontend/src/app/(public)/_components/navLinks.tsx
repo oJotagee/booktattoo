@@ -21,7 +21,7 @@ export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
       {navItems.map((item) => (
         <Button
           key={item.href}
-          className="shadow-none text-base hover:brightness-75 duration-300"
+          className="shadow-none text-base bg-orange-600 md:bg-transparent hover:brightness-75 duration-300"
           variant={'ghost'}
           render={<Link href={item.href} />}
           nativeButton={false}

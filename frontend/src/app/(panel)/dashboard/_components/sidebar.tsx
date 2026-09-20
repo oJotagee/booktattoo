@@ -41,7 +41,7 @@ export function DashboardSidebar() {
             Book<span className="text-orange-600">Tattoo</span>
           </span>
           <span className="hidden group-data-[collapsible=icon]:inline text-orange-600">
-            B
+            B.
           </span>
         </Link>
       </SidebarHeader>
