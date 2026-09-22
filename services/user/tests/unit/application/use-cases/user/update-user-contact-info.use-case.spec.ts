@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 
-import { UpdateUserContactInfoUseCase } from '@/application/use-cases/update-user-contact-info.use-case';
+import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/update-user-contact-info.use-case';
 import { UserNotFoundError } from '@/domain/errors/user.error';
 import { buildUser } from '@tests/unit/support/builders';
 import { createUserRepositoryMock } from '@tests/unit/support/mocks';

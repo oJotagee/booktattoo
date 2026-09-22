@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 
-import { LoginUseCase } from '@/application/use-cases/login.use-case';
+import { LoginUseCase } from '@/application/use-cases/auth/login.use-case';
 import { InvalidCredentialsError } from '@/domain/errors/user.error';
 import { buildUser } from '@tests/unit/support/builders';
 import {

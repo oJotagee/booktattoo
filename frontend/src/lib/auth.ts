@@ -35,7 +35,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       authorize: async (credentials) => {
         try {
-          const { data } = await userServiceApi.post<UserServiceSession>('/users/login', {
+          const { data } = await userServiceApi.post<UserServiceSession>('/auth/login', {
             email: credentials.email,
             password: credentials.password,
           });
@@ -67,7 +67,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user, account, profile }) {
       if (!isOAuthProvider(account?.provider)) return true;
 
-      const { data } = await userServiceApi.post<UserServiceSession>('/users/oauth/upsert', {
+      const { data } = await userServiceApi.post<UserServiceSession>('/auth/oauth/upsert', {
         provider: account.provider,
         providerAccountId: account.providerAccountId,
         email: user.email,

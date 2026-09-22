@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { UserNotFoundError } from '@/domain/errors/user.error';
 
-import type { UserRepository } from '../port/user-repository.port';
-import { USER_REPOSITORY } from '../port/user-repository.port';
+import type { UserRepository } from '../../port/user-repository.port';
+import { USER_REPOSITORY } from '../../port/user-repository.port';
 
 type UpdateUserContactInfoInput = {
   userId: string;

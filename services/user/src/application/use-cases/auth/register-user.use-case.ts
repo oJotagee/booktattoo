@@ -4,10 +4,10 @@ import { UserEntity, UserStatus } from '@/domain/entities/user.entity';
 import { UserAlreadyExistsError } from '@/domain/errors/user.error';
 import { Email } from '@/domain/value-objects/email.vo';
 
-import type { PasswordHasher } from '../port/password-hasher.port';
-import { PASSWORD_HASHER } from '../port/password-hasher.port';
-import type { UserRepository } from '../port/user-repository.port';
-import { USER_REPOSITORY } from '../port/user-repository.port';
+import type { PasswordHasher } from '../../port/password-hasher.port';
+import { PASSWORD_HASHER } from '../../port/password-hasher.port';
+import type { UserRepository } from '../../port/user-repository.port';
+import { USER_REPOSITORY } from '../../port/user-repository.port';
 
 type RegisterUserInput = {
   name: string;

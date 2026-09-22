@@ -7,7 +7,7 @@ import {
   createTokenGeneratorMock,
   createUserRepositoryMock,
 } from '@tests/unit/support/mocks';
-import { OAuthUpsertUseCase } from '@/application/use-cases/oauth-upsert.use-case';
+import { OAuthUpsertUseCase } from '@/application/use-cases/auth/oauth-upsert.use-case';
 import { AccountEntity } from '@/domain/entities/account.entity';
 
 function buildAccount(overrides: Partial<{ userId: string; providerAccountId: string }> = {}) {

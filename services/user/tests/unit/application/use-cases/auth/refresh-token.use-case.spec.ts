@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 
-import { RefreshTokenUseCase } from '@/application/use-cases/refresh-token.use-case';
+import { RefreshTokenUseCase } from '@/application/use-cases/auth/refresh-token.use-case';
 import { RefreshTokenEntity } from '@/domain/entities/refresh-token.entity';
 import {
   RefreshTokenExpiredError,

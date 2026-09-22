@@ -8,14 +8,14 @@ import { REFRESH_TOKEN_REPOSITORY } from '@/application/port/refresh-token-repos
 import { SESSION_TOKEN_ISSUER } from '@/application/port/session-token-issuer.port';
 import { TOKEN_GENERATOR } from '@/application/port/token-generator.port';
 import { USER_REPOSITORY } from '@/application/port/user-repository.port';
-import { FindUserByIdUseCase } from '@/application/use-cases/find-user-by-id.use-case';
-import { LoginUseCase } from '@/application/use-cases/login.use-case';
-import { OAuthUpsertUseCase } from '@/application/use-cases/oauth-upsert.use-case';
-import { RefreshTokenUseCase } from '@/application/use-cases/refresh-token.use-case';
-import { RegisterUserUseCase } from '@/application/use-cases/register-user.use-case';
-import { UpdateUserAvatarUseCase } from '@/application/use-cases/update-user-avatar.use-case';
-import { UpdateUserContactInfoUseCase } from '@/application/use-cases/update-user-contact-info.use-case';
-import { UpdateUserStatusUseCase } from '@/application/use-cases/update-user-status.use-case';
+import { LoginUseCase } from '@/application/use-cases/auth/login.use-case';
+import { OAuthUpsertUseCase } from '@/application/use-cases/auth/oauth-upsert.use-case';
+import { RefreshTokenUseCase } from '@/application/use-cases/auth/refresh-token.use-case';
+import { RegisterUserUseCase } from '@/application/use-cases/auth/register-user.use-case';
+import { FindUserByIdUseCase } from '@/application/use-cases/user/find-user-by-id.use-case';
+import { UpdateUserAvatarUseCase } from '@/application/use-cases/user/update-user-avatar.use-case';
+import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/update-user-contact-info.use-case';
+import { UpdateUserStatusUseCase } from '@/application/use-cases/user/update-user-status.use-case';
 import { JwtAuthGuard } from './infrastructure/auth/jwt-auth.guard';
 import { JwtSessionTokenIssuer } from './infrastructure/auth/jwt-session-token-issuer';
 import jwtConfig from './infrastructure/config/jwt.config';
@@ -27,6 +27,7 @@ import { PrismaRefreshTokenRepository } from './infrastructure/repository/prisma
 import { PrismaUserRepository } from './infrastructure/repository/prisma-user.repository';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { HealthController } from './presentation/controllers/health.controller';
+import { UserController } from './presentation/controllers/user.controller';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { HealthController } from './presentation/controllers/health.controller';
     JwtModule.registerAsync(jwtConfig.asProvider()),
     StorageModule,
   ],
-  controllers: [AuthController, HealthController],
+  controllers: [AuthController, UserController, HealthController],
   providers: [
     PrismaService,
     JwtAuthGuard,

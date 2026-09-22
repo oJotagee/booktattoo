@@ -11,7 +11,7 @@ export type RegisterInput = {
 
 export async function registerUser(input: RegisterInput) {
   try {
-    await userServiceApi.post('/users/register', input);
+    await userServiceApi.post('/auth/register', input);
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 409) {
       throw new Error('Já existe uma conta com este e-mail.');

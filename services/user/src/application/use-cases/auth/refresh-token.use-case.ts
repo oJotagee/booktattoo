@@ -3,14 +3,14 @@ import { RefreshTokenEntity } from '@/domain/entities/refresh-token.entity';
 import { RefreshTokenNotFoundError } from '@/domain/errors/refresh-token.error';
 import { UserNotFoundError } from '@/domain/errors/user.error';
 
-import type { RefreshTokenRepository } from '../port/refresh-token-repository.port';
-import { REFRESH_TOKEN_REPOSITORY } from '../port/refresh-token-repository.port';
-import type { SessionTokenIssuer } from '../port/session-token-issuer.port';
-import { SESSION_TOKEN_ISSUER } from '../port/session-token-issuer.port';
-import type { TokenGenerator } from '../port/token-generator.port';
-import { TOKEN_GENERATOR } from '../port/token-generator.port';
-import type { UserRepository } from '../port/user-repository.port';
-import { USER_REPOSITORY } from '../port/user-repository.port';
+import type { RefreshTokenRepository } from '../../port/refresh-token-repository.port';
+import { REFRESH_TOKEN_REPOSITORY } from '../../port/refresh-token-repository.port';
+import type { SessionTokenIssuer } from '../../port/session-token-issuer.port';
+import { SESSION_TOKEN_ISSUER } from '../../port/session-token-issuer.port';
+import type { TokenGenerator } from '../../port/token-generator.port';
+import { TOKEN_GENERATOR } from '../../port/token-generator.port';
+import type { UserRepository } from '../../port/user-repository.port';
+import { USER_REPOSITORY } from '../../port/user-repository.port';
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 

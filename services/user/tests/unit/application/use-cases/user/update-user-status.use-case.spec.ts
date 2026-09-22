@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 
-import { UpdateUserStatusUseCase } from '@/application/use-cases/update-user-status.use-case';
+import { UpdateUserStatusUseCase } from '@/application/use-cases/user/update-user-status.use-case';
 import { UserStatus } from '@/domain/entities/user.entity';
 import { UserAlreadyInStatusError, UserNotFoundError } from '@/domain/errors/user.error';
 import { buildUser } from '@tests/unit/support/builders';

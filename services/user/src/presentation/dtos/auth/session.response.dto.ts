@@ -21,7 +21,7 @@ export class SessionResponseDto {
   @ApiProperty({ description: 'JWT de curta duração usado nas requisições autenticadas.' })
   accessToken!: string;
 
-  @ApiProperty({ description: 'Token opaco de longa duração, usado só em /users/refresh-token.' })
+  @ApiProperty({ description: 'Token opaco de longa duração, usado só em /auth/refresh-token.' })
   refreshToken!: string;
 
   @ApiProperty({ type: SessionUserDto })

@@ -31,11 +31,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accounts      Account[]
-  refreshTokens RefreshToken[]
-  subscription  Subscription?
-  services      Service[]
-  reminders     Reminder[]
+  accounts        Account[]
+  refreshTokens   RefreshToken[]
+  subscription    Subscription?
+  services        Service[]
+  reminders       Reminder[]
+  flashes         Flash[]
+  bookingRequests BookingRequest[]
+  appointments    Appointment[]
 }
 
 model Account {
@@ -82,17 +85,105 @@ model Reminder {
 }
 
 model Service {
-  id       String  @id @default(cuid())
-  name     String
-  price    Int
-  duration Int
-  status   Boolean @default(true)
+  id            String  @id @default(cuid())
+  name          String
+  duration      Int
+  depositAmount Int
+  status        Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  flashes      Flash[]
+  appointments Appointment[]
+}
+
+enum FlashStyle {
+  TRADICIONAL
+  JAPONES
+  BLACKWORK
+  FINELINE
+  NEOTRADICIONAL
+  CHICANO
+  REALISMO
+  MINIMALISTA
+}
+
+model Flash {
+  id        String      @id @default(cuid())
+  title     String
+  imageUrl  String
+  size      String?
+  price     Int
+  style     FlashStyle?
+  available Boolean     @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  appointments Appointment[]
+}
+
+enum BookingRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model BookingRequest {
+  id            String               @id @default(cuid())
+  clientName    String
+  clientContact String
+  message       String?
+  status        BookingRequestStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  appointment Appointment?
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Appointment {
+  id            String            @id @default(cuid())
+  clientName    String
+  clientContact String
+  scheduledAt   DateTime
+  duration      Int // congelado no momento da criação
+  price         Int // congelado no momento da criação
+  status        AppointmentStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  flashId String?
+  flash   Flash?  @relation(fields: [flashId], references: [id])
+
+  bookingRequestId String?         @unique
+  bookingRequest   BookingRequest? @relation(fields: [bookingRequestId], references: [id])
 }
 
 enum SubscriptionPlan {

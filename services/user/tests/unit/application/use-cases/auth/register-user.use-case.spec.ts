@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 
-import { RegisterUserUseCase } from '@/application/use-cases/register-user.use-case';
+import { RegisterUserUseCase } from '@/application/use-cases/auth/register-user.use-case';
 import { UserAlreadyExistsError } from '@/domain/errors/user.error';
 import { InvalidEmailError } from '@/domain/errors/email.error';
 import { buildUser } from '@tests/unit/support/builders';
