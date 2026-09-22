@@ -25,7 +25,7 @@ export class FindUserByIdUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly users: UserRepository,
-  ) { }
+  ) {}
 
   async execute({ id }: { id: string }): Promise<FindUserByIdOutput> {
     const user = await this.users.findById(id);

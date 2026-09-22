@@ -15,7 +15,6 @@ function sanitizeFilename(filename: string): string {
   return `${safeName}${ext.toLowerCase()}`;
 }
 
-
 export function buildObjectKey(assetType: AssetType, ownerId: string, filename: string): string {
   const unique = randomUUID();
   return `${assetType}/${ownerId}/${unique}-${sanitizeFilename(filename)}`;

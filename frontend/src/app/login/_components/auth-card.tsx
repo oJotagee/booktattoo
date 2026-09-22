@@ -17,25 +17,19 @@ export function AuthCard() {
   const nodeEnv = process.env.NODE_ENV;
 
   const handleLoginGithubClick = () => {
-    toast.promise(
-      signIn('github', { callbackUrl: '/dashboard' }),
-      {
-        loading: 'Realizando login...',
-        success: 'Login realizado com sucesso',
-        error: 'Não foi possível realizar o login',
-      }
-    );
-  }
+    toast.promise(signIn('github', { callbackUrl: '/dashboard' }), {
+      loading: 'Realizando login...',
+      success: 'Login realizado com sucesso',
+      error: 'Não foi possível realizar o login',
+    });
+  };
 
   const handleLoginGoogleClick = () => {
-    toast.promise(
-      signIn('google', { callbackUrl: '/dashboard' }),
-      {
-        loading: 'Realizando login...',
-        success: 'Login realizado com sucesso',
-        error: 'Não foi possível realizar o login',
-      }
-    );
+    toast.promise(signIn('google', { callbackUrl: '/dashboard' }), {
+      loading: 'Realizando login...',
+      success: 'Login realizado com sucesso',
+      error: 'Não foi possível realizar o login',
+    });
   };
 
   return (

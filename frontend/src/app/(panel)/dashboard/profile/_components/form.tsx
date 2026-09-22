@@ -119,14 +119,11 @@ export function ProfileForm({ user }: ProfileFormProps) {
       return;
     }
 
-    toast.promise(
-      update({ image: response.data?.image }),
-      {
-        loading: 'Atualizando foto de perfil...',
-        success: 'Foto de perfil atualizada com sucesso',
-        error: 'Não foi possível atualizar a foto de perfil',
-      }
-    );
+    toast.promise(update({ image: response.data?.image }), {
+      loading: 'Atualizando foto de perfil...',
+      success: 'Foto de perfil atualizada com sucesso',
+      error: 'Não foi possível atualizar a foto de perfil',
+    });
 
     // await update({ image: response.data?.image });
     // setAvatarPreview(null);
@@ -199,7 +196,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         loading: 'Atualizando perfil...',
         success: 'Perfil atualizado com sucesso',
         error: 'Não foi possível atualizar o perfil',
-      }
+      },
     );
   }
 

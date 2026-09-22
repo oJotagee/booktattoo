@@ -1,13 +1,13 @@
 import { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
 import type { DefaultSession } from 'next-auth';
 
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     expires?: string;
-    user: UserProps & DefaultSession["user"]
+    user: UserProps & DefaultSession['user'];
   }
 
-  interface User extends UserProps { }
+  interface User extends UserProps {}
 }
 
 interface UserProps {

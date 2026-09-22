@@ -19,7 +19,7 @@ export class AuthController {
     private readonly login: LoginUseCase,
     private readonly oauthUpsert: OAuthUpsertUseCase,
     private readonly refreshToken: RefreshTokenUseCase,
-  ) { }
+  ) {}
 
   @Post('register')
   @ApiOkResponse({ type: UserLoginResponseDto })

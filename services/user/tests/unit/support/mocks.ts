@@ -3,6 +3,7 @@ import { mock } from 'bun:test';
 import type { AccountRepository } from '@/application/port/account-repository.port';
 import type { PasswordHasher } from '@/application/port/password-hasher.port';
 import type { RefreshTokenRepository } from '@/application/port/refresh-token-repository.port';
+import type { ServiceRepository } from '@/application/port/service-repository.port';
 import type { SessionTokenIssuer } from '@/application/port/session-token-issuer.port';
 import type { TokenGenerator } from '@/application/port/token-generator.port';
 import type { UserRepository } from '@/application/port/user-repository.port';
@@ -28,6 +29,15 @@ export function createAccountRepositoryMock(): AccountRepository {
 export function createRefreshTokenRepositoryMock(): RefreshTokenRepository {
   return {
     findByTokenHash: mock(async () => null),
+    create: mock(async () => undefined),
+    update: mock(async () => undefined),
+  };
+}
+
+export function createServiceRepositoryMock(): ServiceRepository {
+  return {
+    findById: mock(async () => null),
+    findByUserId: mock(async () => ({ items: [], total: 0 })),
     create: mock(async () => undefined),
     update: mock(async () => undefined),
   };

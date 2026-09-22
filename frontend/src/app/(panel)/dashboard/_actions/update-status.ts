@@ -1,32 +1,32 @@
-"use server"
+'use server';
 
-import { revalidatePath } from "next/cache"
-import { isAxiosError } from "axios"
+import { revalidatePath } from 'next/cache';
+import { isAxiosError } from 'axios';
 
-import { userServiceApi } from "@/lib/user-service-api"
-import { getAccessToken } from "@/lib/get-access-token"
+import { userServiceApi } from '@/lib/user-service-api';
+import { getAccessToken } from '@/lib/get-access-token';
 
-export type UserStatus = "ACTIVE" | "INACTIVE" | "VACATION"
+export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'VACATION';
 
 export async function updateUserStatus(status: UserStatus) {
-  const accessToken = await getAccessToken()
-  if (!accessToken) throw new Error("Usuário não autenticado")
+  const accessToken = await getAccessToken();
+  if (!accessToken) throw new Error('Usuário não autenticado');
 
   try {
     await userServiceApi.patch(
-      "/users/me/status",
+      '/users/me/status',
       { status },
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    )
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    );
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.error === "UserAlreadyInStatusError") {
-      return { status }
+    if (isAxiosError(error) && error.response?.data?.error === 'UserAlreadyInStatusError') {
+      return { status };
     }
 
     throw error;
   }
 
-  revalidatePath("/dashboard/", "layout")
+  revalidatePath('/dashboard/', 'layout');
 
-  return { status }
+  return { status };
 }

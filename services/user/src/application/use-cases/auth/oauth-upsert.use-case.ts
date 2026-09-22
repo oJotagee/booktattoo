@@ -54,7 +54,7 @@ export class OAuthUpsertUseCase {
     @Inject(TOKEN_GENERATOR) private readonly tokenGenerator: TokenGenerator,
     @Inject(SESSION_TOKEN_ISSUER) private readonly sessionTokenIssuer: SessionTokenIssuer,
     @Inject(REFRESH_TOKEN_REPOSITORY) private readonly refreshTokens: RefreshTokenRepository,
-  ) { }
+  ) {}
 
   async execute(input: OAuthUpsertInput): Promise<OAuthUpsertOutput> {
     const email = Email.create({ value: input.email });

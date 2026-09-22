@@ -27,7 +27,7 @@ export class RegisterUserUseCase {
   constructor(
     @Inject(USER_REPOSITORY) private readonly users: UserRepository,
     @Inject(PASSWORD_HASHER) private readonly passwordHasher: PasswordHasher,
-  ) { }
+  ) {}
 
   async execute({ name, email, password }: RegisterUserInput): Promise<RegisterUserOutput> {
     const emailVo = Email.create({ value: email });

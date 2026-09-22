@@ -46,9 +46,9 @@ describe('UpdateUserStatusUseCase', () => {
     const user = buildUser({ status: UserStatus.ACTIVE });
     users.findById = async () => user;
 
-    await expect(
-      useCase.execute({ userId: user.id, status: UserStatus.ACTIVE }),
-    ).rejects.toThrow(UserAlreadyInStatusError);
+    await expect(useCase.execute({ userId: user.id, status: UserStatus.ACTIVE })).rejects.toThrow(
+      UserAlreadyInStatusError,
+    );
   });
 
   it('throws UserNotFoundError when the user does not exist', async () => {

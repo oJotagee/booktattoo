@@ -40,17 +40,13 @@ export function DashboardSidebar() {
           <span className="group-data-[collapsible=icon]:hidden">
             Book<span className="text-orange-600">Tattoo</span>
           </span>
-          <span className="hidden group-data-[collapsible=icon]:inline text-orange-600">
-            B.
-          </span>
+          <span className="hidden group-data-[collapsible=icon]:inline text-orange-600">B.</span>
         </Link>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>
-            Painel
-          </SidebarGroupLabel>
+          <SidebarGroupLabel>Painel</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
@@ -70,7 +66,7 @@ export function DashboardSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className='hidden md:block'>
+      <SidebarFooter className="hidden md:block">
         <Button
           variant="outline"
           size="icon"

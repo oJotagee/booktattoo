@@ -1,4 +1,4 @@
-import DashboardHeader from "../_components/header";
+import DashboardHeader from '../_components/header';
 
 export default function ServicesPage() {
   return (

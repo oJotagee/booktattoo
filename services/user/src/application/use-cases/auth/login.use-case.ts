@@ -45,7 +45,7 @@ export class LoginUseCase {
     @Inject(TOKEN_GENERATOR) private readonly tokenGenerator: TokenGenerator,
     @Inject(SESSION_TOKEN_ISSUER) private readonly sessionTokenIssuer: SessionTokenIssuer,
     @Inject(REFRESH_TOKEN_REPOSITORY) private readonly refreshTokens: RefreshTokenRepository,
-  ) { }
+  ) {}
 
   async execute({ email, password }: LoginInput): Promise<LoginOutput> {
     const user = await this.users.findByEmail(email);

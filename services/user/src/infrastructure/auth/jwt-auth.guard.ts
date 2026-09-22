@@ -28,7 +28,7 @@ export class JwtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<IncomingRequest>();
     const token = this.extractTokenFromHeader(request);
 
-    if (!token) throw new UnauthorizedException('Missing bearer token.');
+    if (!token) throw new UnauthorizedException('Token ausente.');
 
     try {
       const payload = await this.jwtService.verifyAsync<PayloadSession>(
@@ -38,7 +38,7 @@ export class JwtAuthGuard implements CanActivate {
       request[AUTH_TOKEN_PAYLOAD] = payload;
       return true;
     } catch {
-      throw new UnauthorizedException('Invalid or expired token.');
+      throw new UnauthorizedException('Token inválido ou expirado.');
     }
   }
 

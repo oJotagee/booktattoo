@@ -25,7 +25,13 @@ describe('LoginUseCase', () => {
     tokenGenerator = createTokenGeneratorMock();
     sessionTokenIssuer = createSessionTokenIssuerMock();
     refreshTokens = createRefreshTokenRepositoryMock();
-    useCase = new LoginUseCase(users, passwordHasher, tokenGenerator, sessionTokenIssuer, refreshTokens);
+    useCase = new LoginUseCase(
+      users,
+      passwordHasher,
+      tokenGenerator,
+      sessionTokenIssuer,
+      refreshTokens,
+    );
   });
 
   it('returns tokens and user data on successful login', async () => {
@@ -33,7 +39,10 @@ describe('LoginUseCase', () => {
     users.findByEmail = async () => user;
     passwordHasher.compare = async () => true;
 
-    const result = await useCase.execute({ email: 'john.doe@example.com', password: 'plain-password' });
+    const result = await useCase.execute({
+      email: 'john.doe@example.com',
+      password: 'plain-password',
+    });
 
     expect(result.accessToken).toBe('access-token');
     expect(result.refreshToken).toBe('opaque-refresh-token');

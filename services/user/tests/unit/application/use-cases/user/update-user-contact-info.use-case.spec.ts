@@ -66,8 +66,8 @@ describe('UpdateUserContactInfoUseCase', () => {
   it('throws UserNotFoundError when the user does not exist', async () => {
     users.findById = async () => null;
 
-    await expect(
-      useCase.execute({ userId: 'missing-user', name: 'Jane Doe' }),
-    ).rejects.toThrow(UserNotFoundError);
+    await expect(useCase.execute({ userId: 'missing-user', name: 'Jane Doe' })).rejects.toThrow(
+      UserNotFoundError,
+    );
   });
 });

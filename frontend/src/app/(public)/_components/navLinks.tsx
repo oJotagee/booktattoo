@@ -13,7 +13,12 @@ interface NavLinksProps {
 
 export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
   const imageUser = session?.user?.image ?? undefined;
-  const initialsUser = session?.user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() ?? 'CN';
+  const initialsUser =
+    session?.user?.name
+      ?.split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase() ?? 'CN';
   const statusUser = session?.user?.status ?? 'offline';
 
   return (
@@ -39,11 +44,13 @@ export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
           <Avatar>
             <AvatarImage src={imageUser} />
             <AvatarFallback>{initialsUser}</AvatarFallback>
-            <AvatarBadge className={clsx({
-              'bg-green-500': statusUser === 'ACTIVE',
-              'bg-red-500': statusUser === 'INACTIVE',
-              'bg-yellow-500': statusUser === 'VACATION',
-            })} />
+            <AvatarBadge
+              className={clsx({
+                'bg-green-500': statusUser === 'ACTIVE',
+                'bg-red-500': statusUser === 'INACTIVE',
+                'bg-yellow-500': statusUser === 'VACATION',
+              })}
+            />
           </Avatar>
           Dashboard
         </Link>

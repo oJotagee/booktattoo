@@ -32,7 +32,7 @@ export class UpdateUserContactInfoUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly users: UserRepository,
-  ) { }
+  ) {}
 
   async execute({
     userId,

@@ -1,4 +1,4 @@
-import { Lottie } from "lottie-react";
+import { Lottie } from 'lottie-react';
 import Link from 'next/link';
 
 import animationData from '../../public/animation/ERROR-404.json';

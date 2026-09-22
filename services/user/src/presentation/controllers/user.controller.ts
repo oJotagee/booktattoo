@@ -40,7 +40,7 @@ export class UserController {
     private readonly updateUserContactInfo: UpdateUserContactInfoUseCase,
     private readonly updateUserStatus: UpdateUserStatusUseCase,
     private readonly updateUserAvatar: UpdateUserAvatarUseCase,
-  ) { }
+  ) {}
 
   @Get('me')
   @ApiBearerAuth()

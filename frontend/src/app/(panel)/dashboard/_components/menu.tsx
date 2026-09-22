@@ -39,12 +39,11 @@ export function Menu() {
   const status = session?.user?.status;
   const displayName = session?.user?.name?.split(' ').slice(0, 2).join(' ');
   const displayImage = session?.user?.image ?? undefined;
-  const displayInitials =
-    session?.user?.name
-      ?.split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase();
+  const displayInitials = session?.user?.name
+    ?.split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase();
 
   const { mutate: changeStatus, isPending } = useMutation({
     mutationFn: updateUserStatus,
@@ -65,16 +64,12 @@ export function Menu() {
   }
 
   function handleSignOut() {
-    toast.promise(
-      signOut({ redirectTo: '/' }),
-      {
-        loading: 'Realizando logout...',
-        success: 'Logout realizado com sucesso',
-        error: 'Não foi possível realizar o logout',
-      }
-    );
+    toast.promise(signOut({ redirectTo: '/' }), {
+      loading: 'Realizando logout...',
+      success: 'Logout realizado com sucesso',
+      error: 'Não foi possível realizar o logout',
+    });
   }
-
 
   return (
     <DropdownMenu>

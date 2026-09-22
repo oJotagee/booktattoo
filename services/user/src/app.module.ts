@@ -12,6 +12,11 @@ import { LoginUseCase } from '@/application/use-cases/auth/login.use-case';
 import { OAuthUpsertUseCase } from '@/application/use-cases/auth/oauth-upsert.use-case';
 import { RefreshTokenUseCase } from '@/application/use-cases/auth/refresh-token.use-case';
 import { RegisterUserUseCase } from '@/application/use-cases/auth/register-user.use-case';
+import { CreateServiceUseCase } from '@/application/use-cases/service/create-service.use-case';
+import { FindServiceByIdUseCase } from '@/application/use-cases/service/find-service-by-id.use-case';
+import { FindServicesByUserUseCase } from '@/application/use-cases/service/find-services-by-user.use-case';
+import { UpdateServiceInfoUseCase } from '@/application/use-cases/service/update-service-info.use-case';
+import { UpdateServiceStatusUseCase } from '@/application/use-cases/service/update-service-status.use-case';
 import { FindUserByIdUseCase } from '@/application/use-cases/user/find-user-by-id.use-case';
 import { UpdateUserAvatarUseCase } from '@/application/use-cases/user/update-user-avatar.use-case';
 import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/update-user-contact-info.use-case';
@@ -27,7 +32,10 @@ import { PrismaRefreshTokenRepository } from './infrastructure/repository/prisma
 import { PrismaUserRepository } from './infrastructure/repository/prisma-user.repository';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { HealthController } from './presentation/controllers/health.controller';
+import { ServiceController } from './presentation/controllers/service.controller';
 import { UserController } from './presentation/controllers/user.controller';
+import { SERVICE_REPOSITORY } from './application/port/service-repository.port';
+import { PrismaServiceRepository } from './infrastructure/repository/prisma-service.repository';
 
 @Module({
   imports: [
@@ -35,7 +43,7 @@ import { UserController } from './presentation/controllers/user.controller';
     JwtModule.registerAsync(jwtConfig.asProvider()),
     StorageModule,
   ],
-  controllers: [AuthController, UserController, HealthController],
+  controllers: [AuthController, UserController, ServiceController, HealthController],
   providers: [
     PrismaService,
     JwtAuthGuard,
@@ -47,6 +55,11 @@ import { UserController } from './presentation/controllers/user.controller';
     UpdateUserContactInfoUseCase,
     UpdateUserStatusUseCase,
     UpdateUserAvatarUseCase,
+    CreateServiceUseCase,
+    FindServiceByIdUseCase,
+    FindServicesByUserUseCase,
+    UpdateServiceInfoUseCase,
+    UpdateServiceStatusUseCase,
     {
       provide: USER_REPOSITORY,
       useClass: PrismaUserRepository,
@@ -70,6 +83,10 @@ import { UserController } from './presentation/controllers/user.controller';
     {
       provide: SESSION_TOKEN_ISSUER,
       useClass: JwtSessionTokenIssuer,
+    },
+    {
+      provide: SERVICE_REPOSITORY,
+      useClass: PrismaServiceRepository,
     },
   ],
 })

@@ -2,18 +2,20 @@ const steps = [
   {
     number: '01',
     title: 'Escolha o flash',
-    description: 'Navegue pela galeria e escolha o design que mais combina com você.'
+    description: 'Navegue pela galeria e escolha o design que mais combina com você.',
   },
   {
     number: '02',
     title: 'Reserve com sinal',
-    description: 'Selecione data e horário, preencha seus dados e pague um sinal online para garantir sua vaga.'
+    description:
+      'Selecione data e horário, preencha seus dados e pague um sinal online para garantir sua vaga.',
   },
   {
     number: '03',
     title: 'Venha tatuar',
-    description: 'Apareça no estúdio no dia marcado. O restante é pago na hora, e a arte fica para sempre.'
-  }
+    description:
+      'Apareça no estúdio no dia marcado. O restante é pago na hora, e a arte fica para sempre.',
+  },
 ];
 
 export function HowWorks() {

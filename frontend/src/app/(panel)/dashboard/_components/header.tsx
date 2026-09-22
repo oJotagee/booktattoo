@@ -1,5 +1,5 @@
-import { Menu } from "./menu"
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Menu } from './menu';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 interface DashboardHeaderProps {
   title: string;

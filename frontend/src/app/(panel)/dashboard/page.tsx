@@ -1,4 +1,4 @@
-import DashboardHeader from "./_components/header";
+import DashboardHeader from './_components/header';
 
 export default function Dashboard() {
   const date = Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(new Date());
