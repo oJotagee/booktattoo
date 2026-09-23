@@ -1,3 +1,5 @@
+import type { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import {
   type CanActivate,
   type ExecutionContext,
@@ -5,8 +7,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import type { ConfigType } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 
 import type { PayloadSession } from '@/application/port/session-token-issuer.port';
 import { AUTH_TOKEN_PAYLOAD } from './auth.constant';

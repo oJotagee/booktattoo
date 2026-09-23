@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+
 import type { AssetType } from './asset-type';
 
 function sanitizeFilename(filename: string): string {

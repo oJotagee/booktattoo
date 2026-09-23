@@ -1,16 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { PasswordResetTokenNotFoundError } from '@/domain/errors/password-reset-token.error';
-import { UserNotFoundError } from '@/domain/errors/user.error';
-
 import type { PasswordResetTokenRepository } from '../../port/password-reset-token-repository.port';
 import { PASSWORD_RESET_TOKEN_REPOSITORY } from '../../port/password-reset-token-repository.port';
+import { PasswordResetTokenNotFoundError } from '@/domain/errors/password-reset-token.error';
 import type { TokenGenerator } from '../../port/token-generator.port';
 import type { PasswordHasher } from '../../port/password-hasher.port';
 import type { UserRepository } from '../../port/user-repository.port';
 import { PASSWORD_HASHER } from '../../port/password-hasher.port';
 import { TOKEN_GENERATOR } from '../../port/token-generator.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
+import { UserNotFoundError } from '@/domain/errors/user.error';
 
 type ResetPasswordInput = {
   token: string;

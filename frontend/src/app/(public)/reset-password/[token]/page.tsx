@@ -1,9 +1,10 @@
+import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import HeroImg from '../../../../../public/hero.jpg';
+
 import { ResetPasswordForm } from './_components/reset-password-form';
+import HeroImg from '../../../../../public/hero.jpg';
+import { auth } from '@/lib/auth';
 
 type ResetPasswordProps = {
   params: Promise<{ token: string }>;

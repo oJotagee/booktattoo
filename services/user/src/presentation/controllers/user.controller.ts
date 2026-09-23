@@ -1,3 +1,5 @@
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   Body,
   Controller,
@@ -10,18 +12,17 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import type { PayloadSession } from '@/application/port/session-token-issuer.port';
-import { FindUserByIdUseCase } from '@/application/use-cases/user/find-user-by-id.use-case';
-import { UpdateUserAvatarUseCase } from '@/application/use-cases/user/update-user-avatar.use-case';
+
 import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/update-user-contact-info.use-case';
+import { UpdateUserAvatarUseCase } from '@/application/use-cases/user/update-user-avatar.use-case';
+import { UpdateUserContactInfoRequestDto } from '../dtos/user/update-user-contact-info.request.dto';
 import { UpdateUserStatusUseCase } from '@/application/use-cases/user/update-user-status.use-case';
+import { FindUserByIdUseCase } from '@/application/use-cases/user/find-user-by-id.use-case';
+import { UpdateUserStatusRequestDto } from '../dtos/user/update-user-status.request.dto';
+import type { PayloadSession } from '@/application/port/session-token-issuer.port';
 import { UnsupportedAvatarTypeError } from '@/domain/errors/user.error';
 import { JwtAuthGuard } from '../../infrastructure/auth/jwt-auth.guard';
 import { TokenPayload } from '../decorators/token-payload.decorator';
-import { UpdateUserContactInfoRequestDto } from '../dtos/user/update-user-contact-info.request.dto';
-import { UpdateUserStatusRequestDto } from '../dtos/user/update-user-status.request.dto';
 import {
   UserInfoResponse,
   UserResponseDto,

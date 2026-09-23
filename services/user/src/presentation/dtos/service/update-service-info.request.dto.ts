@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateServiceInfoRequestDto {
   @ApiProperty({ example: 'Tatuagem Fineline', required: false })

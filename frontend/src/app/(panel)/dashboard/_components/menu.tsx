@@ -1,10 +1,10 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
-import { clsx } from 'cn';
-import { LogOutIcon } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
+import { useMutation } from '@tanstack/react-query';
+import { LogOutIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { clsx } from 'cn';
 
 import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';

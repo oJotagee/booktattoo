@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { Module } from '@nestjs/common';
+
 import { S3StorageAdapter } from './s3-storage.adapter';
-import storageConfig from './storage.config';
 import { STORAGE_PORT } from './storage.port';
+import storageConfig from './storage.config';
 
 /**
  * Módulo de storage compartilhado. Importar em qualquer serviço que precise

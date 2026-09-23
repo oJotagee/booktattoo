@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsIn, IsInt, IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 const OAUTH_PROVIDERS = ['google', 'github'] as const;
 

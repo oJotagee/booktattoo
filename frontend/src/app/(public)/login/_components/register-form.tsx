@@ -4,11 +4,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+
+import { type RegisterFormValues, registerSchema } from './schemas';
+import { registerUser } from '../_actions/register';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Field,
   FieldContent,
@@ -17,9 +21,6 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import { registerUser } from '../_actions/register';
-import { type RegisterFormValues, registerSchema } from './schemas';
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);

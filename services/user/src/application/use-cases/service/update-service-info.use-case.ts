@@ -1,9 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ServiceNotFoundError } from '@/domain/errors/service.error';
-
 import type { ServiceRepository } from '../../port/service-repository.port';
 import { SERVICE_REPOSITORY } from '../../port/service-repository.port';
+import { ServiceNotFoundError } from '@/domain/errors/service.error';
 
 type UpdateServiceInfoInput = {
   serviceId: string;

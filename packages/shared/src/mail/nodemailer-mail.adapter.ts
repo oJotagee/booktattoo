@@ -1,8 +1,9 @@
+import { createTransport, type Transporter } from 'nodemailer';
 import { Inject, Injectable } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
-import { createTransport, type Transporter } from 'nodemailer';
-import mailConfig from './mail.config';
+
 import type { MailPort, SendMailInput } from './mail.port';
+import mailConfig from './mail.config';
 
 @Injectable()
 export class NodemailerMailAdapter implements MailPort {

@@ -1,9 +1,10 @@
+import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import HeroImg from '../../../../public/hero.jpg';
+
 import { AuthCard } from './_components/auth-card';
+import HeroImg from '../../../../public/hero.jpg';
+import { auth } from '@/lib/auth';
 
 export default async function Login() {
   const session = await auth();

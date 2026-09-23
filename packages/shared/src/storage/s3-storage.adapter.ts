@@ -1,15 +1,16 @@
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Inject, Injectable } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import {
   DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { Inject, Injectable } from '@nestjs/common';
-import type { ConfigType } from '@nestjs/config';
+
+import type { StoragePort, UploadFileInput, UploadFileResult } from './storage.port';
 import { buildObjectKey } from './object-key';
 import storageConfig from './storage.config';
-import type { StoragePort, UploadFileInput, UploadFileResult } from './storage.port';
 
 @Injectable()
 export class S3StorageAdapter implements StoragePort {

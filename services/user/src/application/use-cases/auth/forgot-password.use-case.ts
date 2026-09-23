@@ -1,14 +1,13 @@
-import type { MailPort } from '@bookink/shared/mail';
 import { MAIL_PORT, renderBrandEmail } from '@bookink/shared/mail';
+import type { MailPort } from '@bookink/shared/mail';
 import { Inject, Injectable } from '@nestjs/common';
-
-import { PasswordResetTokenEntity } from '@/domain/entities/password-reset-token.entity';
 
 import type { PasswordResetTokenRepository } from '../../port/password-reset-token-repository.port';
 import { PASSWORD_RESET_TOKEN_REPOSITORY } from '../../port/password-reset-token-repository.port';
+import { PasswordResetTokenEntity } from '@/domain/entities/password-reset-token.entity';
 import type { TokenGenerator } from '../../port/token-generator.port';
-import { TOKEN_GENERATOR } from '../../port/token-generator.port';
 import type { UserRepository } from '../../port/user-repository.port';
+import { TOKEN_GENERATOR } from '../../port/token-generator.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
 
 const PASSWORD_RESET_TOKEN_TTL_MS = 60 * 60 * 1000;

@@ -1,7 +1,7 @@
-import getSession from '@/lib/get-session';
 import type { UserStatus } from '../_actions/update-status';
 import DashboardHeader from '../_components/header';
 import { ProfileForm } from './_components/form';
+import getSession from '@/lib/get-session';
 
 export default async function Profile() {
   const session = await getSession();

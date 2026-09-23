@@ -2,12 +2,13 @@
 
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { GitHubIcon, GmailIcon } from './icons';
-import { LoginForm } from './login-form';
-import { RegisterForm } from './register-form';
 import { toast } from 'sonner';
+
+import { Button } from '@/components/ui/button';
+import { GitHubIcon, GmailIcon } from './icons';
+import { RegisterForm } from './register-form';
+import { LoginForm } from './login-form';
+import { cn } from '@/lib/utils';
 
 type Tab = 'login' | 'register';
 

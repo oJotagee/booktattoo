@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import mailConfig from './mail.config';
-import { MAIL_PORT } from './mail.port';
+import { Module } from '@nestjs/common';
+
 import { NodemailerMailAdapter } from './nodemailer-mail.adapter';
+import { MAIL_PORT } from './mail.port';
+import mailConfig from './mail.config';
 
 /**
  * Módulo de email compartilhado. Importar em qualquer serviço que precise

@@ -1,9 +1,10 @@
+import type { Session } from 'next-auth';
 import { LogIn } from 'lucide-react';
 import Link from 'next/link';
-import type { Session } from 'next-auth';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage, AvatarBadge } from '@/components/ui/avatar';
 import { clsx } from 'cn';
+
+import { Avatar, AvatarFallback, AvatarImage, AvatarBadge } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 
 interface NavLinksProps {
   navItems: { href: string; label: string }[];

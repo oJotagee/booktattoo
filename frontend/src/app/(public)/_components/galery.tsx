@@ -3,10 +3,11 @@
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card } from '@/components/ui/card';
+
 import { Carousel, CarouselContent, CarouselItem, CarouselSlider } from '@/components/ui/carousel';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Card } from '@/components/ui/card';
 
 const flashes = [
   {

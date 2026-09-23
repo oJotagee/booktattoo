@@ -1,18 +1,19 @@
 'use client';
 
+import { CheckCircle2, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { CheckCircle2, Eye, EyeOff, Loader2 } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import { resetPassword } from '../_actions/reset-password';
 import { type ResetPasswordFormValues, resetPasswordSchema } from './schemas';
+import { resetPassword } from '../_actions/reset-password';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 type ResetPasswordFormProps = {
   token: string;

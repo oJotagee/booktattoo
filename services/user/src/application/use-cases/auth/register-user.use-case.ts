@@ -1,13 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { UserEntity, UserStatus } from '@/domain/entities/user.entity';
-import { UserAlreadyExistsError } from '@/domain/errors/user.error';
-import { Email } from '@/domain/value-objects/email.vo';
-
 import type { PasswordHasher } from '../../port/password-hasher.port';
-import { PASSWORD_HASHER } from '../../port/password-hasher.port';
 import type { UserRepository } from '../../port/user-repository.port';
+import { UserAlreadyExistsError } from '@/domain/errors/user.error';
+import { PASSWORD_HASHER } from '../../port/password-hasher.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
+import { Email } from '@/domain/value-objects/email.vo';
 
 type RegisterUserInput = {
   name: string;

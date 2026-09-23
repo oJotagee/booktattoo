@@ -1,7 +1,8 @@
 'use server';
 
-import { isAxiosError } from 'axios';
 import { revalidatePath } from 'next/cache';
+import { isAxiosError } from 'axios';
+
 import { getAccessToken } from '@/lib/get-access-token';
 import { userServiceApi } from '@/lib/user-service-api';
 
