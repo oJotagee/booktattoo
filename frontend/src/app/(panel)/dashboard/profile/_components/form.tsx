@@ -1,16 +1,25 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
-import { cn } from 'cn';
 import { ArrowRight, Camera, Loader2 } from 'lucide-react';
-import Image from 'next/image';
-import { useSession } from 'next-auth/react';
+import { useMutation } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { Controller } from 'react-hook-form';
 import { toast } from 'sonner';
+import Image from 'next/image';
+import { cn } from 'cn';
+
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import type { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
-import { Button } from '@/components/ui/button';
+import { type ProfileSchemaData, useProfileSchema } from './schemas';
+import { updateProfile } from '../_actions/update-profile';
+import { updateAvatar } from '../_actions/update-avatar';
 import { Card, CardContent } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { formatPhone } from '@/utils/formatPhone';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -19,14 +28,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { formatPhone } from '@/utils/formatPhone';
-import { updateAvatar } from '../_actions/update-avatar';
-import { updateProfile } from '../_actions/update-profile';
-import { type ProfileSchemaData, useProfileSchema } from './profile-schema';
 
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 const ALLOWED_AVATAR_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];

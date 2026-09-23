@@ -2,10 +2,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import HeroImg from '../../../public/hero.jpg';
-import { AuthCard } from './_components/auth-card';
+import HeroImg from '../../../../public/hero.jpg';
+import { ForgotPasswordForm } from './_components/forgot-password-form';
 
-export default async function Login() {
+export default async function ForgotPassword() {
   const session = await auth();
 
   if (session) {
@@ -27,7 +27,7 @@ export default async function Login() {
       </div>
 
       <div className="flex w-full items-center justify-center px-6 py-12 lg:w-1/2">
-        <AuthCard />
+        <ForgotPasswordForm />
       </div>
     </div>
   );

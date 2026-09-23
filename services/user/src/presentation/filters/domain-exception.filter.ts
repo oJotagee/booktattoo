@@ -3,6 +3,12 @@ import { type ArgumentsHost, Catch, type ExceptionFilter, HttpStatus } from '@ne
 import { AccountAlreadyLinkedError, InvalidAccountError } from '@/domain/errors/account.error';
 import { InvalidEmailError } from '@/domain/errors/email.error';
 import {
+  InvalidPasswordResetTokenError,
+  PasswordResetTokenExpiredError,
+  PasswordResetTokenNotFoundError,
+  PasswordResetTokenUsedError,
+} from '@/domain/errors/password-reset-token.error';
+import {
   InvalidRefreshTokenError,
   RefreshTokenExpiredError,
   RefreshTokenNotFoundError,
@@ -43,6 +49,10 @@ const DOMAIN_ERRORS = [
   InvalidServiceError,
   ServiceAlreadyInStatusError,
   ServiceNotFoundError,
+  InvalidPasswordResetTokenError,
+  PasswordResetTokenExpiredError,
+  PasswordResetTokenNotFoundError,
+  PasswordResetTokenUsedError,
 ] as const;
 
 const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
@@ -54,14 +64,18 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [UnsupportedAvatarTypeError, HttpStatus.BAD_REQUEST],
   [InvalidServiceError, HttpStatus.BAD_REQUEST],
   [ServiceAlreadyInStatusError, HttpStatus.BAD_REQUEST],
+  [InvalidPasswordResetTokenError, HttpStatus.BAD_REQUEST],
 
   [InvalidCredentialsError, HttpStatus.UNAUTHORIZED],
   [RefreshTokenExpiredError, HttpStatus.UNAUTHORIZED],
   [RefreshTokenRevokedError, HttpStatus.UNAUTHORIZED],
+  [PasswordResetTokenExpiredError, HttpStatus.UNAUTHORIZED],
+  [PasswordResetTokenUsedError, HttpStatus.UNAUTHORIZED],
 
   [UserNotFoundError, HttpStatus.NOT_FOUND],
   [RefreshTokenNotFoundError, HttpStatus.NOT_FOUND],
   [ServiceNotFoundError, HttpStatus.NOT_FOUND],
+  [PasswordResetTokenNotFoundError, HttpStatus.NOT_FOUND],
 
   [UserAlreadyExistsError, HttpStatus.CONFLICT],
   [AccountAlreadyLinkedError, HttpStatus.CONFLICT],

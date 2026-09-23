@@ -182,6 +182,14 @@ export class UserEntity {
     });
   }
 
+  updatePassword(passwordHash: string): UserEntity {
+    return new UserEntity({
+      ...this.userProps,
+      passwordHash,
+      updatedAt: new Date(),
+    });
+  }
+
   activate(): UserEntity {
     if (this.status === UserStatus.ACTIVE) throw new UserAlreadyInStatusError(this.status);
 

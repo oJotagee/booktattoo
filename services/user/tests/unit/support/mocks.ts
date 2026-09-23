@@ -1,7 +1,9 @@
+import type { MailPort } from '@bookink/shared/mail';
 import { mock } from 'bun:test';
 
 import type { AccountRepository } from '@/application/port/account-repository.port';
 import type { PasswordHasher } from '@/application/port/password-hasher.port';
+import type { PasswordResetTokenRepository } from '@/application/port/password-reset-token-repository.port';
 import type { RefreshTokenRepository } from '@/application/port/refresh-token-repository.port';
 import type { ServiceRepository } from '@/application/port/service-repository.port';
 import type { SessionTokenIssuer } from '@/application/port/session-token-issuer.port';
@@ -60,5 +62,19 @@ export function createTokenGeneratorMock(): TokenGenerator {
   return {
     generateOpaqueToken: mock(() => 'opaque-refresh-token'),
     hashOpaqueToken: mock((token: string) => `hashed:${token}`),
+  };
+}
+
+export function createPasswordResetTokenRepositoryMock(): PasswordResetTokenRepository {
+  return {
+    findByTokenHash: mock(async () => null),
+    create: mock(async () => undefined),
+    update: mock(async () => undefined),
+  };
+}
+
+export function createMailPortMock(): MailPort {
+  return {
+    send: mock(async () => undefined),
   };
 }

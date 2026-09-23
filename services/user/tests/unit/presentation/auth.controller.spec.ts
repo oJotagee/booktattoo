@@ -7,15 +7,27 @@ function buildController() {
   const login = { execute: mock(async () => ({ accessToken: 'access-token' })) };
   const oauthUpsert = { execute: mock(async () => ({ accessToken: 'access-token' })) };
   const refreshToken = { execute: mock(async () => ({ accessToken: 'new-access-token' })) };
+  const forgotPassword = { execute: mock(async () => undefined) };
+  const resetPassword = { execute: mock(async () => undefined) };
 
   const controller = new AuthController(
     registerUser as never,
     login as never,
     oauthUpsert as never,
     refreshToken as never,
+    forgotPassword as never,
+    resetPassword as never,
   );
 
-  return { controller, registerUser, login, oauthUpsert, refreshToken };
+  return {
+    controller,
+    registerUser,
+    login,
+    oauthUpsert,
+    refreshToken,
+    forgotPassword,
+    resetPassword,
+  };
 }
 
 describe('AuthController', () => {
@@ -59,5 +71,23 @@ describe('AuthController', () => {
     await controller.refresh(body);
 
     expect(refreshToken.execute).toHaveBeenCalledWith(body);
+  });
+
+  it('delegates forgot password to ForgotPasswordUseCase', async () => {
+    const { controller, forgotPassword } = buildController();
+    const body = { email: 'john.doe@example.com' };
+
+    await controller.requestPasswordReset(body);
+
+    expect(forgotPassword.execute).toHaveBeenCalledWith(body);
+  });
+
+  it('delegates reset password to ResetPasswordUseCase', async () => {
+    const { controller, resetPassword } = buildController();
+    const body = { token: 'opaque-reset-token', newPassword: 'NewPassword123!' };
+
+    await controller.resetPasswordWithToken(body);
+
+    expect(resetPassword.execute).toHaveBeenCalledWith(body);
   });
 });
