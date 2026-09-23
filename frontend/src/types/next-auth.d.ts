@@ -1,5 +1,6 @@
-import { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
 import type { DefaultSession } from 'next-auth';
+
+import { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
 
 declare module 'next-auth' {
   interface Session {
@@ -7,7 +8,7 @@ declare module 'next-auth' {
     user: UserProps & DefaultSession['user'];
   }
 
-  interface User extends UserProps {}
+  interface User extends UserProps { }
 }
 
 interface UserProps {

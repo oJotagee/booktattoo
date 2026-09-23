@@ -1,8 +1,9 @@
+import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
+import GitHub from 'next-auth/providers/github';
 import { isAxiosError } from 'axios';
 import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import GitHub from 'next-auth/providers/github';
-import Google from 'next-auth/providers/google';
+
 import type { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
 import { type UserServiceSession, userServiceApi } from './user-service-api';
 

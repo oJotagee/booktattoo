@@ -1,5 +1,6 @@
-import { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
 import axios from 'axios';
+
+import { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
 
 export const userServiceApi = axios.create({
   baseURL: process.env.USER_SERVICE_URL ?? 'http://localhost:8081',

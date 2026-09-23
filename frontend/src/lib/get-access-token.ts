@@ -1,5 +1,5 @@
-import { headers } from 'next/headers';
 import { getToken } from 'next-auth/jwt';
+import { headers } from 'next/headers';
 
 export async function getAccessToken(): Promise<string | null> {
   const token = await getToken({
