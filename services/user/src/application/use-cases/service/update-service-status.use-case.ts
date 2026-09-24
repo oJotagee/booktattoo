@@ -8,6 +8,7 @@ import { ServiceNotFoundError } from '@/domain/errors/service.error';
 type UpdateServiceStatusInput = {
   serviceId: string;
   status: boolean;
+  userId: string;
 };
 
 type UpdateServiceStatusOutput = {
@@ -21,14 +22,17 @@ export class UpdateServiceStatusUseCase {
   constructor(
     @Inject(SERVICE_REPOSITORY)
     private readonly services: ServiceRepository,
-  ) {}
+  ) { }
 
   async execute({
     serviceId,
     status,
+    userId,
   }: UpdateServiceStatusInput): Promise<UpdateServiceStatusOutput> {
     const service = await this.services.findById(serviceId);
     if (!service) throw new ServiceNotFoundError(serviceId);
+
+    if (service.userId !== userId) throw new Error('Usuario não autorizado');
 
     const updatedService = this.applyStatus(service, status);
 

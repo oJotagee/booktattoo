@@ -20,12 +20,14 @@ export class FindServiceByIdUseCase {
   constructor(
     @Inject(SERVICE_REPOSITORY)
     private readonly services: ServiceRepository,
-  ) {}
+  ) { }
 
-  async execute({ id }: { id: string }): Promise<FindServiceByIdOutput> {
+  async execute({ id, userId }: { id: string; userId: string }): Promise<FindServiceByIdOutput> {
     const service = await this.services.findById(id);
 
     if (!service) throw new ServiceNotFoundError(id);
+
+    if (service.userId !== userId) throw new Error('Usuario não autorizado');
 
     return {
       id: service.id,

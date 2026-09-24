@@ -28,11 +28,13 @@ export class UpdateServiceInfoUseCase {
   constructor(
     @Inject(SERVICE_REPOSITORY)
     private readonly services: ServiceRepository,
-  ) {}
+  ) { }
 
   async execute({ serviceId, ...input }: UpdateServiceInfoInput): Promise<UpdateServiceInfoOutput> {
     const service = await this.services.findById(serviceId);
     if (!service) throw new ServiceNotFoundError(serviceId);
+
+    if (service.userId !== input.userId) throw new Error('Usuario não autorizado');
 
     const updatedService = service.updateInfo({
       name: input.name,
