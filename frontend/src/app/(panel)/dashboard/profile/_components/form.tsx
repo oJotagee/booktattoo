@@ -316,7 +316,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
               control={profileSchema.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Função</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Estilo</FieldLabel>
                   <Input {...field} id={field.name} aria-invalid={fieldState.invalid} />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
