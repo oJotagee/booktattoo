@@ -9,8 +9,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '*.s3.*.amazonaws.com',
+        hostname: 'lh3.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: '*.s3.*.amazonaws.com',
+      }
     ],
   },
 };

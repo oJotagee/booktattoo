@@ -42,8 +42,8 @@ export function LoginForm() {
       return result;
     },
     onSuccess: () => {
-      toast.success('Login realizado com sucesso!');
       router.push('/dashboard');
+      toast.success('Login realizado com sucesso!');
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : 'Não foi possível entrar.');
