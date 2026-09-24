@@ -245,7 +245,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
           </div>
           <div>
             <p className="font-medium leading-none">{displayName}</p>
-            {currentUser.address && <p className="mt-1.5 text-sm text-muted-foreground">Artista</p>}
+            <p className="mt-1.5 text-sm text-muted-foreground">Artista</p>
           </div>
         </CardContent>
       </Card>
