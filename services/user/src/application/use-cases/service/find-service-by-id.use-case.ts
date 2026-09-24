@@ -20,7 +20,7 @@ export class FindServiceByIdUseCase {
   constructor(
     @Inject(SERVICE_REPOSITORY)
     private readonly services: ServiceRepository,
-  ) { }
+  ) {}
 
   async execute({ id, userId }: { id: string; userId: string }): Promise<FindServiceByIdOutput> {
     const service = await this.services.findById(id);

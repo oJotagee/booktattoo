@@ -22,6 +22,10 @@
       "style": {
         "useImportType": "off"
       }
+    },
+    "domains": {
+      "next": "recommended",
+      "react": "recommended"
     }
   },
   "assist": {

@@ -18,7 +18,7 @@ describe('UpdateServiceStatusUseCase', () => {
     const service = buildService().deactivate();
     services.findById = async () => service;
 
-    const result = await useCase.execute({ serviceId: service.id, status: true });
+    const result = await useCase.execute({ serviceId: service.id, status: true, userId: 'user-1' });
 
     expect(result.status).toBe(true);
   });
@@ -27,7 +27,11 @@ describe('UpdateServiceStatusUseCase', () => {
     const service = buildService();
     services.findById = async () => service;
 
-    const result = await useCase.execute({ serviceId: service.id, status: false });
+    const result = await useCase.execute({
+      serviceId: service.id,
+      status: false,
+      userId: 'user-1',
+    });
 
     expect(result.status).toBe(false);
   });
@@ -36,16 +40,26 @@ describe('UpdateServiceStatusUseCase', () => {
     const service = buildService();
     services.findById = async () => service;
 
-    await expect(useCase.execute({ serviceId: service.id, status: true })).rejects.toThrow(
-      ServiceAlreadyInStatusError,
-    );
+    await expect(
+      useCase.execute({ serviceId: service.id, status: true, userId: 'user-1' }),
+    ).rejects.toThrow(ServiceAlreadyInStatusError);
   });
 
   it('throws ServiceNotFoundError when the service does not exist', async () => {
     services.findById = async () => null;
 
-    await expect(useCase.execute({ serviceId: 'missing-service', status: true })).rejects.toThrow(
-      ServiceNotFoundError,
-    );
+    await expect(
+      useCase.execute({ serviceId: 'missing-service', status: true, userId: 'user-1' }),
+    ).rejects.toThrow(ServiceNotFoundError);
+  });
+
+  it('throws when the service belongs to another user', async () => {
+    const service = buildService({ userId: 'user-1' });
+    services.findById = async () => service;
+
+    await expect(
+      useCase.execute({ serviceId: service.id, status: false, userId: 'user-2' }),
+    ).rejects.toThrow('Usuario não autorizado');
+    expect(services.update).not.toHaveBeenCalled();
   });
 });

@@ -51,9 +51,9 @@ describe('ServiceController', () => {
   it('delegates fetching a service by id to FindServiceByIdUseCase', async () => {
     const { controller, findServiceById } = buildController();
 
-    await controller.findById('service-1');
+    await controller.findById('service-1', payload);
 
-    expect(findServiceById.execute).toHaveBeenCalledWith({ id: 'service-1' });
+    expect(findServiceById.execute).toHaveBeenCalledWith({ id: 'service-1', userId: payload.sub });
   });
 
   it('delegates creating a service to CreateServiceUseCase', async () => {
@@ -82,11 +82,12 @@ describe('ServiceController', () => {
     const { controller, updateServiceStatus } = buildController();
     const body = { status: false };
 
-    await controller.updateStatus('service-1', body);
+    await controller.updateStatus('service-1', body, payload);
 
     expect(updateServiceStatus.execute).toHaveBeenCalledWith({
       serviceId: 'service-1',
       status: body.status,
+      userId: payload.sub,
     });
   });
 });

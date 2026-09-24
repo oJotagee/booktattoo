@@ -28,7 +28,7 @@ export class ServiceController {
     private readonly findServicesByUser: FindServicesByUserUseCase,
     private readonly updateServiceInfo: UpdateServiceInfoUseCase,
     private readonly updateServiceStatus: UpdateServiceStatusUseCase,
-  ) { }
+  ) {}
 
   @Get()
   @ApiBearerAuth()
@@ -49,7 +49,10 @@ export class ServiceController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: ServiceResponseDto })
-  findById(@Param('id') id: string, @TokenPayload() payload: PayloadSession): Promise<ServiceResponseDto> {
+  findById(
+    @Param('id') id: string,
+    @TokenPayload() payload: PayloadSession,
+  ): Promise<ServiceResponseDto> {
     return this.findServiceById.execute({ id, userId: payload.sub });
   }
 
@@ -85,6 +88,10 @@ export class ServiceController {
     @Body() body: UpdateServiceStatusRequestDto,
     @TokenPayload() payload: PayloadSession,
   ): Promise<ServiceUpdateStatusResponseDto> {
-    return this.updateServiceStatus.execute({ serviceId: id, status: body.status, userId: payload.sub });
+    return this.updateServiceStatus.execute({
+      serviceId: id,
+      status: body.status,
+      userId: payload.sub,
+    });
   }
 }

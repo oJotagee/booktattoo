@@ -69,4 +69,13 @@ describe('UpdateServiceInfoUseCase', () => {
       useCase.execute({ serviceId: 'missing-service', userId: 'user-1', name: 'Blackwork' }),
     ).rejects.toThrow(ServiceNotFoundError);
   });
+
+  it('throws when the service belongs to another user', async () => {
+    services.findById = async () => buildService({ id: 'service-1', userId: 'user-1' });
+
+    await expect(
+      useCase.execute({ serviceId: 'service-1', userId: 'user-2', name: 'Blackwork' }),
+    ).rejects.toThrow('Usuario não autorizado');
+    expect(services.update).not.toHaveBeenCalled();
+  });
 });

@@ -28,7 +28,7 @@ export class UpdateServiceInfoUseCase {
   constructor(
     @Inject(SERVICE_REPOSITORY)
     private readonly services: ServiceRepository,
-  ) { }
+  ) {}
 
   async execute({ serviceId, ...input }: UpdateServiceInfoInput): Promise<UpdateServiceInfoOutput> {
     const service = await this.services.findById(serviceId);

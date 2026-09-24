@@ -18,7 +18,7 @@ describe('FindServiceByIdUseCase', () => {
     const service = buildService({ id: 'service-1', name: 'Tatuagem Fineline' });
     services.findById = async () => service;
 
-    const result = await useCase.execute({ id: 'service-1' });
+    const result = await useCase.execute({ id: 'service-1', userId: 'user-1' });
 
     expect(result).toEqual({
       id: service.id,
@@ -35,6 +35,16 @@ describe('FindServiceByIdUseCase', () => {
   it('throws ServiceNotFoundError when the service does not exist', async () => {
     services.findById = async () => null;
 
-    await expect(useCase.execute({ id: 'missing-service' })).rejects.toThrow(ServiceNotFoundError);
+    await expect(useCase.execute({ id: 'missing-service', userId: 'user-1' })).rejects.toThrow(
+      ServiceNotFoundError,
+    );
+  });
+
+  it('throws when the service belongs to another user', async () => {
+    services.findById = async () => buildService({ id: 'service-1', userId: 'user-1' });
+
+    await expect(useCase.execute({ id: 'service-1', userId: 'user-2' })).rejects.toThrow(
+      'Usuario não autorizado',
+    );
   });
 });

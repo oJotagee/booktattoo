@@ -10,7 +10,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PrismaServiceRepository implements ServiceRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: string): Promise<ServiceEntity | null> {
     const service = await this.prisma.service.findUnique({ where: { id } });

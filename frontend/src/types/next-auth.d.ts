@@ -8,7 +8,7 @@ declare module 'next-auth' {
     user: UserProps & DefaultSession['user'];
   }
 
-  interface User extends UserProps { }
+  interface User extends UserProps {}
 }
 
 interface UserProps {

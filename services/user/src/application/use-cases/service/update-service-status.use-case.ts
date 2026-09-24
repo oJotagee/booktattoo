@@ -22,7 +22,7 @@ export class UpdateServiceStatusUseCase {
   constructor(
     @Inject(SERVICE_REPOSITORY)
     private readonly services: ServiceRepository,
-  ) { }
+  ) {}
 
   async execute({
     serviceId,
