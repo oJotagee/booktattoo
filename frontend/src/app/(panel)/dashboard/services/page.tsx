@@ -24,6 +24,9 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
         subtitle={`${services.pagination.total} serviços cadastrados`}
       />
 
+      <h1 className="text-xl font-bold md:hidden">Serviços</h1>
+      <h2 className="text-white/30 text-sm mb-4 md:hidden">{services.pagination.total} serviços cadastrados</h2>
+
       <ServiceContent services={services.list} pagination={services.pagination} />
     </>
   );

@@ -20,6 +20,10 @@ export default async function Profile() {
   return (
     <>
       <DashboardHeader title="Meu Perfil" subtitle="Gerencie suas informações de artista" />
+
+      <h1 className="text-xl font-bold md:hidden">Meu Perfil</h1>
+      <h2 className="text-white/30 text-sm mb-4 md:hidden">Gerencie suas informações de artista</h2>
+
       <ProfileForm user={user} />
     </>
   );
