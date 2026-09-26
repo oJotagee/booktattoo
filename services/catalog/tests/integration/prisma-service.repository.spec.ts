@@ -4,39 +4,13 @@ import { config } from 'dotenv';
 config({ path: `${import.meta.dir}/../../.env` });
 
 import { ServiceEntity } from '@/domain/entities/service.entity';
-import { UserEntity, UserStatus } from '@/domain/entities/user.entity';
-import { Email } from '@/domain/value-objects/email.vo';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 import { PrismaServiceRepository } from '@/infrastructure/repository/prisma-service.repository';
-import { PrismaUserRepository } from '@/infrastructure/repository/prisma-user.repository';
 
 describe('PrismaServiceRepository (integration)', () => {
   const prismaService = new PrismaService();
   const repository = new PrismaServiceRepository(prismaService);
-  const userRepository = new PrismaUserRepository(prismaService);
   const createdServiceIds: string[] = [];
-  const createdUserIds: string[] = [];
-
-  async function buildUser() {
-    const user = UserEntity.create({
-      id: crypto.randomUUID(),
-      name: 'Joao',
-      email: Email.create({ value: `joao-${crypto.randomUUID()}@example.com` }),
-      image: null,
-      address: null,
-      phone: null,
-      bio: null,
-      role: null,
-      status: UserStatus.ACTIVE,
-      times: [],
-      stripeCustomerId: null,
-      password: 'hashed-password',
-    });
-    createdUserIds.push(user.id);
-    await userRepository.create(user);
-
-    return user;
-  }
 
   function buildService(
     overrides: Partial<{
@@ -68,11 +42,6 @@ describe('PrismaServiceRepository (integration)', () => {
       await prismaService.service.deleteMany({ where: { id: { in: createdServiceIds } } });
       createdServiceIds.length = 0;
     }
-
-    if (createdUserIds.length > 0) {
-      await prismaService.user.deleteMany({ where: { id: { in: createdUserIds } } });
-      createdUserIds.length = 0;
-    }
   });
 
   afterAll(async () => {
@@ -81,7 +50,7 @@ describe('PrismaServiceRepository (integration)', () => {
 
   describe('create + findById', () => {
     it('persists a service and rehydrates it from the database', async () => {
-      const user = await buildUser();
+      const user = { id: crypto.randomUUID() };
       const service = buildService({ userId: user.id });
 
       await repository.create(service);
@@ -107,7 +76,7 @@ describe('PrismaServiceRepository (integration)', () => {
 
   describe('findByUserId', () => {
     it('finds all services belonging to a user', async () => {
-      const user = await buildUser();
+      const user = { id: crypto.randomUUID() };
       const serviceA = buildService({ userId: user.id, name: 'Fineline' });
       const serviceB = buildService({ userId: user.id, name: 'Blackwork' });
       await repository.create(serviceA);
@@ -123,7 +92,7 @@ describe('PrismaServiceRepository (integration)', () => {
     });
 
     it('returns an empty page when the user has no services', async () => {
-      const user = await buildUser();
+      const user = { id: crypto.randomUUID() };
 
       const found = await repository.findByUserId({ userId: user.id, limit: 10, offset: 0 });
 
@@ -132,7 +101,7 @@ describe('PrismaServiceRepository (integration)', () => {
     });
 
     it('respects limit and offset', async () => {
-      const user = await buildUser();
+      const user = { id: crypto.randomUUID() };
       const serviceA = buildService({ userId: user.id, name: 'Fineline' });
       const serviceB = buildService({ userId: user.id, name: 'Blackwork' });
       await repository.create(serviceA);
@@ -147,7 +116,7 @@ describe('PrismaServiceRepository (integration)', () => {
 
   describe('update', () => {
     it('persists changes made to the service', async () => {
-      const user = await buildUser();
+      const user = { id: crypto.randomUUID() };
       const service = buildService({ userId: user.id });
       await repository.create(service);
 
@@ -161,7 +130,7 @@ describe('PrismaServiceRepository (integration)', () => {
     });
 
     it('persists status transitions', async () => {
-      const user = await buildUser();
+      const user = { id: crypto.randomUUID() };
       const service = buildService({ userId: user.id });
       await repository.create(service);
 

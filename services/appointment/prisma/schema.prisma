@@ -7,25 +7,67 @@ datasource db {
   provider = "postgresql"
 }
 
-model Appointment {
-  id              String   @id @default(cuid())
-  name            String
-  email           String
-  phone           String
-  appointmentDate DateTime
-  time            String
-  status          String   @default("scheduled") // "scheduled" | "cancelled" | "completed"
-
-  userId    String
-  serviceId String
-
-  serviceName     String
-  servicePrice    Int
-  serviceDuration Int
+model Reminder {
+  id          String @id @default(cuid())
+  description String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  userId String
+
   @@index([userId])
-  @@index([serviceId])
+}
+
+enum BookingRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model BookingRequest {
+  id            String               @id @default(cuid())
+  clientName    String
+  clientContact String
+  message       String?
+  status        BookingRequestStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+
+  appointment Appointment?
+
+  @@index([userId])
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Appointment {
+  id            String            @id @default(cuid())
+  clientName    String
+  clientContact String
+  scheduledAt   DateTime
+  duration      Int // congelado no momento da criação
+  price         Int // congelado no momento da criação
+  status        AppointmentStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+
+  serviceId String?
+  galeryId  String? @unique
+
+  bookingRequestId String?         @unique
+  bookingRequest   BookingRequest? @relation(fields: [bookingRequestId], references: [id])
+
+  @@index([userId])
 }

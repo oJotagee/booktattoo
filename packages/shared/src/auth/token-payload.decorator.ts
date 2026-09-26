@@ -1,9 +1,9 @@
 import { createParamDecorator, type ExecutionContext } from '@nestjs/common';
-import type { PayloadSession } from '../../application/port/session-token-issuer.port';
-import { AUTH_TOKEN_PAYLOAD } from '../../infrastructure/auth/auth.constant';
+import { AUTH_TOKEN_PAYLOAD } from './auth.constant';
+import type { SessionPayload } from './session-payload';
 
 export const TokenPayload = createParamDecorator(
-  (_data: unknown, context: ExecutionContext): PayloadSession => {
+  (_data: unknown, context: ExecutionContext): SessionPayload => {
     const request = context.switchToHttp().getRequest();
     return request[AUTH_TOKEN_PAYLOAD];
   },

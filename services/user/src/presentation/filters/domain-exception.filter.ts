@@ -15,11 +15,6 @@ import {
   RefreshTokenRevokedError,
 } from '@/domain/errors/refresh-token.error';
 import {
-  InvalidServiceError,
-  ServiceAlreadyInStatusError,
-  ServiceNotFoundError,
-} from '@/domain/errors/service.error';
-import {
   InvalidCredentialsError,
   InvalidUserError,
   UnsupportedAvatarTypeError,
@@ -46,9 +41,6 @@ const DOMAIN_ERRORS = [
   UserAlreadyExistsError,
   AccountAlreadyLinkedError,
   UnsupportedAvatarTypeError,
-  InvalidServiceError,
-  ServiceAlreadyInStatusError,
-  ServiceNotFoundError,
   InvalidPasswordResetTokenError,
   PasswordResetTokenExpiredError,
   PasswordResetTokenNotFoundError,
@@ -62,8 +54,6 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [InvalidRefreshTokenError, HttpStatus.BAD_REQUEST],
   [UserAlreadyInStatusError, HttpStatus.BAD_REQUEST],
   [UnsupportedAvatarTypeError, HttpStatus.BAD_REQUEST],
-  [InvalidServiceError, HttpStatus.BAD_REQUEST],
-  [ServiceAlreadyInStatusError, HttpStatus.BAD_REQUEST],
   [InvalidPasswordResetTokenError, HttpStatus.BAD_REQUEST],
 
   [InvalidCredentialsError, HttpStatus.UNAUTHORIZED],
@@ -74,7 +64,6 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
 
   [UserNotFoundError, HttpStatus.NOT_FOUND],
   [RefreshTokenNotFoundError, HttpStatus.NOT_FOUND],
-  [ServiceNotFoundError, HttpStatus.NOT_FOUND],
   [PasswordResetTokenNotFoundError, HttpStatus.NOT_FOUND],
 
   [UserAlreadyExistsError, HttpStatus.CONFLICT],

@@ -9,10 +9,8 @@ import { FindServiceByIdUseCase } from '@/application/use-cases/service/find-ser
 import { UpdateServiceStatusRequestDto } from '../dtos/service/update-service-status.request.dto';
 import { CreateServiceUseCase } from '@/application/use-cases/service/create-service.use-case';
 import { UpdateServiceInfoRequestDto } from '../dtos/service/update-service-info.request.dto';
+import { JwtAuthGuard, type SessionPayload, TokenPayload } from '@bookink/shared/auth';
 import { CreateServiceRequestDto } from '../dtos/service/create-service.request.dto';
-import type { PayloadSession } from '@/application/port/session-token-issuer.port';
-import { JwtAuthGuard } from '../../infrastructure/auth/jwt-auth.guard';
-import { TokenPayload } from '../decorators/token-payload.decorator';
 import {
   ServiceListResponseDto,
   ServiceResponseDto,
@@ -35,7 +33,7 @@ export class ServiceController {
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: ServiceListResponseDto })
   findMine(
-    @TokenPayload() payload: PayloadSession,
+    @TokenPayload() payload: SessionPayload,
     @Query() filter: FilterDto,
   ): Promise<ServiceListResponseDto> {
     return this.findServicesByUser.execute({
@@ -51,7 +49,7 @@ export class ServiceController {
   @ApiOkResponse({ type: ServiceResponseDto })
   findById(
     @Param('id') id: string,
-    @TokenPayload() payload: PayloadSession,
+    @TokenPayload() payload: SessionPayload,
   ): Promise<ServiceResponseDto> {
     return this.findServiceById.execute({ id, userId: payload.sub });
   }
@@ -61,7 +59,7 @@ export class ServiceController {
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: ServiceResponseDto })
   create(
-    @TokenPayload() payload: PayloadSession,
+    @TokenPayload() payload: SessionPayload,
     @Body() body: CreateServiceRequestDto,
   ): Promise<ServiceResponseDto> {
     return this.createService.execute({ userId: payload.sub, ...body });
@@ -72,7 +70,7 @@ export class ServiceController {
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: ServiceResponseDto })
   update(
-    @TokenPayload() payload: PayloadSession,
+    @TokenPayload() payload: SessionPayload,
     @Param('id') id: string,
     @Body() body: UpdateServiceInfoRequestDto,
   ): Promise<ServiceResponseDto> {
@@ -86,7 +84,7 @@ export class ServiceController {
   updateStatus(
     @Param('id') id: string,
     @Body() body: UpdateServiceStatusRequestDto,
-    @TokenPayload() payload: PayloadSession,
+    @TokenPayload() payload: SessionPayload,
   ): Promise<ServiceUpdateStatusResponseDto> {
     return this.updateServiceStatus.execute({
       serviceId: id,

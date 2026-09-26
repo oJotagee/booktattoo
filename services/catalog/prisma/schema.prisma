@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Service {
+  id            String  @id @default(cuid())
+  name          String
+  duration      Int
+  depositAmount Int
+  status        Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+
+  galeries Galery[]
+
+  @@index([userId])
+}
+
+enum GaleryStyle {
+  TRADICIONAL
+  JAPONES
+  BLACKWORK
+  FINELINE
+  NEOTRADICIONAL
+  CHICANO
+  REALISMO
+  MINIMALISTA
+}
+
+model Galery {
+  id        String       @id @default(cuid())
+  title     String
+  imageUrl  String
+  size      String?
+  price     Int
+  style     GaleryStyle?
+  available Boolean      @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  @@index([userId])
+  @@index([serviceId])
+}

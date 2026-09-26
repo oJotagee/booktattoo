@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test';
 
-import type { PayloadSession } from '@/application/port/session-token-issuer.port';
+import type { SessionPayload } from '@bookink/shared/auth';
 import { ServiceController } from '@/presentation/controllers/service.controller';
 
 function buildController() {
@@ -33,7 +33,7 @@ function buildController() {
   };
 }
 
-const payload: PayloadSession = { sub: 'user-1', email: 'john.doe@example.com' };
+const payload: SessionPayload = { sub: 'user-1', email: 'john.doe@example.com' };
 
 describe('ServiceController', () => {
   it('delegates listing the user services to FindServicesByUserUseCase', async () => {

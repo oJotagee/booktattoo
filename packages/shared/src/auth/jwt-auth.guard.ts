@@ -1,5 +1,3 @@
-import type { ConfigType } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import {
   type CanActivate,
   type ExecutionContext,
@@ -7,21 +5,23 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-
-import type { PayloadSession } from '@/application/port/session-token-issuer.port';
+import type { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { AUTH_TOKEN_PAYLOAD } from './auth.constant';
-import jwtConfig from '../config/jwt.config';
+import jwtVerifyConfig from './jwt-verify.config';
+import type { SessionPayload } from './session-payload';
 
 type IncomingRequest = {
   headers: { authorization?: string };
-  [AUTH_TOKEN_PAYLOAD]?: PayloadSession;
+  [AUTH_TOKEN_PAYLOAD]?: SessionPayload;
 };
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    @Inject(jwtConfig.KEY) private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    @Inject(jwtVerifyConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtVerifyConfig>,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -31,10 +31,10 @@ export class JwtAuthGuard implements CanActivate {
     if (!token) throw new UnauthorizedException('Token ausente.');
 
     try {
-      const payload = await this.jwtService.verifyAsync<PayloadSession>(
-        token,
-        this.jwtConfiguration,
-      );
+      const payload = await this.jwtService.verifyAsync<SessionPayload>(token, {
+        secret: this.jwtConfiguration.secret,
+        algorithms: ['HS256'],
+      });
       request[AUTH_TOKEN_PAYLOAD] = payload;
       return true;
     } catch {

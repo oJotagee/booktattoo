@@ -15,3 +15,5 @@ export function createAxiosError(status: number, data?: unknown) {
     response: { status, data },
   };
 }
+
+export const createCatalogServiceApiMock = createUserServiceApiMock;

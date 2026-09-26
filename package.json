@@ -10,9 +10,10 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "test:unit": "bun test services/user/tests/unit",
+    "test:unit": "bun test services/user/tests/unit services/catalog/tests/unit",
     "test:unit:frontend": "bun run --cwd frontend test",
     "test:integration:user": "bun run --cwd services/user test:integration",
+    "test:integration:catalog": "bun run --cwd services/catalog test:integration",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
     "docker:prune": "docker compose down -v --remove-orphans",
@@ -24,7 +25,10 @@
     "prisma:studio:user": "bunx prisma studio --config services/user/prisma.config.ts",
     "prisma:migrate:dev:appointment": "bun prisma migrate dev --config services/appointment/prisma.config.ts",
     "prisma:generate:appointment": "bunx prisma generate --config services/appointment/prisma.config.ts",
-    "prisma:studio:appointment": "bunx prisma studio --config services/appointment/prisma.config.ts"
+    "prisma:studio:appointment": "bunx prisma studio --config services/appointment/prisma.config.ts",
+    "prisma:migrate:dev:catalog": "bun prisma migrate dev --config services/catalog/prisma.config.ts",
+    "prisma:generate:catalog": "bunx prisma generate --config services/catalog/prisma.config.ts",
+    "prisma:studio:catalog": "bunx prisma studio --config services/catalog/prisma.config.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.2",

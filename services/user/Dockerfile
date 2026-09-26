@@ -15,6 +15,7 @@ ENV DATABASE_URL="postgresql://user:password@localhost:5432/dummy"
 COPY package.json bun.lock ./
 COPY packages/shared/package.json ./packages/shared/
 COPY services/user/package.json ./services/user/
+COPY services/catalog/package.json ./services/catalog/
 COPY services/appointment/package.json ./services/appointment/
 
 RUN bun install --frozen-lockfile --ignore-scripts
@@ -38,6 +39,7 @@ ENV PORT=8081
 COPY package.json bun.lock ./
 COPY packages/shared/package.json ./packages/shared/
 COPY services/user/package.json ./services/user/
+COPY services/catalog/package.json ./services/catalog/
 COPY services/appointment/package.json ./services/appointment/
 
 RUN bun install --frozen-lockfile --production --ignore-scripts

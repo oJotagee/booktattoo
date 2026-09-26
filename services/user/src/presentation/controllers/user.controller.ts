@@ -21,8 +21,7 @@ import { FindUserByIdUseCase } from '@/application/use-cases/user/find-user-by-i
 import { UpdateUserStatusRequestDto } from '../dtos/user/update-user-status.request.dto';
 import type { PayloadSession } from '@/application/port/session-token-issuer.port';
 import { UnsupportedAvatarTypeError } from '@/domain/errors/user.error';
-import { JwtAuthGuard } from '../../infrastructure/auth/jwt-auth.guard';
-import { TokenPayload } from '../decorators/token-payload.decorator';
+import { JwtAuthGuard, TokenPayload } from '@bookink/shared/auth';
 import {
   UserInfoResponse,
   UserResponseDto,

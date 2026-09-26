@@ -1,22 +1,17 @@
 import { StorageModule } from '@bookink/shared/storage';
 import { MailModule } from '@bookink/shared/mail';
+import { JwtAuthModule } from '@bookink/shared/auth';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 
 import { PrismaPasswordResetTokenRepository } from './infrastructure/repository/prisma-password-reset-token.repository';
 import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/update-user-contact-info.use-case';
-import { UpdateServiceStatusUseCase } from '@/application/use-cases/service/update-service-status.use-case';
-import { FindServicesByUserUseCase } from '@/application/use-cases/service/find-services-by-user.use-case';
 import { PrismaRefreshTokenRepository } from './infrastructure/repository/prisma-refresh-token.repository';
 import { PASSWORD_RESET_TOKEN_REPOSITORY } from '@/application/port/password-reset-token-repository.port';
-import { UpdateServiceInfoUseCase } from '@/application/use-cases/service/update-service-info.use-case';
-import { FindServiceByIdUseCase } from '@/application/use-cases/service/find-service-by-id.use-case';
 import { UpdateUserAvatarUseCase } from '@/application/use-cases/user/update-user-avatar.use-case';
 import { UpdateUserStatusUseCase } from '@/application/use-cases/user/update-user-status.use-case';
 import { PrismaAccountRepository } from './infrastructure/repository/prisma-account.repository';
-import { PrismaServiceRepository } from './infrastructure/repository/prisma-service.repository';
-import { CreateServiceUseCase } from '@/application/use-cases/service/create-service.use-case';
 import { ForgotPasswordUseCase } from '@/application/use-cases/auth/forgot-password.use-case';
 import { FindUserByIdUseCase } from '@/application/use-cases/user/find-user-by-id.use-case';
 import { REFRESH_TOKEN_REPOSITORY } from '@/application/port/refresh-token-repository.port';
@@ -29,10 +24,8 @@ import { JwtSessionTokenIssuer } from './infrastructure/auth/jwt-session-token-i
 import { BcryptPasswordHasher } from './infrastructure/crypto/bcrypt-password-hasher';
 import { SESSION_TOKEN_ISSUER } from '@/application/port/session-token-issuer.port';
 import { NodeTokenGenerator } from './infrastructure/crypto/node-token-generator';
-import { ServiceController } from './presentation/controllers/service.controller';
 import { ACCOUNT_REPOSITORY } from '@/application/port/account-repository.port';
 import { HealthController } from './presentation/controllers/health.controller';
-import { SERVICE_REPOSITORY } from './application/port/service-repository.port';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { UserController } from './presentation/controllers/user.controller';
 import { LoginUseCase } from '@/application/use-cases/auth/login.use-case';
@@ -40,7 +33,6 @@ import { PASSWORD_HASHER } from '@/application/port/password-hasher.port';
 import { TOKEN_GENERATOR } from '@/application/port/token-generator.port';
 import { USER_REPOSITORY } from '@/application/port/user-repository.port';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
-import { JwtAuthGuard } from './infrastructure/auth/jwt-auth.guard';
 import jwtConfig from './infrastructure/config/jwt.config';
 
 @Module({
@@ -49,11 +41,11 @@ import jwtConfig from './infrastructure/config/jwt.config';
     JwtModule.registerAsync(jwtConfig.asProvider()),
     StorageModule,
     MailModule,
+    JwtAuthModule,
   ],
-  controllers: [AuthController, UserController, ServiceController, HealthController],
+  controllers: [AuthController, UserController, HealthController],
   providers: [
     PrismaService,
-    JwtAuthGuard,
     RegisterUserUseCase,
     LoginUseCase,
     OAuthUpsertUseCase,
@@ -64,11 +56,6 @@ import jwtConfig from './infrastructure/config/jwt.config';
     UpdateUserContactInfoUseCase,
     UpdateUserStatusUseCase,
     UpdateUserAvatarUseCase,
-    CreateServiceUseCase,
-    FindServiceByIdUseCase,
-    FindServicesByUserUseCase,
-    UpdateServiceInfoUseCase,
-    UpdateServiceStatusUseCase,
     {
       provide: USER_REPOSITORY,
       useClass: PrismaUserRepository,
@@ -96,10 +83,6 @@ import jwtConfig from './infrastructure/config/jwt.config';
     {
       provide: SESSION_TOKEN_ISSUER,
       useClass: JwtSessionTokenIssuer,
-    },
-    {
-      provide: SERVICE_REPOSITORY,
-      useClass: PrismaServiceRepository,
     },
   ],
 })

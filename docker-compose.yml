@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: postgres
       # variável CUSTOMIZADA, lida pelo init-databases.sh:
-      POSTGRES_EXTRA_DATABASES: user, appointment
+      POSTGRES_EXTRA_DATABASES: user, appointment, catalog
     volumes:
       # ATENÇÃO Postgres 18+: monte em /var/lib/postgresql (SEM /data no fim).
       # Montar em /var/lib/postgresql/data quebra a imagem 18+.

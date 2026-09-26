@@ -5,7 +5,7 @@ import { isAxiosError } from 'axios';
 
 import type { Service } from '../_data_access/get-all-services';
 import { getAccessToken } from '@/lib/get-access-token';
-import { userServiceApi } from '@/lib/user-service-api';
+import { catalogServiceApi } from '@/lib/catalog-service-api';
 
 export type CreateServiceInput = {
   name: string;
@@ -20,7 +20,7 @@ export async function createService(
   if (!accessToken) return { error: 'Usuário não autenticado' };
 
   try {
-    const { data } = await userServiceApi.post<Service>('/services', input, {
+    const { data } = await catalogServiceApi.post<Service>('/services', input, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
