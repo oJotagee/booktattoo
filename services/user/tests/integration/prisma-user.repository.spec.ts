@@ -112,4 +112,49 @@ describe('PrismaUserRepository (integration)', () => {
       expect(found?.status).toBe(UserStatus.INACTIVE);
     });
   });
+
+  describe('findPublicArtists', () => {
+    const everything = { limit: 100_000, offset: 0 };
+
+    it('lists ACTIVE and VACATION users but hides INACTIVE ones', async () => {
+      const active = buildUser();
+      const onVacation = buildUser().setOnVacation();
+      const inactive = buildUser().deactivate();
+      await repository.create(active);
+      await repository.create(onVacation);
+      await repository.create(inactive);
+
+      const { items, total } = await repository.findPublicArtists(everything);
+      const ids = items.map((user) => user.id);
+
+      expect(ids).toContain(active.id);
+      expect(ids).toContain(onVacation.id);
+      expect(ids).not.toContain(inactive.id);
+      expect(total).toBe(items.length);
+    });
+
+    it('orders artists by name', async () => {
+      const prefix = `zz-${crypto.randomUUID()}`;
+      const second = buildUser({ name: `${prefix}-b` });
+      const first = buildUser({ name: `${prefix}-a` });
+      await repository.create(second);
+      await repository.create(first);
+
+      const { items } = await repository.findPublicArtists(everything);
+      const created = items.filter((user) => user.name.startsWith(prefix));
+
+      expect(created.map((user) => user.id)).toEqual([first.id, second.id]);
+    });
+
+    it('respects limit and offset', async () => {
+      const { total } = await repository.findPublicArtists(everything);
+      await repository.create(buildUser());
+      await repository.create(buildUser());
+
+      const page = await repository.findPublicArtists({ limit: 1, offset: 1 });
+
+      expect(page.items).toHaveLength(1);
+      expect(page.total).toBe(total + 2);
+    });
+  });
 });

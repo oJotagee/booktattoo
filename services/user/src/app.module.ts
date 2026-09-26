@@ -28,6 +28,8 @@ import { ACCOUNT_REPOSITORY } from '@/application/port/account-repository.port';
 import { HealthController } from './presentation/controllers/health.controller';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { UserController } from './presentation/controllers/user.controller';
+import { PublicArtistController } from './presentation/controllers/public-artist.controller';
+import { FindPublicArtistsUseCase } from '@/application/use-cases/artist/find-public-artists.use-case';
 import { LoginUseCase } from '@/application/use-cases/auth/login.use-case';
 import { PASSWORD_HASHER } from '@/application/port/password-hasher.port';
 import { TOKEN_GENERATOR } from '@/application/port/token-generator.port';
@@ -43,7 +45,7 @@ import jwtConfig from './infrastructure/config/jwt.config';
     MailModule,
     JwtAuthModule,
   ],
-  controllers: [AuthController, UserController, HealthController],
+  controllers: [AuthController, UserController, PublicArtistController, HealthController],
   providers: [
     PrismaService,
     RegisterUserUseCase,
@@ -56,6 +58,7 @@ import jwtConfig from './infrastructure/config/jwt.config';
     UpdateUserContactInfoUseCase,
     UpdateUserStatusUseCase,
     UpdateUserAvatarUseCase,
+    FindPublicArtistsUseCase,
     {
       provide: USER_REPOSITORY,
       useClass: PrismaUserRepository,

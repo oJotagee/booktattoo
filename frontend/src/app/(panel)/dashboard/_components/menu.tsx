@@ -8,6 +8,7 @@ import { clsx } from 'cn';
 
 import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { getInitials } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,11 +40,7 @@ export function Menu() {
   const status = session?.user?.status;
   const displayName = session?.user?.name?.split(' ').slice(0, 2).join(' ');
   const displayImage = session?.user?.image ?? undefined;
-  const displayInitials = session?.user?.name
-    ?.split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
+  const displayInitials = session?.user?.name ? getInitials(session.user.name) : undefined;
 
   const { mutate: changeStatus, isPending } = useMutation({
     mutationFn: updateUserStatus,

@@ -16,6 +16,12 @@ services:
           - /auth
           - /users
         strip_path: false
+      - name: user-public-routes
+        paths:
+          - /public/artists
+        methods:
+          - GET
+        strip_path: false
 
   - name: catalog-service
     url: http://catalog:8083

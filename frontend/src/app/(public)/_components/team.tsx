@@ -1,27 +1,11 @@
+import { Suspense } from 'react';
 import Image from 'next/image';
 
-const team = [
-  {
-    name: 'Ana Lima',
-    role: 'Tradicional & Neo',
-    img: '/team-1.jpg',
-  },
-  {
-    name: 'Kenji Mori',
-    role: 'Japonês & Chicano',
-    img: '/team-2.jpg',
-  },
-  {
-    name: 'Pedro Ink',
-    role: 'Blackwork',
-    img: '/team-3.jpg',
-  },
-  {
-    name: 'Sara Valle',
-    role: 'Fineline & Mini',
-    img: '/team-4.jpg',
-  },
-];
+import { getAllArtists } from '../_data_access/get-all-artists';
+import { TeamSkeleton } from './team-skeleton';
+import { getInitials } from '@/lib/utils';
+
+const ARTISTS_LIMIT = 4;
 
 export function Team() {
   return (
@@ -29,19 +13,37 @@ export function Team() {
       <h2 className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Equipe</h2>
       <h1 className="text-white text-3xl md:text-4xl font-bold md:w-sm">Nossos artistas</h1>
 
-      <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-        {team.map((member, index) => (
-          <div key={index}>
-            <div className="relative aspect-square w-full rounded-2xl overflow-hidden">
-              <Image src={member.img} alt={member.name} fill className="object-cover" />
-            </div>
-            <div className="flex flex-col items-center p-4">
-              <span className="text-white font-medium truncate">{member.name}</span>
-              <span className="text-white/30 text-sm">{member.role}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+      <Suspense fallback={<TeamSkeleton items={ARTISTS_LIMIT} />}>
+        <TeamList />
+      </Suspense>
     </section>
+  );
+}
+
+async function TeamList() {
+  const artists = await getAllArtists({ limit: ARTISTS_LIMIT, offset: 0 });
+
+  return (
+    <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+      {artists.list.map((artist) => (
+        <div key={artist.id}>
+          <div className="relative aspect-square w-full rounded-2xl overflow-hidden">
+            {artist.image ? (
+              <Image src={artist.image} alt={artist.name} fill className="object-cover" />
+            ) : (
+              <div className="flex w-full h-full items-center justify-center bg-mist-800 text-white/60 text-4xl font-bold">
+                {getInitials(artist.name)}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col items-center p-4">
+            <span className="text-white font-medium truncate capitalize">{artist.name}</span>
+            <span className="text-white/30 text-sm capitalize">
+              {artist.role ? artist.role : 'N/A'}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

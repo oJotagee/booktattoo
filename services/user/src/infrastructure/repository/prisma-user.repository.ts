@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import type { UserRepository } from '@/application/port/user-repository.port';
-import type { UserEntity } from '@/domain/entities/user.entity';
+import type {
+  FindPublicArtistsParams,
+  PaginatedResult,
+  UserRepository,
+} from '@/application/port/user-repository.port';
+import { type UserEntity, UserStatus } from '@/domain/entities/user.entity';
 import { UserMapper } from '../persistence/user.mapper';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -18,6 +22,25 @@ export class PrismaUserRepository implements UserRepository {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     return user ? UserMapper.toDomain(user) : null;
+  }
+
+  async findPublicArtists({
+    limit,
+    offset,
+  }: FindPublicArtistsParams): Promise<PaginatedResult<UserEntity>> {
+    const where = { status: { not: UserStatus.INACTIVE } };
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        orderBy: [{ name: 'asc' }, { id: 'asc' }],
+        take: limit,
+        skip: offset,
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return { items: users.map(UserMapper.toDomain), total };
   }
 
   async create(user: UserEntity): Promise<void> {

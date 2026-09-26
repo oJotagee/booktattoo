@@ -5,6 +5,7 @@ import { clsx } from 'cn';
 
 import { Avatar, AvatarFallback, AvatarImage, AvatarBadge } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { getInitials } from '@/lib/utils';
 
 interface NavLinksProps {
   navItems: { href: string; label: string }[];
@@ -14,12 +15,7 @@ interface NavLinksProps {
 
 export function NavLinks({ navItems, session, setIsMenuOpen }: NavLinksProps) {
   const imageUser = session?.user?.image ?? undefined;
-  const initialsUser =
-    session?.user?.name
-      ?.split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase() ?? 'CN';
+  const initialsUser = session?.user?.name ? getInitials(session.user.name) : 'CN';
   const statusUser = session?.user?.status ?? 'offline';
 
   return (
