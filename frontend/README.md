@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend
 
-## Getting Started
+Aplicação web do Book Tattoo: landing page pública (equipe de artistas, galeria, como funciona), autenticação e painel do tatuador.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router) + **React 19**
+- **NextAuth v5** — login com email/senha, GitHub e Google
+- **TanStack Query** e **TanStack Table**
+- **react-hook-form** + **zod** para formulários
+- **Tailwind CSS 4** + **shadcn/ui** (Base UI)
+- **axios** para falar com o API gateway
+- **Biome** (lint/format) e **bun test** (testes unitários)
+
+## Como rodar
+
+Pré-requisito: backend de pé (Kong em `http://localhost:8000`). Veja o [README da raiz](../README.md).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+cp .env.example .env   # preencha AUTH_SECRET e as credenciais OAuth
+bun install
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Variáveis de ambiente
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variável | Descrição |
+|---|---|
+| `AUTH_SECRET` | Segredo do NextAuth (gere com `bunx auth secret`) |
+| `AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET` | OAuth app do GitHub |
+| `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | OAuth client do Google |
+| `API_URL` | URL do API gateway (Kong). Padrão: `http://localhost:8000` |
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Comando | O que faz |
+|---|---|
+| `bun dev` | Servidor de desenvolvimento |
+| `bun run build` / `bun start` | Build e servidor de produção |
+| `bun run lint` | Biome check |
+| `bun run format` | Biome format |
+| `bun run test` | Testes unitários (`tests/unit`) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Estrutura
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+  app/
+    (public)/               # landing, login/cadastro, forgot/reset password
+    (panel)/dashboard/      # painel autenticado: perfil, serviços, planos
+    api/auth/[...nextauth]/ # handlers do NextAuth
+  components/               # componentes compartilhados (ui/ = shadcn)
+  lib/                      # auth (NextAuth), cliente axios, helpers de sessão
+  hooks/
+  utils/                    # formatadores (telefone, serviço)
+  proxy.ts                  # protege /dashboard/* (redireciona sem sessão)
+tests/unit/                 # espelha a estrutura de src/
+```
 
-## Deploy on Vercel
+Cada rota segue a convenção:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `_components/` — componentes da página
+- `_actions/` — server actions (mutations)
+- `_data_access/` — leituras server-side
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Autenticação
+
+O NextAuth usa estratégia `jwt`. No login por credenciais ele chama `POST /auth/login`; no login social chama `POST /auth/oauth/upsert` no user-service. O `accessToken` e o `refreshToken` retornados ficam no token do NextAuth e são enviados como `Bearer` nas chamadas autenticadas ao gateway (ver [src/lib/get-access-token.ts](src/lib/get-access-token.ts)).
+
+Todas as requisições passam pelo Kong ([src/lib/api.ts](src/lib/api.ts)); o front não conhece a porta de nenhum serviço.

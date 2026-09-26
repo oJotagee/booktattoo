@@ -19,7 +19,7 @@ O frontend fala só com o **API gateway (Kong)** em `http://localhost:8000`, que
 
 | Rota | Serviço |
 |---|---|
-| `/auth`, `/users` | user |
+| `/auth`, `/users`, `GET /public/artists` | user |
 | `/services`, `/galeries` | catalog |
 | `/appointments`, `/booking-requests`, `/reminders` | appointment |
 
