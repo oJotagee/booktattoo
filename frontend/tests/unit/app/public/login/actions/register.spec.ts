@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
-import { createAxiosError, createUserServiceApiMock } from '../../../../support/mocks';
+import { createAxiosError, createApiMock } from '../../../../support/mocks';
 
-const userServiceApi = createUserServiceApiMock();
+const api = createApiMock();
 
-mock.module('@/lib/user-service-api', () => ({ userServiceApi }));
+mock.module('@/lib/api', () => ({ api }));
 mock.module('axios', () => ({
   isAxiosError: (error: unknown) => Boolean((error as { isAxiosError?: boolean })?.isAxiosError),
 }));
@@ -13,7 +13,7 @@ const { registerUser } = await import('@/app/(public)/login/_actions/register');
 
 describe('registerUser', () => {
   beforeEach(() => {
-    userServiceApi.post.mockClear();
+    api.post.mockClear();
   });
 
   it('posts the registration payload to the register endpoint', async () => {
@@ -21,11 +21,11 @@ describe('registerUser', () => {
 
     await registerUser(input);
 
-    expect(userServiceApi.post).toHaveBeenCalledWith('/auth/register', input);
+    expect(api.post).toHaveBeenCalledWith('/auth/register', input);
   });
 
   it('throws a duplicate-account error for a 409 response', async () => {
-    userServiceApi.post.mockImplementationOnce(async () => {
+    api.post.mockImplementationOnce(async () => {
       throw createAxiosError(409);
     });
 
@@ -35,7 +35,7 @@ describe('registerUser', () => {
   });
 
   it('throws a generic error for any other failure', async () => {
-    userServiceApi.post.mockImplementationOnce(async () => {
+    api.post.mockImplementationOnce(async () => {
       throw createAxiosError(500);
     });
 

@@ -2,7 +2,7 @@
 
 import { isAxiosError } from 'axios';
 
-import { userServiceApi } from '@/lib/user-service-api';
+import { api } from '@/lib/api';
 
 export type RegisterInput = {
   name: string;
@@ -12,7 +12,7 @@ export type RegisterInput = {
 
 export async function registerUser(input: RegisterInput) {
   try {
-    await userServiceApi.post('/auth/register', input);
+    await api.post('/auth/register', input);
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 409) {
       throw new Error('Já existe uma conta com este e-mail.');

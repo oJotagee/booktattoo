@@ -1,6 +1,6 @@
 import { mock } from 'bun:test';
 
-export function createUserServiceApiMock() {
+export function createApiMock() {
   return {
     post: mock(async (..._args: unknown[]) => ({ data: undefined as unknown })),
     put: mock(async (..._args: unknown[]) => ({ data: undefined as unknown })),
@@ -15,5 +15,3 @@ export function createAxiosError(status: number, data?: unknown) {
     response: { status, data },
   };
 }
-
-export const createCatalogServiceApiMock = createUserServiceApiMock;

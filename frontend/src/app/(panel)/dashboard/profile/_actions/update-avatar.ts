@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { isAxiosError } from 'axios';
 
 import { getAccessToken } from '@/lib/get-access-token';
-import { userServiceApi } from '@/lib/user-service-api';
+import { api } from '@/lib/api';
 
 export type UpdateAvatarOutput = {
   id: string;
@@ -19,7 +19,7 @@ export async function updateAvatar(
   if (!accessToken) return { error: 'Usuário não autenticado' };
 
   try {
-    const { data } = await userServiceApi.put<UpdateAvatarOutput>('/users/me/avatar', formData, {
+    const { data } = await api.put<UpdateAvatarOutput>('/users/me/avatar', formData, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'multipart/form-data',

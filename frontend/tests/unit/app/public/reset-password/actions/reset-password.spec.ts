@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
-import { createAxiosError, createUserServiceApiMock } from '../../../../support/mocks';
+import { createAxiosError, createApiMock } from '../../../../support/mocks';
 
-const userServiceApi = createUserServiceApiMock();
+const api = createApiMock();
 
-mock.module('@/lib/user-service-api', () => ({ userServiceApi }));
+mock.module('@/lib/api', () => ({ api }));
 mock.module('axios', () => ({
   isAxiosError: (error: unknown) => Boolean((error as { isAxiosError?: boolean })?.isAxiosError),
 }));
@@ -15,20 +15,20 @@ const { resetPassword } = await import(
 
 describe('resetPassword', () => {
   beforeEach(() => {
-    userServiceApi.post.mockClear();
+    api.post.mockClear();
   });
 
   it('posts the token and new password to the reset-password endpoint', async () => {
     await resetPassword({ token: 'opaque-token', newPassword: 'NewPassword123!' });
 
-    expect(userServiceApi.post).toHaveBeenCalledWith('/auth/reset-password', {
+    expect(api.post).toHaveBeenCalledWith('/auth/reset-password', {
       token: 'opaque-token',
       newPassword: 'NewPassword123!',
     });
   });
 
   it('throws an invalid-link error for a 401 response', async () => {
-    userServiceApi.post.mockImplementationOnce(async () => {
+    api.post.mockImplementationOnce(async () => {
       throw createAxiosError(401);
     });
 
@@ -38,7 +38,7 @@ describe('resetPassword', () => {
   });
 
   it('throws an invalid-link error for a 404 response', async () => {
-    userServiceApi.post.mockImplementationOnce(async () => {
+    api.post.mockImplementationOnce(async () => {
       throw createAxiosError(404);
     });
 
@@ -48,7 +48,7 @@ describe('resetPassword', () => {
   });
 
   it('throws a generic error for any other failure', async () => {
-    userServiceApi.post.mockImplementationOnce(async () => {
+    api.post.mockImplementationOnce(async () => {
       throw createAxiosError(500);
     });
 

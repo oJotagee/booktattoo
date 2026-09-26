@@ -5,7 +5,8 @@ import { isAxiosError } from 'axios';
 import NextAuth from 'next-auth';
 
 import type { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
-import { type UserServiceSession, userServiceApi } from './user-service-api';
+import type { UserServiceSession } from './user-session';
+import { api } from './api';
 
 const OAUTH_PROVIDERS = ['github', 'google'] as const;
 type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
@@ -36,7 +37,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       authorize: async (credentials) => {
         try {
-          const { data } = await userServiceApi.post<UserServiceSession>('/auth/login', {
+          const { data } = await api.post<UserServiceSession>('/auth/login', {
             email: credentials.email,
             password: credentials.password,
           });
@@ -68,7 +69,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user, account, profile }) {
       if (!isOAuthProvider(account?.provider)) return true;
 
-      const { data } = await userServiceApi.post<UserServiceSession>('/auth/oauth/upsert', {
+      const { data } = await api.post<UserServiceSession>('/auth/oauth/upsert', {
         provider: account.provider,
         providerAccountId: account.providerAccountId,
         email: user.email,

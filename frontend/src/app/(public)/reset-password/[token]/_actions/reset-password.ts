@@ -2,7 +2,7 @@
 
 import { isAxiosError } from 'axios';
 
-import { userServiceApi } from '@/lib/user-service-api';
+import { api } from '@/lib/api';
 
 export type ResetPasswordInput = {
   token: string;
@@ -11,7 +11,7 @@ export type ResetPasswordInput = {
 
 export async function resetPassword(input: ResetPasswordInput) {
   try {
-    await userServiceApi.post('/auth/reset-password', input);
+    await api.post('/auth/reset-password', input);
   } catch (error) {
     if (isAxiosError(error) && (error.response?.status === 401 || error.response?.status === 404)) {
       throw new Error('Link inválido ou expirado. Solicite um novo.');

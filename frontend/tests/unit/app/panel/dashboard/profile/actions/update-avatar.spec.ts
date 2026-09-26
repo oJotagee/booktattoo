@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
-import { createAxiosError, createUserServiceApiMock } from '../../../../../support/mocks';
+import { createAxiosError, createApiMock } from '../../../../../support/mocks';
 
-const userServiceApi = createUserServiceApiMock();
+const api = createApiMock();
 const getAccessToken = mock(async (): Promise<string | null> => 'access-token');
 const revalidatePath = mock(() => undefined);
 
-mock.module('@/lib/user-service-api', () => ({ userServiceApi }));
+mock.module('@/lib/api', () => ({ api }));
 mock.module('@/lib/get-access-token', () => ({ getAccessToken }));
 mock.module('next/cache', () => ({ revalidatePath }));
 mock.module('axios', () => ({
@@ -17,7 +17,7 @@ const { updateAvatar } = await import('@/app/(panel)/dashboard/profile/_actions/
 
 describe('updateAvatar', () => {
   beforeEach(() => {
-    userServiceApi.put.mockClear();
+    api.put.mockClear();
     getAccessToken.mockClear();
     revalidatePath.mockClear();
     getAccessToken.mockImplementation(async () => 'access-token');
@@ -29,7 +29,7 @@ describe('updateAvatar', () => {
     const result = await updateAvatar(new FormData());
 
     expect(result).toEqual({ error: 'Usuário não autenticado' });
-    expect(userServiceApi.put).not.toHaveBeenCalled();
+    expect(api.put).not.toHaveBeenCalled();
   });
 
   it('sends the form data with the bearer token and revalidates the dashboard', async () => {
@@ -38,12 +38,12 @@ describe('updateAvatar', () => {
       image: 'https://cdn.example.com/avatar.png',
       updatedAt: '2026-01-01T00:00:00.000Z',
     };
-    userServiceApi.put.mockImplementationOnce(async () => ({ data: output }));
+    api.put.mockImplementationOnce(async () => ({ data: output }));
     const formData = new FormData();
 
     const result = await updateAvatar(formData);
 
-    expect(userServiceApi.put).toHaveBeenCalledWith('/users/me/avatar', formData, {
+    expect(api.put).toHaveBeenCalledWith('/users/me/avatar', formData, {
       headers: {
         Authorization: 'Bearer access-token',
         'Content-Type': 'multipart/form-data',
@@ -54,7 +54,7 @@ describe('updateAvatar', () => {
   });
 
   it('returns the API error message when the request fails with one', async () => {
-    userServiceApi.put.mockImplementationOnce(async () => {
+    api.put.mockImplementationOnce(async () => {
       throw createAxiosError(400, { message: 'Arquivo inválido' });
     });
 
@@ -64,7 +64,7 @@ describe('updateAvatar', () => {
   });
 
   it('returns a generic error message when the request fails without one', async () => {
-    userServiceApi.put.mockImplementationOnce(async () => {
+    api.put.mockImplementationOnce(async () => {
       throw createAxiosError(500);
     });
 

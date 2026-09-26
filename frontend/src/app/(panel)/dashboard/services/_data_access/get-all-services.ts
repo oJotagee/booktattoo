@@ -1,6 +1,6 @@
 'use server';
 
-import { catalogServiceApi } from '@/lib/catalog-service-api';
+import { api } from '@/lib/api';
 import { getAccessToken } from '@/lib/get-access-token';
 
 interface GetAllServideProps {
@@ -38,7 +38,7 @@ export async function getAllServices({
   if (!accessToken) throw new Error('Usuário não autenticado');
 
   try {
-    const service = await catalogServiceApi.get('/services', {
+    const service = await api.get('/services', {
       params: {
         limit,
         offset,

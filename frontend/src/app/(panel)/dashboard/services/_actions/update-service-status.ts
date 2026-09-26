@@ -4,14 +4,14 @@ import { revalidatePath } from 'next/cache';
 import { isAxiosError } from 'axios';
 
 import { getAccessToken } from '@/lib/get-access-token';
-import { catalogServiceApi } from '@/lib/catalog-service-api';
+import { api } from '@/lib/api';
 
 export async function updateServiceStatus({ id, status }: { id: string; status: boolean }) {
   const accessToken = await getAccessToken();
   if (!accessToken) return { error: 'Usuário não autenticado' };
 
   try {
-    await catalogServiceApi.patch(
+    await api.patch(
       `/services/${id}/status`,
       { status },
       { headers: { Authorization: `Bearer ${accessToken}` } },

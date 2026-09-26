@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
-import { createCatalogServiceApiMock } from '../../../../../support/mocks';
+import { createApiMock } from '../../../../../support/mocks';
 
-const catalogServiceApi = createCatalogServiceApiMock();
+const api = createApiMock();
 const getAccessToken = mock(async (): Promise<string | null> => 'access-token');
 
-mock.module('@/lib/catalog-service-api', () => ({ catalogServiceApi }));
+mock.module('@/lib/api', () => ({ api }));
 mock.module('@/lib/get-access-token', () => ({ getAccessToken }));
 
 const { getAllServices } = await import(
@@ -14,7 +14,7 @@ const { getAllServices } = await import(
 
 describe('getAllServices', () => {
   beforeEach(() => {
-    catalogServiceApi.get.mockClear();
+    api.get.mockClear();
     getAccessToken.mockClear();
     getAccessToken.mockImplementation(async () => 'access-token');
   });
@@ -25,7 +25,7 @@ describe('getAllServices', () => {
     await expect(getAllServices({ limit: 5, offset: 0 })).rejects.toThrow(
       'Usuário não autenticado',
     );
-    expect(catalogServiceApi.get).not.toHaveBeenCalled();
+    expect(api.get).not.toHaveBeenCalled();
   });
 
   it('requests the page with limit/offset and returns the list with pagination', async () => {
@@ -41,11 +41,11 @@ describe('getAllServices', () => {
       },
     ];
     const pagination = { total: 6, page: 2, perPage: 5, totalPages: 2 };
-    catalogServiceApi.get.mockImplementationOnce(async () => ({ data: { list, pagination } }));
+    api.get.mockImplementationOnce(async () => ({ data: { list, pagination } }));
 
     const result = await getAllServices({ limit: 5, offset: 5 });
 
-    expect(catalogServiceApi.get).toHaveBeenCalledWith('/services', {
+    expect(api.get).toHaveBeenCalledWith('/services', {
       params: { limit: 5, offset: 5 },
       headers: { Authorization: 'Bearer access-token' },
     });
@@ -53,7 +53,7 @@ describe('getAllServices', () => {
   });
 
   it('rethrows the request error message', async () => {
-    catalogServiceApi.get.mockImplementationOnce(async () => {
+    api.get.mockImplementationOnce(async () => {
       throw new Error('Network Error');
     });
 

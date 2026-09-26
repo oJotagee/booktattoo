@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { isAxiosError } from 'axios';
 
-import { userServiceApi } from '@/lib/user-service-api';
+import { api } from '@/lib/api';
 import { getAccessToken } from '@/lib/get-access-token';
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'VACATION';
@@ -13,7 +13,7 @@ export async function updateUserStatus(status: UserStatus) {
   if (!accessToken) throw new Error('Usuário não autenticado');
 
   try {
-    await userServiceApi.patch(
+    await api.patch(
       '/users/me/status',
       { status },
       { headers: { Authorization: `Bearer ${accessToken}` } },

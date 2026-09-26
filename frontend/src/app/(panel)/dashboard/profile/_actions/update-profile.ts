@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { isAxiosError } from 'axios';
 
 import { getAccessToken } from '@/lib/get-access-token';
-import { userServiceApi } from '@/lib/user-service-api';
+import { api } from '@/lib/api';
 
 export type UpdateProfileInput = {
   name?: string;
@@ -34,7 +34,7 @@ export async function updateProfile(
   if (!accessToken) return { error: 'Usuário não autenticado' };
 
   try {
-    const { data } = await userServiceApi.put<UpdateProfileOutput>('/users/me', input, {
+    const { data } = await api.put<UpdateProfileOutput>('/users/me', input, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 

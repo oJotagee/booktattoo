@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
-import { createAxiosError, createCatalogServiceApiMock } from '../../../../../support/mocks';
+import { createAxiosError, createApiMock } from '../../../../../support/mocks';
 
-const catalogServiceApi = createCatalogServiceApiMock();
+const api = createApiMock();
 const getAccessToken = mock(async (): Promise<string | null> => 'access-token');
 const revalidatePath = mock(() => undefined);
 
-mock.module('@/lib/catalog-service-api', () => ({ catalogServiceApi }));
+mock.module('@/lib/api', () => ({ api }));
 mock.module('@/lib/get-access-token', () => ({ getAccessToken }));
 mock.module('next/cache', () => ({ revalidatePath }));
 mock.module('axios', () => ({
@@ -19,7 +19,7 @@ const { updateServiceStatus } = await import(
 
 describe('updateServiceStatus', () => {
   beforeEach(() => {
-    catalogServiceApi.patch.mockClear();
+    api.patch.mockClear();
     getAccessToken.mockClear();
     revalidatePath.mockClear();
     getAccessToken.mockImplementation(async () => 'access-token');
@@ -31,13 +31,13 @@ describe('updateServiceStatus', () => {
     const result = await updateServiceStatus({ id: 'service-1', status: false });
 
     expect(result).toEqual({ error: 'Usuário não autenticado' });
-    expect(catalogServiceApi.patch).not.toHaveBeenCalled();
+    expect(api.patch).not.toHaveBeenCalled();
   });
 
   it('patches the status with the bearer token and revalidates the services page', async () => {
     const result = await updateServiceStatus({ id: 'service-1', status: false });
 
-    expect(catalogServiceApi.patch).toHaveBeenCalledWith(
+    expect(api.patch).toHaveBeenCalledWith(
       '/services/service-1/status',
       { status: false },
       { headers: { Authorization: 'Bearer access-token' } },
@@ -47,7 +47,7 @@ describe('updateServiceStatus', () => {
   });
 
   it('returns the API error message when the request fails with one', async () => {
-    catalogServiceApi.patch.mockImplementationOnce(async () => {
+    api.patch.mockImplementationOnce(async () => {
       throw createAxiosError(403, { message: 'Acesso negado' });
     });
 
@@ -58,7 +58,7 @@ describe('updateServiceStatus', () => {
   });
 
   it('returns a generic error message when the request fails without one', async () => {
-    catalogServiceApi.patch.mockImplementationOnce(async () => {
+    api.patch.mockImplementationOnce(async () => {
       throw createAxiosError(500);
     });
 

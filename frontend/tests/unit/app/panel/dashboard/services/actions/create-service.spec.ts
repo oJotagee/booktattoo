@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
-import { createAxiosError, createCatalogServiceApiMock } from '../../../../../support/mocks';
+import { createAxiosError, createApiMock } from '../../../../../support/mocks';
 
-const catalogServiceApi = createCatalogServiceApiMock();
+const api = createApiMock();
 const getAccessToken = mock(async (): Promise<string | null> => 'access-token');
 const revalidatePath = mock(() => undefined);
 
-mock.module('@/lib/catalog-service-api', () => ({ catalogServiceApi }));
+mock.module('@/lib/api', () => ({ api }));
 mock.module('@/lib/get-access-token', () => ({ getAccessToken }));
 mock.module('next/cache', () => ({ revalidatePath }));
 mock.module('axios', () => ({
@@ -19,7 +19,7 @@ describe('createService', () => {
   const input = { name: 'Cover-up', duration: 180, depositAmount: 55000 };
 
   beforeEach(() => {
-    catalogServiceApi.post.mockClear();
+    api.post.mockClear();
     getAccessToken.mockClear();
     revalidatePath.mockClear();
     getAccessToken.mockImplementation(async () => 'access-token');
@@ -31,7 +31,7 @@ describe('createService', () => {
     const result = await createService(input);
 
     expect(result).toEqual({ error: 'Usuário não autenticado' });
-    expect(catalogServiceApi.post).not.toHaveBeenCalled();
+    expect(api.post).not.toHaveBeenCalled();
   });
 
   it('creates the service with the bearer token and revalidates the services page', async () => {
@@ -42,11 +42,11 @@ describe('createService', () => {
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
       updatedAt: new Date('2026-01-01T00:00:00.000Z'),
     };
-    catalogServiceApi.post.mockImplementationOnce(async () => ({ data: output }));
+    api.post.mockImplementationOnce(async () => ({ data: output }));
 
     const result = await createService(input);
 
-    expect(catalogServiceApi.post).toHaveBeenCalledWith('/services', input, {
+    expect(api.post).toHaveBeenCalledWith('/services', input, {
       headers: { Authorization: 'Bearer access-token' },
     });
     expect(revalidatePath).toHaveBeenCalledWith('/dashboard/services');
@@ -54,7 +54,7 @@ describe('createService', () => {
   });
 
   it('returns the API error message when the request fails with one', async () => {
-    catalogServiceApi.post.mockImplementationOnce(async () => {
+    api.post.mockImplementationOnce(async () => {
       throw createAxiosError(400, { message: 'Nome inválido' });
     });
 
@@ -65,7 +65,7 @@ describe('createService', () => {
   });
 
   it('returns a generic error message when the request fails without one', async () => {
-    catalogServiceApi.post.mockImplementationOnce(async () => {
+    api.post.mockImplementationOnce(async () => {
       throw createAxiosError(500);
     });
 

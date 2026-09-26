@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
-import { createAxiosError, createUserServiceApiMock } from '../../../../support/mocks';
+import { createAxiosError, createApiMock } from '../../../../support/mocks';
 
-const userServiceApi = createUserServiceApiMock();
+const api = createApiMock();
 const getAccessToken = mock(async (): Promise<string | null> => 'access-token');
 const revalidatePath = mock(() => undefined);
 
-mock.module('@/lib/user-service-api', () => ({ userServiceApi }));
+mock.module('@/lib/api', () => ({ api }));
 mock.module('@/lib/get-access-token', () => ({ getAccessToken }));
 mock.module('next/cache', () => ({ revalidatePath }));
 mock.module('axios', () => ({
@@ -17,7 +17,7 @@ const { updateUserStatus } = await import('@/app/(panel)/dashboard/_actions/upda
 
 describe('updateUserStatus', () => {
   beforeEach(() => {
-    userServiceApi.patch.mockClear();
+    api.patch.mockClear();
     getAccessToken.mockClear();
     revalidatePath.mockClear();
     getAccessToken.mockImplementation(async () => 'access-token');
@@ -27,13 +27,13 @@ describe('updateUserStatus', () => {
     getAccessToken.mockImplementationOnce(async () => null);
 
     await expect(updateUserStatus('ACTIVE')).rejects.toThrow('Usuário não autenticado');
-    expect(userServiceApi.patch).not.toHaveBeenCalled();
+    expect(api.patch).not.toHaveBeenCalled();
   });
 
   it('sends the new status with the bearer token and revalidates the dashboard', async () => {
     const result = await updateUserStatus('VACATION');
 
-    expect(userServiceApi.patch).toHaveBeenCalledWith(
+    expect(api.patch).toHaveBeenCalledWith(
       '/users/me/status',
       { status: 'VACATION' },
       { headers: { Authorization: 'Bearer access-token' } },
@@ -43,7 +43,7 @@ describe('updateUserStatus', () => {
   });
 
   it('resolves with the current status when already in that status', async () => {
-    userServiceApi.patch.mockImplementationOnce(async () => {
+    api.patch.mockImplementationOnce(async () => {
       throw createAxiosError(409, { error: 'UserAlreadyInStatusError' });
     });
 
@@ -54,7 +54,7 @@ describe('updateUserStatus', () => {
   });
 
   it('rethrows any other error', async () => {
-    userServiceApi.patch.mockImplementationOnce(async () => {
+    api.patch.mockImplementationOnce(async () => {
       throw createAxiosError(500, { error: 'UnexpectedError' });
     });
 

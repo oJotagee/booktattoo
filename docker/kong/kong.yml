@@ -1,0 +1,45 @@
+_format_version: "3.0"
+
+# Kong DB-less. Roteia pelo recurso, sem prefixo de serviço (strip_path: false):
+# o path que chega no serviço é o mesmo que o frontend chamou.
+#
+# Os hosts (user/catalog/appointment) são os nomes dos containers no
+# docker-compose.yml. No docker-compose.dev.yml os serviços rodam na máquina
+# host e o Kong resolve esses nomes via extra_hosts -> host-gateway.
+
+services:
+  - name: user-service
+    url: http://user:8081
+    routes:
+      - name: user-routes
+        paths:
+          - /auth
+          - /users
+        strip_path: false
+
+  - name: catalog-service
+    url: http://catalog:8083
+    routes:
+      - name: catalog-routes
+        paths:
+          - /services
+          - /galeries
+        strip_path: false
+
+  - name: appointment-service
+    url: http://appointment:8082
+    routes:
+      - name: appointment-routes
+        paths:
+          - /appointments
+          - /booking-requests
+          - /reminders
+        strip_path: false
+
+plugins:
+  # Propaga um X-Request-ID por requisição, para correlacionar logs entre serviços.
+  - name: correlation-id
+    config:
+      header_name: X-Request-ID
+      generator: uuid
+      echo_downstream: true
