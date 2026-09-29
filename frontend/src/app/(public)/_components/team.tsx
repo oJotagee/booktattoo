@@ -7,6 +7,8 @@ import { getInitials } from '@/lib/utils';
 
 const ARTISTS_LIMIT = 4;
 
+export const revalidate = 120;
+
 export function Team() {
   return (
     <section className="relative w-full py-14 px-6 md:px-28 md:py-22 bg-mist-800/20">

@@ -64,8 +64,17 @@ export function ServiceTableSkeleton({ rows }: ServiceTableSkeletonRowsProps) {
       </div>
 
       <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <Skeleton className="h-9 w-full sm:w-36" />
-        <Skeleton className="h-8 w-44 self-end" />
+        <Skeleton className="h-9 w-full sm:w-34" />
+
+        <div className="flex items-center justify-between gap-4 sm:justify-end">
+          <Skeleton className="h-4 w-16" />
+
+          <div className="flex items-center gap-2">
+            <Skeleton className="size-8" />
+            <Skeleton className="h-4 w-8" />
+            <Skeleton className="size-8" />
+          </div>
+        </div>
       </div>
     </div>
   );
