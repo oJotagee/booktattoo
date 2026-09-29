@@ -9,7 +9,7 @@ mock.module('@/lib/api', () => ({ api }));
 mock.module('@/lib/get-access-token', () => ({ getAccessToken }));
 
 const { getAllServices } = await import(
-  '@/app/(panel)/dashboard/services/_data_access/get-all-services'
+  '@/app/(panel)/dashboard/services/_data-access/get-all-services'
 );
 
 describe('getAllServices', () => {

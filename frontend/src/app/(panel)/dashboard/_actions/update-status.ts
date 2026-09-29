@@ -3,8 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { isAxiosError } from 'axios';
 
-import { api } from '@/lib/api';
 import { getAccessToken } from '@/lib/get-access-token';
+import { api } from '@/lib/api';
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'VACATION';
 

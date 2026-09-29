@@ -1,6 +1,6 @@
 import ServiceContent from './_components/service-content';
 import DashboardHeader from '../_components/header';
-import { getAllServices } from './_data_access/get-all-services';
+import { getAllServices } from './_data-access/get-all-services';
 
 const PAGE_SIZE = 5;
 

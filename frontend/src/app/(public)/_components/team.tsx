@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import Image from 'next/image';
 
-import { getAllArtists } from '../_data_access/get-all-artists';
+import { getAllArtists } from '../_data-access/get-all-artists';
 import { TeamSkeleton } from './team-skeleton';
 import { getInitials } from '@/lib/utils';
 

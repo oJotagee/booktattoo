@@ -8,7 +8,7 @@ import { formatCurrency, parseCurrencyToCents } from '@/utils/formatService';
 import { useServiceSchema, ServiceSchemaData } from './schemas';
 import { createService } from '../_actions/create-service';
 import { updateService } from '../_actions/update-service';
-import { Service } from '../_data_access/get-all-services';
+import { Service } from '../_data-access/get-all-services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 

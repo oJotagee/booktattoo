@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { updateServiceStatus } from '../_actions/update-service-status';
-import type { Service } from '../_data_access/get-all-services';
+import type { Service } from '../_data-access/get-all-services';
 import { Switch } from '@/components/ui/switch';
 
 interface ServiceStatusSwitchProps {

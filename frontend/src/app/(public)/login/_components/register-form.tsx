@@ -50,6 +50,7 @@ export function RegisterForm() {
     },
     onSuccess: () => {
       router.push('/dashboard');
+      toast.success('Conta criada com sucesso, redirecionando para o dashboard!');
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : 'Não foi possível criar sua conta.');

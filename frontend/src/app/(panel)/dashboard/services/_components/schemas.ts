@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import type { Service } from '../_data_access/get-all-services';
+import type { Service } from '../_data-access/get-all-services';
 
 export const serviceSchema = z
   .object({

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { isAxiosError } from 'axios';
 
-import type { Service } from '../_data_access/get-all-services';
+import type { Service } from '../_data-access/get-all-services';
 import { getAccessToken } from '@/lib/get-access-token';
 import { api } from '@/lib/api';
 

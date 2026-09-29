@@ -1,6 +1,6 @@
 'use client';
 
-import type { Service } from '../_data_access/get-all-services';
+import type { Service } from '../_data-access/get-all-services';
 import { ServiceForm } from './service-form';
 import {
   Dialog,

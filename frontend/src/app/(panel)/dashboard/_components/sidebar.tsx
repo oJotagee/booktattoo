@@ -1,8 +1,15 @@
 'use client';
 
-import { ChevronLeft, Gauge, Scissors, Star, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import {
+  ChevronLeft,
+  Gauge,
+  Scissors,
+  Star,
+  User,
+  LayoutDashboard
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +29,7 @@ import {
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: Gauge },
   { href: '/dashboard/services', label: 'Serviços', icon: Scissors },
+  { href: '/dashboard/galery', label: 'Galeria', icon: LayoutDashboard },
   { href: '/dashboard/profile', label: 'Meu Perfil', icon: User },
   { href: '/dashboard/plans', label: 'Planos', icon: Star },
 ];

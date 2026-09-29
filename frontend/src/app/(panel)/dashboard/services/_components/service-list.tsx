@@ -1,11 +1,11 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { type PaginationState, useTable } from '@tanstack/react-table';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { useMemo, useState, useTransition } from 'react';
-import { type PaginationState, useTable } from '@tanstack/react-table';
 
-import type { PaginationService, Service } from '../_data_access/get-all-services';
+import type { PaginationService, Service } from '../_data-access/get-all-services';
 import { getServiceColumns, serviceTableFeatures } from './columns';
 import { ServiceTableSkeletonRows } from './service-table-skeleton';
 import { ServiceDialog } from './service-dialog';

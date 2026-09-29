@@ -2,7 +2,7 @@ import { createColumnHelper, rowPaginationFeature, tableFeatures } from '@tansta
 import { Pencil } from 'lucide-react';
 
 import { formatCurrency, formatDuration } from '@/utils/formatService';
-import type { Service } from '../_data_access/get-all-services';
+import type { Service } from '../_data-access/get-all-services';
 import { ServiceStatusSwitch } from './service-status-switch';
 import { Button } from '@/components/ui/button';
 

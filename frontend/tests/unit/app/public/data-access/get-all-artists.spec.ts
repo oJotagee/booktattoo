@@ -6,7 +6,7 @@ const api = createApiMock();
 
 mock.module('@/lib/api', () => ({ api }));
 
-const { getAllArtists } = await import('@/app/(public)/_data_access/get-all-artists');
+const { getAllArtists } = await import('@/app/(public)/_data-access/get-all-artists');
 
 describe('getAllArtists', () => {
   beforeEach(() => {
