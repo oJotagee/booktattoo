@@ -125,14 +125,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
       success: 'Foto de perfil atualizada com sucesso',
       error: 'Não foi possível atualizar a foto de perfil',
     });
-
-    // await update({ image: response.data?.image });
-    // setAvatarPreview(null);
   }
-
-  const { mutateAsync: updateProfileMutation, isPending: isSubmitting } = useMutation({
-    mutationFn: updateProfile,
-  });
 
   function generateTimeSlots(): string[] {
     const hours: string[] = [];
@@ -158,6 +151,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
     });
   }
 
+  const { mutateAsync: updateProfileMutation, isPending: isSubmitting } = useMutation({
+    mutationFn: updateProfile,
+  });
+
   async function onSubmit(values: ProfileSchemaData) {
     const response = await updateProfileMutation({
       name: values.name,
@@ -172,16 +169,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
       toast.error(response.error);
       return;
     }
-
-    // await update({
-    //   name: response.data?.name,
-    //   image: response.data?.image,
-    //   address: response.data?.address,
-    //   phone: response.data?.phone,
-    //   bio: response.data?.bio,
-    //   times: response.data?.times,
-    // });
-    // toast.success('Perfil atualizado com sucesso');
 
     toast.promise(
       update({
