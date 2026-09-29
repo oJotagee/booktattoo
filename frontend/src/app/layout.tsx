@@ -1,10 +1,11 @@
-import type { Metadata } from 'next';
 import { Playfair_Display, Roboto } from 'next/font/google';
-import { SessionAuthProvider } from '@/components/session-auth';
-import { cn } from '@/lib/utils';
-import { Providers } from './providers';
+import type { Metadata } from 'next';
 
 import './globals.css';
+
+import { SessionAuthProvider } from '@/components/session-auth';
+import { Providers } from './providers';
+import { cn } from '@/lib/utils';
 
 const roboto = Roboto({
   variable: '--font-roboto',

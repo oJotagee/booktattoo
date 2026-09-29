@@ -1,13 +1,12 @@
-import { Lottie } from 'lottie-react';
 import Link from 'next/link';
 
-import animationData from '../../public/animation/ERROR-404.json';
+import { NotFoundAnimation } from './_components/not-found-animation';
 
 export default function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background px-4">
-      <div className="w-full max-w-md">
-        <Lottie src={animationData} loop autoplay />
+      <div className="w-full max-w-md aspect-square">
+        <NotFoundAnimation />
       </div>
       <h1 className="text-2xl font-semibold text-foreground mt-4 mb-2">Página não encontrada</h1>
       <p className="text-muted-foreground text-center mb-8">
