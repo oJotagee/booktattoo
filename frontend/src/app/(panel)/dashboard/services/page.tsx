@@ -1,8 +1,9 @@
+import { Suspense } from 'react';
+
+import { ServicesPageSkeleton } from './_components/services-page-skeleton';
 import { getAllServices } from './_data-access/get-all-services';
 import ServiceContent from './_components/service-content';
 import DashboardHeader from '../_components/header';
-import { Suspense } from 'react';
-import { ServicesPageSkeleton } from './_components/services-page-skeleton';
 
 const PAGE_SIZE = 5;
 
@@ -10,15 +11,15 @@ interface ServicesPageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
-export default function ServicePageSuspense({ searchParams }: ServicesPageProps) {
+export default function ServicesPage({ searchParams }: ServicesPageProps) {
   return (
     <Suspense fallback={<ServicesPageSkeleton />}>
-      <ServicesPage searchParams={searchParams} />
+      <ServicesPageList searchParams={searchParams} />
     </Suspense>
   );
 }
 
-export async function ServicesPage({ searchParams }: ServicesPageProps) {
+export async function ServicesPageList({ searchParams }: ServicesPageProps) {
   const { page } = await searchParams;
   const currentPage = Math.max(Number(page) || 1, 1);
 

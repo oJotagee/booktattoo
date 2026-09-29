@@ -8,6 +8,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselSlider } from '@/compo
 import { Skeleton } from '@/components/ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card } from '@/components/ui/card';
+import { Suspense } from 'react';
 
 const flashes = [
   {
@@ -49,9 +50,6 @@ const flashes = [
 ];
 
 export function Galery() {
-  const isLoading = false;
-  const isMobile = useIsMobile();
-
   return (
     <section className="relative w-full py-14 px-6 md:px-28 md:py-22">
       <div className="flex flex-row items-end justify-between">
@@ -69,56 +67,68 @@ export function Galery() {
         </Link>
       </div>
 
-      <Carousel
-        opts={{
-          align: 'start',
-          containScroll: 'trimSnaps',
-          slidesToScroll: 'auto',
-        }}
-        className="mt-10 w-full"
-      >
-        <CarouselContent>
-          {isLoading
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <CarouselItem key={index} className="basis-[65%] sm:basis-[38%] lg:basis-[21%]">
-                  <Card className="gap-0 overflow-hidden py-0">
-                    <Skeleton className="aspect-square w-full rounded-none" />
-                    <div className="flex flex-col gap-2 p-4">
-                      <Skeleton className="h-5 w-3/4" />
-                      <Skeleton className="h-4 w-1/2" />
-                    </div>
-                  </Card>
-                </CarouselItem>
-              ))
-            : flashes.map((flash) => (
-                <CarouselItem key={flash.id} className="basis-[65%] sm:basis-[38%] lg:basis-[21%]">
-                  <Card className="gap-0 overflow-hidden py-0">
-                    <div className="relative aspect-square w-full">
-                      <Image src={flash.image} alt={flash.title} fill className="object-cover" />
-                    </div>
-                    <div className="flex flex-col p-4">
-                      <span className="text-white font-medium truncate">{flash.title}</span>
-                      <span className="text-white/50 text-sm">{flash.price}</span>
-                    </div>
-                  </Card>
-                </CarouselItem>
-              ))}
-
-          {!isLoading && isMobile && (
-            <CarouselItem className="basis-[35%]">
-              <Link
-                href="/flash"
-                className="flex h-full flex-col items-center justify-center gap-2 rounded-xl text-white/50 hover:brightness-75 duration-300 py-4"
-              >
-                Ver todos
-                <ArrowRight className="w-5" />
-              </Link>
-            </CarouselItem>
-          )}
-        </CarouselContent>
-
-        <CarouselSlider className="mx-auto max-w-xs" />
-      </Carousel>
+      <Suspense>
+        <GaleryList />
+      </Suspense>
     </section>
+  )
+}
+
+export function GaleryList() {
+  const isLoading = false;
+  const isMobile = useIsMobile();
+
+  return (
+    <Carousel
+      opts={{
+        align: 'start',
+        containScroll: 'trimSnaps',
+        slidesToScroll: 'auto',
+      }}
+      className="mt-10 w-full"
+    >
+      <CarouselContent>
+        {isLoading
+          ? Array.from({ length: 5 }).map((_, index) => (
+            <CarouselItem key={index} className="basis-[65%] sm:basis-[38%] lg:basis-[21%]">
+              <Card className="gap-0 overflow-hidden py-0">
+                <Skeleton className="aspect-square w-full rounded-none" />
+                <div className="flex flex-col gap-2 p-4">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </Card>
+            </CarouselItem>
+          ))
+          : flashes.map((flash) => (
+            <CarouselItem key={flash.id} className="basis-[65%] sm:basis-[38%] lg:basis-[21%]">
+              <Card className="gap-0 overflow-hidden py-0">
+                <div className="relative aspect-square w-full">
+                  <Image src={flash.image} alt={flash.title} fill className="object-cover" />
+                </div>
+                <div className="flex flex-col p-4">
+                  <span className="text-white font-medium truncate">{flash.title}</span>
+                  <span className="text-white/50 text-sm">{flash.price}</span>
+                </div>
+              </Card>
+            </CarouselItem>
+          )
+        )}
+
+        {!isLoading && isMobile && (
+          <CarouselItem className="basis-[35%]">
+            <Link
+              href="/flash"
+              className="flex h-full flex-col items-center justify-center gap-2 rounded-xl text-white/50 hover:brightness-75 duration-300 py-4"
+            >
+              Ver todos
+              <ArrowRight className="w-5" />
+            </Link>
+          </CarouselItem>
+        )}
+      </CarouselContent>
+
+      <CarouselSlider className="mx-auto max-w-xs" />
+    </Carousel>
   );
 }

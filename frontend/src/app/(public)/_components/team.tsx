@@ -25,6 +25,16 @@ export function Team() {
 async function TeamList() {
   const artists = await getAllArtists({ limit: ARTISTS_LIMIT, offset: 0 });
 
+  if (artists.list.length === 0) {
+    return (
+      <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="col-span-full text-center text-white/60">
+          Nenhum artista encontrado, crie uma conta para se tornar artista.
+        </div>
+      </div>
+    )
+  };
+
   return (
     <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
       {artists.list.map((artist) => (
