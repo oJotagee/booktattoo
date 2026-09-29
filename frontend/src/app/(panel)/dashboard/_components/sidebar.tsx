@@ -2,14 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import {
-  ChevronLeft,
-  Gauge,
-  Scissors,
-  Star,
-  User,
-  LayoutDashboard
-} from 'lucide-react';
+import { ChevronLeft, Gauge, Scissors, Star, User, LayoutDashboard } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {

@@ -15,7 +15,7 @@ export default function ServicePageSuspense({ searchParams }: ServicesPageProps)
     <Suspense fallback={<ServicesPageSkeleton />}>
       <ServicesPage searchParams={searchParams} />
     </Suspense>
-  )
+  );
 }
 
 export async function ServicesPage({ searchParams }: ServicesPageProps) {
