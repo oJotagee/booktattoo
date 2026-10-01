@@ -10,7 +10,7 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "types": ["bun-types"],
+    "types": ["bun-types", "multer"],
     "incremental": true,
     "composite": true,
     "skipLibCheck": true,

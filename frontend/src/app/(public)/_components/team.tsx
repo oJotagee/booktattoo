@@ -32,8 +32,8 @@ async function TeamList() {
           Nenhum artista encontrado, crie uma conta para se tornar artista.
         </div>
       </div>
-    )
-  };
+    );
+  }
 
   return (
     <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">

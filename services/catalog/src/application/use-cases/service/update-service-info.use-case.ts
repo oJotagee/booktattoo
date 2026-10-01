@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { ServiceRepository } from '../../port/service-repository.port';
 import { SERVICE_REPOSITORY } from '../../port/service-repository.port';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
+import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 
 type UpdateServiceInfoInput = {
   serviceId: string;
@@ -34,7 +35,7 @@ export class UpdateServiceInfoUseCase {
     const service = await this.services.findById(serviceId);
     if (!service) throw new ServiceNotFoundError(serviceId);
 
-    if (service.userId !== input.userId) throw new Error('Usuario não autorizado');
+    if (service.userId !== input.userId) throw new ForbiddenResourceAccessError();
 
     const updatedService = service.updateInfo({
       name: input.name,

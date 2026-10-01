@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
+import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import type { ServiceRepository } from '../../port/service-repository.port';
 import { SERVICE_REPOSITORY } from '../../port/service-repository.port';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
@@ -27,7 +28,7 @@ export class FindServiceByIdUseCase {
 
     if (!service) throw new ServiceNotFoundError(id);
 
-    if (service.userId !== userId) throw new Error('Usuario não autorizado');
+    if (service.userId !== userId) throw new ForbiddenResourceAccessError();
 
     return {
       id: service.id,

@@ -4,6 +4,7 @@ import type { ServiceRepository } from '../../port/service-repository.port';
 import { SERVICE_REPOSITORY } from '../../port/service-repository.port';
 import { type ServiceEntity } from '@/domain/entities/service.entity';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
+import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 
 type UpdateServiceStatusInput = {
   serviceId: string;
@@ -32,7 +33,7 @@ export class UpdateServiceStatusUseCase {
     const service = await this.services.findById(serviceId);
     if (!service) throw new ServiceNotFoundError(serviceId);
 
-    if (service.userId !== userId) throw new Error('Usuario não autorizado');
+    if (service.userId !== userId) throw new ForbiddenResourceAccessError();
 
     const updatedService = this.applyStatus(service, status);
 

@@ -71,7 +71,7 @@ export function Galery() {
         <GaleryList />
       </Suspense>
     </section>
-  )
+  );
 }
 
 export function GaleryList() {
@@ -90,30 +90,29 @@ export function GaleryList() {
       <CarouselContent>
         {isLoading
           ? Array.from({ length: 5 }).map((_, index) => (
-            <CarouselItem key={index} className="basis-[65%] sm:basis-[38%] lg:basis-[21%]">
-              <Card className="gap-0 overflow-hidden py-0">
-                <Skeleton className="aspect-square w-full rounded-none" />
-                <div className="flex flex-col gap-2 p-4">
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-              </Card>
-            </CarouselItem>
-          ))
+              <CarouselItem key={index} className="basis-[65%] sm:basis-[38%] lg:basis-[21%]">
+                <Card className="gap-0 overflow-hidden py-0">
+                  <Skeleton className="aspect-square w-full rounded-none" />
+                  <div className="flex flex-col gap-2 p-4">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                </Card>
+              </CarouselItem>
+            ))
           : flashes.map((flash) => (
-            <CarouselItem key={flash.id} className="basis-[65%] sm:basis-[38%] lg:basis-[21%]">
-              <Card className="gap-0 overflow-hidden py-0">
-                <div className="relative aspect-square w-full">
-                  <Image src={flash.image} alt={flash.title} fill className="object-cover" />
-                </div>
-                <div className="flex flex-col p-4">
-                  <span className="text-white font-medium truncate">{flash.title}</span>
-                  <span className="text-white/50 text-sm">{flash.price}</span>
-                </div>
-              </Card>
-            </CarouselItem>
-          )
-        )}
+              <CarouselItem key={flash.id} className="basis-[65%] sm:basis-[38%] lg:basis-[21%]">
+                <Card className="gap-0 overflow-hidden py-0">
+                  <div className="relative aspect-square w-full">
+                    <Image src={flash.image} alt={flash.title} fill className="object-cover" />
+                  </div>
+                  <div className="flex flex-col p-4">
+                    <span className="text-white font-medium truncate">{flash.title}</span>
+                    <span className="text-white/50 text-sm">{flash.price}</span>
+                  </div>
+                </Card>
+              </CarouselItem>
+            ))}
 
         {!isLoading && isMobile && (
           <CarouselItem className="basis-[35%]">
