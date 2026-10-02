@@ -13,6 +13,8 @@
     "test:unit": "bun test services/user/tests/unit services/catalog/tests/unit",
     "test:unit:frontend": "bun run --cwd frontend test",
     "test:interaction:frontend": "bun run --cwd frontend test:interaction",
+    "test:e2e:frontend": "bun run --cwd frontend test:e2e",
+    "test:e2e:frontend:ui": "bun run --cwd frontend test:e2e:ui",
     "test:integration:user": "bun run --cwd services/user test:integration",
     "test:integration:catalog": "bun run --cwd services/catalog test:integration",
     "docker:up": "docker compose up --build",
