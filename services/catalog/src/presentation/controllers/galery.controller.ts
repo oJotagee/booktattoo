@@ -8,7 +8,6 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard, type SessionPayload, TokenPayload } from '@bookink/shared/auth';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FilterDto } from '@bookink/shared/common';
 import {
   Body,
   Controller,
@@ -37,6 +36,7 @@ import { FindGaleryByIdUseCase } from '@/application/use-cases/galery/find-galer
 import { DeleteGaleryUseCase } from '@/application/use-cases/galery/delete-galery.use-case';
 import { CreateGaleryUseCase } from '@/application/use-cases/galery/create-galery.use-case';
 import { UpdateGaleryInfoRequestDto } from '../dtos/galery/update-galery-info.request.dto';
+import { FilterGaleriesRequestDto } from '../dtos/galery/filter-galeries.request.dto';
 import { CreateGaleryRequestDto } from '../dtos/galery/create-galery.request.dto';
 import { UnsupportedGaleryImageTypeError } from '@/domain/errors/galery.error';
 import {
@@ -72,12 +72,13 @@ export class GaleryController {
   @ApiOkResponse({ type: GaleryListResponseDto })
   findMine(
     @TokenPayload() payload: SessionPayload,
-    @Query() filter: FilterDto,
+    @Query() filter: FilterGaleriesRequestDto,
   ): Promise<GaleryListResponseDto> {
     return this.findGaleriesByUser.execute({
       userId: payload.sub,
       limit: filter.limit,
       offset: filter.offset,
+      ...(filter.style && { style: filter.style }),
     });
   }
 

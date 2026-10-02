@@ -1,12 +1,46 @@
+import { Suspense } from 'react';
+
+import { GaleryPageSkeleton } from './_components/galery-page-skeleton';
+import { getAllGaleries } from './_data-access/get-all-galeries';
+import { GaleryList } from './_components/galery-list';
+import { isGaleryStyle } from '@/utils/formatGalery';
 import DashboardHeader from '../_components/header';
 
-export default function GaleryPage() {
+const PAGE_SIZE = 10;
+
+interface GaleryPageProps {
+  searchParams: Promise<{ page?: string; style?: string }>;
+}
+
+export default function GaleryPage({ searchParams }: GaleryPageProps) {
+  return (
+    <Suspense fallback={<GaleryPageSkeleton items={PAGE_SIZE} />}>
+      <GaleryPageList searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function GaleryPageList({ searchParams }: GaleryPageProps) {
+  const { page, style } = await searchParams;
+  const currentPage = Math.max(Number(page) || 1, 1);
+  const currentStyle = isGaleryStyle(style) ? style : undefined;
+
+  const galeries = await getAllGaleries({
+    limit: PAGE_SIZE,
+    offset: (currentPage - 1) * PAGE_SIZE,
+    style: currentStyle,
+  });
+
+  const subtitle = `${galeries.pagination.total} itens cadastrados`;
+
   return (
     <>
-      <DashboardHeader title="Galeria" subtitle="Gerencie sua galeria" />
+      <DashboardHeader title="Galeria" subtitle={subtitle} />
 
       <h1 className="text-xl font-bold md:hidden">Galeria</h1>
-      <h2 className="text-white/30 text-sm mb-4 md:hidden">Gerencie sua galeria</h2>
+      <h2 className="text-white/30 text-sm mb-4 md:hidden">{subtitle}</h2>
+
+      <GaleryList galeries={galeries.list} pagination={galeries.pagination} style={currentStyle} />
     </>
   );
 }

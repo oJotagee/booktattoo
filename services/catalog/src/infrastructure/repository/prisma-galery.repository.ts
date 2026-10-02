@@ -1,8 +1,8 @@
 import type {
-  FindByUserIdParams,
-  PaginatedResult,
-} from '@/application/port/service-repository.port';
-import type { GaleryRepository } from '@/application/port/galery-repository.port';
+  FindGaleriesByUserIdParams,
+  GaleryRepository,
+} from '@/application/port/galery-repository.port';
+import type { PaginatedResult } from '@/application/port/service-repository.port';
 import { GaleryEntity } from '@/domain/entities/galery.entity';
 import { Injectable } from '@nestjs/common';
 import { GaleryMapper } from '../persistence/galery.mapper';
@@ -22,15 +22,18 @@ export class PrismaGaleryRepository implements GaleryRepository {
     userId,
     limit,
     offset,
-  }: FindByUserIdParams): Promise<PaginatedResult<GaleryEntity>> {
+    style,
+  }: FindGaleriesByUserIdParams): Promise<PaginatedResult<GaleryEntity>> {
+    const where = { userId, ...(style && { style }) };
+
     const [galeries, total] = await Promise.all([
       this.prisma.galery.findMany({
-        where: { userId },
+        where,
         take: limit,
         skip: offset,
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.galery.count({ where: { userId } }),
+      this.prisma.galery.count({ where }),
     ]);
 
     return { items: galeries.map(GaleryMapper.toDomain), total };

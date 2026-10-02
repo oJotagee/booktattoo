@@ -11,6 +11,7 @@ type FindGaleriesByUserInput = {
   userId: string;
   limit?: number;
   offset?: number;
+  style?: GaleryStyle;
 };
 
 type GaleryOutput = {
@@ -48,6 +49,7 @@ export class FindGaleriesByUserUseCase {
     userId,
     limit,
     offset,
+    style,
   }: FindGaleriesByUserInput): Promise<FindGaleriesByUserOutput> {
     const perPage = limit ?? DEFAULT_LIMIT;
     const currentOffset = offset ?? DEFAULT_OFFSET;
@@ -56,6 +58,7 @@ export class FindGaleriesByUserUseCase {
       userId,
       limit: perPage,
       offset: currentOffset,
+      ...(style && { style }),
     });
 
     return {
