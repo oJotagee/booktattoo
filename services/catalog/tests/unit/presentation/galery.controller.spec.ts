@@ -66,6 +66,19 @@ describe('GaleryController', () => {
     });
   });
 
+  it('forwards the style filter when listing the user galeries', async () => {
+    const { controller, findGaleriesByUser } = buildController();
+
+    await controller.findMine(payload, { limit: 5, offset: 0, style: GaleryStyle.JAPONES });
+
+    expect(findGaleriesByUser.execute).toHaveBeenCalledWith({
+      userId: payload.sub,
+      limit: 5,
+      offset: 0,
+      style: GaleryStyle.JAPONES,
+    });
+  });
+
   it('delegates fetching a galery by id to FindGaleryByIdUseCase', async () => {
     const { controller, findGaleryById } = buildController();
 

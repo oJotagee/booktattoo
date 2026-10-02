@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 import { FindGaleriesByUserUseCase } from '@/application/use-cases/galery/find-galeries-by-user.use-case';
 import { createGaleryRepositoryMock } from '@tests/unit/support/mocks';
+import { GaleryStyle } from '@/domain/entities/galery.entity';
 import { buildGalery } from '@tests/unit/support/builders';
 
 describe('FindGaleriesByUserUseCase', () => {
@@ -51,6 +52,20 @@ describe('FindGaleriesByUserUseCase', () => {
     await useCase.execute({ userId: 'user-1', limit: 5, offset: 15 });
 
     expect(findByUserId).toHaveBeenCalledWith({ userId: 'user-1', limit: 5, offset: 15 });
+  });
+
+  it('forwards the style filter when provided', async () => {
+    const findByUserId = mock(async () => ({ items: [], total: 0 }));
+    galeries.findByUserId = findByUserId;
+
+    await useCase.execute({ userId: 'user-1', style: GaleryStyle.BLACKWORK });
+
+    expect(findByUserId).toHaveBeenCalledWith({
+      userId: 'user-1',
+      limit: 10,
+      offset: 0,
+      style: GaleryStyle.BLACKWORK,
+    });
   });
 
   it('computes page and totalPages from limit, offset and total', async () => {

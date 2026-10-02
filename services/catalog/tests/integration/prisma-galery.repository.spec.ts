@@ -146,6 +146,30 @@ describe('PrismaGaleryRepository (integration)', () => {
       expect(found.items).toHaveLength(1);
       expect(found.total).toBe(2);
     });
+
+    it('filters by style', async () => {
+      const user = { id: crypto.randomUUID() };
+      const service = await createService(user.id);
+      const blackwork = buildGalery({
+        userId: user.id,
+        serviceId: service.id,
+        style: GaleryStyle.BLACKWORK,
+      });
+      await repository.create(blackwork);
+      await repository.create(
+        buildGalery({ userId: user.id, serviceId: service.id, style: GaleryStyle.FINELINE }),
+      );
+
+      const found = await repository.findByUserId({
+        userId: user.id,
+        limit: 10,
+        offset: 0,
+        style: GaleryStyle.BLACKWORK,
+      });
+
+      expect(found.items.map((galery) => galery.id)).toEqual([blackwork.id]);
+      expect(found.total).toBe(1);
+    });
   });
 
   describe('update', () => {
