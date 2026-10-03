@@ -25,7 +25,6 @@ describe('PrismaUserRepository (integration)', () => {
       role: null,
       status: UserStatus.ACTIVE,
       times: [],
-      stripeCustomerId: null,
       password: 'hashed-password',
     });
     createdIds.push(user.id);

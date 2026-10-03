@@ -17,8 +17,10 @@ import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/updat
 import { UpdateUserAvatarUseCase } from '@/application/use-cases/user/update-user-avatar.use-case';
 import { UpdateUserContactInfoRequestDto } from '../dtos/user/update-user-contact-info.request.dto';
 import { UpdateUserStatusUseCase } from '@/application/use-cases/user/update-user-status.use-case';
+import { FindUserSubscriptionUseCase } from '@/application/use-cases/subscription/find-user-subscription.use-case';
 import { FindUserByIdUseCase } from '@/application/use-cases/user/find-user-by-id.use-case';
 import { UpdateUserStatusRequestDto } from '../dtos/user/update-user-status.request.dto';
+import { SubscriptionResponseDto } from '../dtos/subscription/subscription.response.dto';
 import type { PayloadSession } from '@/application/port/session-token-issuer.port';
 import { UnsupportedAvatarTypeError } from '@/domain/errors/user.error';
 import { JwtAuthGuard, TokenPayload } from '@bookink/shared/auth';
@@ -40,6 +42,7 @@ export class UserController {
     private readonly updateUserContactInfo: UpdateUserContactInfoUseCase,
     private readonly updateUserStatus: UpdateUserStatusUseCase,
     private readonly updateUserAvatar: UpdateUserAvatarUseCase,
+    private readonly findUserSubscription: FindUserSubscriptionUseCase,
   ) {}
 
   @Get('me')
@@ -48,6 +51,14 @@ export class UserController {
   @ApiOkResponse({ type: UserResponseDto })
   me(@TokenPayload() payload: PayloadSession): Promise<UserResponseDto> {
     return this.findUserById.execute({ id: payload.sub });
+  }
+
+  @Get('me/subscription')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: SubscriptionResponseDto })
+  mySubscription(@TokenPayload() payload: PayloadSession): Promise<SubscriptionResponseDto> {
+    return this.findUserSubscription.execute({ userId: payload.sub });
   }
 
   @Put('me')

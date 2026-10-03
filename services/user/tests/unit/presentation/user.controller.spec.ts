@@ -11,15 +11,26 @@ function buildController() {
   const updateUserAvatar = {
     execute: mock(async () => ({ id: 'user-1', image: 'https://bucket/avatars/user-1/file.png' })),
   };
+  const findUserSubscription = {
+    execute: mock(async () => ({ status: 'active', plan: 'BASIC', active: true })),
+  };
 
   const controller = new UserController(
     findUserById as never,
     updateUserContactInfo as never,
     updateUserStatus as never,
     updateUserAvatar as never,
+    findUserSubscription as never,
   );
 
-  return { controller, findUserById, updateUserContactInfo, updateUserStatus, updateUserAvatar };
+  return {
+    controller,
+    findUserById,
+    updateUserContactInfo,
+    updateUserStatus,
+    updateUserAvatar,
+    findUserSubscription,
+  };
 }
 
 const payload: PayloadSession = { sub: 'user-1', email: 'john.doe@example.com' };
@@ -82,5 +93,13 @@ describe('UserController', () => {
 
     await expect(controller.updateMyAvatar(payload, file)).rejects.toThrow();
     expect(updateUserAvatar.execute).not.toHaveBeenCalled();
+  });
+
+  it('delegates fetching the current subscription to FindUserSubscriptionUseCase', async () => {
+    const { controller, findUserSubscription } = buildController();
+
+    await controller.mySubscription(payload);
+
+    expect(findUserSubscription.execute).toHaveBeenCalledWith({ userId: payload.sub });
   });
 });

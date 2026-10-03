@@ -3,6 +3,10 @@ import { type ArgumentsHost, Catch, type ExceptionFilter, HttpStatus } from '@ne
 import { AccountAlreadyLinkedError, InvalidAccountError } from '@/domain/errors/account.error';
 import { InvalidEmailError } from '@/domain/errors/email.error';
 import {
+  InvalidSubscriptionError,
+  SubscriptionNotFoundError,
+} from '@/domain/errors/subscription.error';
+import {
   InvalidPasswordResetTokenError,
   PasswordResetTokenExpiredError,
   PasswordResetTokenNotFoundError,
@@ -45,6 +49,8 @@ const DOMAIN_ERRORS = [
   PasswordResetTokenExpiredError,
   PasswordResetTokenNotFoundError,
   PasswordResetTokenUsedError,
+  InvalidSubscriptionError,
+  SubscriptionNotFoundError,
 ] as const;
 
 const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
@@ -55,6 +61,7 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [UserAlreadyInStatusError, HttpStatus.BAD_REQUEST],
   [UnsupportedAvatarTypeError, HttpStatus.BAD_REQUEST],
   [InvalidPasswordResetTokenError, HttpStatus.BAD_REQUEST],
+  [InvalidSubscriptionError, HttpStatus.BAD_REQUEST],
 
   [InvalidCredentialsError, HttpStatus.UNAUTHORIZED],
   [RefreshTokenExpiredError, HttpStatus.UNAUTHORIZED],
@@ -65,6 +72,7 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [UserNotFoundError, HttpStatus.NOT_FOUND],
   [RefreshTokenNotFoundError, HttpStatus.NOT_FOUND],
   [PasswordResetTokenNotFoundError, HttpStatus.NOT_FOUND],
+  [SubscriptionNotFoundError, HttpStatus.NOT_FOUND],
 
   [UserAlreadyExistsError, HttpStatus.CONFLICT],
   [AccountAlreadyLinkedError, HttpStatus.CONFLICT],

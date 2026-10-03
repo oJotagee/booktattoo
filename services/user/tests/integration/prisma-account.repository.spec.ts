@@ -27,7 +27,6 @@ describe('PrismaAccountRepository (integration)', () => {
       role: null,
       status: UserStatus.ACTIVE,
       times: [],
-      stripeCustomerId: null,
     });
 
     await prismaService.user.create({

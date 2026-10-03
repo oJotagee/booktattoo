@@ -6,6 +6,10 @@ import { useTransition } from 'react';
 import Link from 'next/link';
 import { cn } from 'cn';
 
+import type { Galery, PaginationGalery } from '../_data-access/get-all-galeries';
+import { GALERY_GRID_CLASS, GaleryCardSkeletons } from './galery-grid-skeleton';
+import { Button } from '@/components/ui/button';
+import { GaleryCard } from './galery-card';
 import {
   formatGaleryStyle,
   GALERY_STYLES,
@@ -19,10 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { Galery, PaginationGalery } from '../_data-access/get-all-galeries';
-import { GALERY_GRID_CLASS, GaleryCardSkeletons } from './galery-grid-skeleton';
-import { Button } from '@/components/ui/button';
-import { GaleryCard } from './galery-card';
 
 const ALL_STYLES = 'ALL';
 
@@ -128,7 +128,7 @@ export function GaleryList({ galeries, pagination, style }: GaleryListProps) {
       )}
 
       {pagination.total > 0 && (
-        <div className="mt-auto flex items-center justify-between gap-4 border-t pt-4 sm:justify-end">
+        <div className="mt-auto flex items-center justify-between gap-4 pt-4 sm:justify-end">
           <span className="text-sm text-muted-foreground">
             {firstItem}–{lastItem} de {pagination.total}
           </span>

@@ -1,11 +1,18 @@
 import { StorageModule } from '@bookink/shared/storage';
 import { MailModule } from '@bookink/shared/mail';
 import { JwtAuthModule } from '@bookink/shared/auth';
+import { MessagingModule } from '@bookink/shared/events';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 
 import { PrismaPasswordResetTokenRepository } from './infrastructure/repository/prisma-password-reset-token.repository';
+import { FindUserSubscriptionUseCase } from '@/application/use-cases/subscription/find-user-subscription.use-case';
+import { SyncSubscriptionUseCase } from '@/application/use-cases/subscription/sync-subscription.use-case';
+import { PrismaSubscriptionRepository } from './infrastructure/repository/prisma-subscription.repository';
+import { SUBSCRIPTION_REPOSITORY } from '@/application/port/subscription-repository.port';
+import { PaymentEventsConsumer } from './infrastructure/messaging/payment-events.consumer';
+import { PaymentEventsHandler } from '@/application/handlers/payment-events.handler';
 import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/update-user-contact-info.use-case';
 import { PrismaRefreshTokenRepository } from './infrastructure/repository/prisma-refresh-token.repository';
 import { PASSWORD_RESET_TOKEN_REPOSITORY } from '@/application/port/password-reset-token-repository.port';
@@ -44,6 +51,7 @@ import jwtConfig from './infrastructure/config/jwt.config';
     StorageModule,
     MailModule,
     JwtAuthModule,
+    MessagingModule,
   ],
   controllers: [AuthController, UserController, PublicArtistController, HealthController],
   providers: [
@@ -59,9 +67,17 @@ import jwtConfig from './infrastructure/config/jwt.config';
     UpdateUserStatusUseCase,
     UpdateUserAvatarUseCase,
     FindPublicArtistsUseCase,
+    SyncSubscriptionUseCase,
+    FindUserSubscriptionUseCase,
+    PaymentEventsHandler,
+    PaymentEventsConsumer,
     {
       provide: USER_REPOSITORY,
       useClass: PrismaUserRepository,
+    },
+    {
+      provide: SUBSCRIPTION_REPOSITORY,
+      useClass: PrismaSubscriptionRepository,
     },
     {
       provide: ACCOUNT_REPOSITORY,

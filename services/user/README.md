@@ -27,6 +27,7 @@ API de usuários e autenticação (NestJS + Prisma). Emite os JWTs de sessão qu
 | `POST` | `/auth/forgot-password` | — | Envia email com link de redefinição |
 | `POST` | `/auth/reset-password` | — | Redefine a senha a partir do token |
 | `GET` | `/users/me` | JWT | Dados do usuário logado |
+| `GET` | `/users/me/subscription` | JWT | Assinatura do usuário logado (404 se não tiver) |
 | `PUT` | `/users/me` | JWT | Atualiza dados de contato |
 | `PATCH` | `/users/me/status` | JWT | Atualiza status |
 | `PUT` | `/users/me/avatar` | JWT | Upload de avatar (`multipart`, campo `file`) |
@@ -35,7 +36,7 @@ API de usuários e autenticação (NestJS + Prisma). Emite os JWTs de sessão qu
 
 ## Modelos
 
-`User`, `Account` (credentials/oauth), `RefreshToken`, `PasswordResetToken` e `Subscription` (base para os planos; ainda sem fluxo de cobrança). Schema em [prisma/schema.prisma](prisma/schema.prisma).
+`User`, `Account` (credentials/oauth), `RefreshToken`, `PasswordResetToken` e `Subscription` (escrita só pelo consumer de eventos do payment-service, ver abaixo). Schema em [prisma/schema.prisma](prisma/schema.prisma).
 
 ## Arquitetura
 
@@ -50,6 +51,14 @@ src/
 ```
 
 Storage (S3), email (SMTP) e o guard JWT vêm de [`@bookink/shared`](../../packages/shared).
+
+## Eventos consumidos
+
+| Fila | Exchange | Routing keys | Ação |
+|---|---|---|---|
+| `user.payment-events` | `bookink.events` | `payment.subscription.*` | Upsert da `Subscription` do usuário |
+
+O evento carrega o estado completo da assinatura. Eventos com `occurredAt` mais antigo que o `lastEventAt` salvo são ignorados (entrega fora de ordem). Falhas técnicas (banco fora, payload inválido) vão para `user.payment-events.dlq`.
 
 ## Como rodar
 

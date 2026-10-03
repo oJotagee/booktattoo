@@ -6,6 +6,7 @@ import type { PasswordHasher } from '@/application/port/password-hasher.port';
 import type { PasswordResetTokenRepository } from '@/application/port/password-reset-token-repository.port';
 import type { RefreshTokenRepository } from '@/application/port/refresh-token-repository.port';
 import type { SessionTokenIssuer } from '@/application/port/session-token-issuer.port';
+import type { SubscriptionRepository } from '@/application/port/subscription-repository.port';
 import type { TokenGenerator } from '@/application/port/token-generator.port';
 import type { UserRepository } from '@/application/port/user-repository.port';
 
@@ -67,5 +68,12 @@ export function createPasswordResetTokenRepositoryMock(): PasswordResetTokenRepo
 export function createMailPortMock(): MailPort {
   return {
     send: mock(async () => undefined),
+  };
+}
+
+export function createSubscriptionRepositoryMock(): SubscriptionRepository {
+  return {
+    findByUserId: mock(async () => null),
+    save: mock(async () => undefined),
   };
 }

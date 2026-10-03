@@ -3,7 +3,7 @@ _format_version: "3.0"
 # Kong DB-less. Roteia pelo recurso, sem prefixo de serviço (strip_path: false):
 # o path que chega no serviço é o mesmo que o frontend chamou.
 #
-# Os hosts (user/catalog/appointment) são os nomes dos containers no
+# Os hosts (user/catalog/appointment/payment) são os nomes dos containers no
 # docker-compose.yml. No docker-compose.dev.yml os serviços rodam na máquina
 # host e o Kong resolve esses nomes via extra_hosts -> host-gateway.
 
@@ -40,6 +40,20 @@ services:
           - /appointments
           - /booking-requests
           - /reminders
+        strip_path: false
+
+  - name: payment-service
+    url: http://payment:8084
+    routes:
+      - name: payment-routes
+        paths:
+          - /billing
+        strip_path: false
+      - name: payment-webhook-routes
+        paths:
+          - /webhooks
+        methods:
+          - POST
         strip_path: false
 
 plugins:

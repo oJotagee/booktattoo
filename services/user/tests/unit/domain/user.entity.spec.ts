@@ -16,7 +16,6 @@ function buildUser(status: UserStatus = UserStatus.ACTIVE) {
     role: null,
     status,
     times: [],
-    stripeCustomerId: null,
   });
 }
 
@@ -43,7 +42,6 @@ describe('UserEntity', () => {
         role: null,
         status: UserStatus.ACTIVE,
         times: [],
-        stripeCustomerId: null,
       }),
     ).toThrow(InvalidUserError);
   });
@@ -61,7 +59,6 @@ describe('UserEntity', () => {
         role: null,
         status: UserStatus.ACTIVE,
         times: [],
-        stripeCustomerId: null,
       }),
     ).toThrow(InvalidUserError);
   });
@@ -103,7 +100,6 @@ describe('UserEntity', () => {
       role: 'Tradicional & Neo',
       status: UserStatus.ACTIVE,
       times: [],
-      stripeCustomerId: null,
     });
 
     const updated = user.updateContactInfo({ name: 'Jane Doe' });

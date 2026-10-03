@@ -1,3 +1,4 @@
+| `/billing`, `POST /webhooks` | payment |
 # Book Tattoo
 
 Micro-SaaS de agendamento para estúdios de tatuagem: cadastro/autenticação de usuários e marcação de horários (appointments), oferecido por assinatura mensal.
@@ -11,6 +12,7 @@ frontend/             # Aplicação web (Next.js)
 services/user/        # API de usuários e autenticação (NestJS) — :8081
 services/catalog/     # API de serviços e galeria (NestJS) — :8083
 services/appointment/ # API de agendamentos (NestJS) — :8082
+services/payment/     # API de cobrança (NestJS + Stripe) — :8084
 packages/shared/       # DTOs e utilitários compartilhados entre os serviços
 docker/                # Configurações auxiliares (Postgres, Kong)
 ```
@@ -51,6 +53,7 @@ bun run docker:dev:up
 bun run --cwd services/user dev
 bun run --cwd services/catalog dev
 bun run --cwd services/appointment dev
+bun run --cwd services/payment dev
 ```
 
 No dev, o Kong roda no Docker e alcança os serviços na sua máquina via `extra_hosts` (`host-gateway`), então o mesmo `kong.yml` serve para os dois composes.

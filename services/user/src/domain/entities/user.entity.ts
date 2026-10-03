@@ -20,7 +20,6 @@ type UserProps = {
   role: string | null;
   status: UserStatus;
   times: string[];
-  stripeCustomerId: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -37,7 +36,6 @@ type UserCreateInput = {
   role: string | null;
   status: UserStatus;
   times: string[];
-  stripeCustomerId: string | null;
   password?: string | null;
 };
 
@@ -63,7 +61,6 @@ type UserRestoreInput = {
   role: string | null;
   status: UserStatus;
   times: string[];
-  stripeCustomerId: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -121,10 +118,6 @@ export class UserEntity {
     return this.userProps.times;
   }
 
-  get stripeCustomerId(): string | null {
-    return this.userProps.stripeCustomerId;
-  }
-
   get createdAt(): Date {
     return this.userProps.createdAt;
   }
@@ -149,7 +142,6 @@ export class UserEntity {
       role: input.role ?? null,
       status: input.status,
       times: input.times,
-      stripeCustomerId: input.stripeCustomerId ?? null,
       createdAt: now,
       updatedAt: now,
     });
@@ -229,7 +221,6 @@ export class UserEntity {
       phone: this.phone,
       status: this.status,
       times: this.times,
-      stripeCustomerId: this.stripeCustomerId,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

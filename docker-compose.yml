@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: postgres
       # variável CUSTOMIZADA, lida pelo init-databases.sh:
-      POSTGRES_EXTRA_DATABASES: user, appointment, catalog
+      POSTGRES_EXTRA_DATABASES: user, appointment, catalog, payment
     volumes:
       # ATENÇÃO Postgres 18+: monte em /var/lib/postgresql (SEM /data no fim).
       # Montar em /var/lib/postgresql/data quebra a imagem 18+.
@@ -101,6 +101,24 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  payment:
+    build:
+      context: .
+      dockerfile: services/payment/Dockerfile
+    ports:
+      - "8084:8084"
+    env_file:
+      - ./services/payment/.env
+    environment:
+      PORT: 8084
+      DATABASE_URL: postgresql://admin:admin@postgres:5432/payment
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
   # ── API Gateway (Kong DB-less) ─────────────────────────────
   # Ponto de entrada único do frontend: http://localhost:8000
   kong:
@@ -126,6 +144,7 @@ services:
       - user
       - catalog
       - appointment
+      - payment
 
 volumes:
   postgres_data:

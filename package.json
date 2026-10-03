@@ -10,7 +10,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "test:unit": "bun test services/user/tests/unit services/catalog/tests/unit",
+    "test:unit": "bun test services/user/tests/unit services/catalog/tests/unit services/payment/tests/unit",
     "test:unit:frontend": "bun run --cwd frontend test",
     "test:interaction:frontend": "bun run --cwd frontend test:interaction",
     "test:e2e:frontend": "bun run --cwd frontend test:e2e",
@@ -31,7 +31,10 @@
     "prisma:studio:appointment": "bunx prisma studio --config services/appointment/prisma.config.ts",
     "prisma:migrate:dev:catalog": "bun prisma migrate dev --config services/catalog/prisma.config.ts",
     "prisma:generate:catalog": "bunx prisma generate --config services/catalog/prisma.config.ts",
-    "prisma:studio:catalog": "bunx prisma studio --config services/catalog/prisma.config.ts"
+    "prisma:studio:catalog": "bunx prisma studio --config services/catalog/prisma.config.ts",
+    "prisma:migrate:dev:payment": "bun prisma migrate dev --config services/payment/prisma.config.ts",
+    "prisma:generate:payment": "bunx prisma generate --config services/payment/prisma.config.ts",
+    "prisma:studio:payment": "bunx prisma studio --config services/payment/prisma.config.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.2",

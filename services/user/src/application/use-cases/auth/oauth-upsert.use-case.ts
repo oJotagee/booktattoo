@@ -138,7 +138,6 @@ export class OAuthUpsertUseCase {
         role: null,
         status: UserStatus.ACTIVE,
         times: [],
-        stripeCustomerId: null,
       });
 
       await this.users.create(user);

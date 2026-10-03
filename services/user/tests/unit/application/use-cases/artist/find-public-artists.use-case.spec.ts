@@ -23,7 +23,6 @@ describe('FindPublicArtistsUseCase', () => {
       address: 'Rua Secreta, 123',
       bio: 'Fineline',
       role: 'Fineline',
-      stripeCustomerId: 'cus_123',
       password: 'hashed-password',
       status: UserStatus.VACATION,
       times: ['09:00'],

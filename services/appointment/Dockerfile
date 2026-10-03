@@ -17,6 +17,7 @@ COPY packages/shared/package.json ./packages/shared/
 COPY services/user/package.json ./services/user/
 COPY services/catalog/package.json ./services/catalog/
 COPY services/appointment/package.json ./services/appointment/
+COPY services/payment/package.json ./services/payment/
 
 RUN bun install --frozen-lockfile --ignore-scripts
 
@@ -41,6 +42,7 @@ COPY packages/shared/package.json ./packages/shared/
 COPY services/user/package.json ./services/user/
 COPY services/catalog/package.json ./services/catalog/
 COPY services/appointment/package.json ./services/appointment/
+COPY services/payment/package.json ./services/payment/
 
 RUN bun install --frozen-lockfile --production --ignore-scripts
 

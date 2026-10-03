@@ -18,7 +18,6 @@ export class UserMapper {
       role: user.role,
       status: user.status as unknown as UserStatus,
       times: user.times,
-      stripeCustomerId: user.stripeCustomerId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     });
@@ -38,7 +37,6 @@ export class UserMapper {
       role: user.role,
       status: user.status as unknown as PrismaUser['status'],
       times: user.times,
-      stripeCustomerId: user.stripeCustomerId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

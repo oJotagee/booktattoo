@@ -47,7 +47,6 @@ export class RegisterUserUseCase {
       role: null,
       status: UserStatus.ACTIVE,
       times: [],
-      stripeCustomerId: null,
       password: passwordHash,
     });
 

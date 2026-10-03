@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: postgres
       # variável CUSTOMIZADA, lida pelo init-databases.sh:
-      POSTGRES_EXTRA_DATABASES: user, appointment, catalog
+      POSTGRES_EXTRA_DATABASES: user, appointment, catalog, payment
     volumes:
       # ATENÇÃO Postgres 18+: monte em /var/lib/postgresql (SEM /data no fim).
       # Montar em /var/lib/postgresql/data quebra a imagem 18+.
@@ -43,7 +43,7 @@ services:
 
   # ── API Gateway (Kong DB-less) ─────────────────────────────
   # Em dev os serviços rodam na máquina (bun run dev), fora do Docker.
-  # extra_hosts faz "user", "catalog" e "appointment" apontarem para o host,
+  # extra_hosts faz "user", "catalog", "appointment" e "payment" apontarem para o host,
   # então o mesmo docker/kong/kong.yml serve para os dois composes.
   kong:
     image: kong:3.9.1
@@ -63,6 +63,7 @@ services:
       - "user:host-gateway"
       - "catalog:host-gateway"
       - "appointment:host-gateway"
+      - "payment:host-gateway"
     healthcheck:
       test: [ "CMD", "kong", "health" ]
       interval: 10s
