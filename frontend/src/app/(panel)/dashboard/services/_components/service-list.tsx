@@ -22,9 +22,10 @@ import {
 interface ServiceListProps {
   services: Service[];
   pagination: PaginationService;
+  canCreate: boolean;
 }
 
-export function ServiceList({ services, pagination }: ServiceListProps) {
+export function ServiceList({ services, pagination, canCreate }: ServiceListProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -125,6 +126,7 @@ export function ServiceList({ services, pagination }: ServiceListProps) {
       <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Button
           onClick={handleCreate}
+          disabled={!canCreate}
           className="w-full sm:w-fit bg-orange-600 text-white hover:brightness-75 duration-300 cursor-pointer"
         >
           <Plus />

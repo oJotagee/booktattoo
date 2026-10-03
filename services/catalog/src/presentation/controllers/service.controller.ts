@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FilterDto } from '@bookink/shared/common';
 
@@ -61,8 +72,9 @@ export class ServiceController {
   create(
     @TokenPayload() payload: SessionPayload,
     @Body() body: CreateServiceRequestDto,
+    @Headers('authorization') authorization: string,
   ): Promise<ServiceResponseDto> {
-    return this.createService.execute({ userId: payload.sub, ...body });
+    return this.createService.execute({ userId: payload.sub, authorization, ...body });
   }
 
   @Put(':id')

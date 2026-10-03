@@ -40,7 +40,6 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         'antialiased',
         roboto.variable,
         playfairDisplay.variable,
-        'font-sans',
       )}
     >
       <body className="min-h-full flex flex-col dark">

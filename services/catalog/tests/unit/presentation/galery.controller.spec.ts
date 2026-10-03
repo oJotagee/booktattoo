@@ -99,10 +99,11 @@ describe('GaleryController', () => {
     };
     const file = buildFile();
 
-    await controller.create(payload, body, file);
+    await controller.create(payload, body, file, 'Bearer access-token');
 
     expect(createGalery.execute).toHaveBeenCalledWith({
       userId: payload.sub,
+      authorization: 'Bearer access-token',
       serviceId: 'service-1',
       title: 'Rosa fineline',
       size: '10x15cm',
@@ -127,9 +128,9 @@ describe('GaleryController', () => {
       file: undefined,
     };
 
-    expect(() => controller.create(payload, body, buildFile('application/pdf'))).toThrow(
-      UnsupportedGaleryImageTypeError,
-    );
+    expect(() =>
+      controller.create(payload, body, buildFile('application/pdf'), 'Bearer access-token'),
+    ).toThrow(UnsupportedGaleryImageTypeError);
     expect(createGalery.execute).not.toHaveBeenCalled();
   });
 

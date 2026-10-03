@@ -75,6 +75,7 @@ services:
       PORT: 8083
       DATABASE_URL: postgresql://admin:admin@postgres:5432/catalog
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+      USER_SERVICE_URL: http://user:8081
     depends_on:
       postgres:
         condition: service_healthy

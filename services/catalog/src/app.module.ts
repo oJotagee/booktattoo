@@ -23,9 +23,16 @@ import { HealthController } from './presentation/controllers/health.controller';
 import { SERVICE_REPOSITORY } from './application/port/service-repository.port';
 import { GALERY_REPOSITORY } from './application/port/galery-repository.port';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
+import { HttpPlanAccessGateway } from './infrastructure/http/http-plan-access.gateway';
+import { PLAN_ACCESS_GATEWAY } from './application/port/plan-access-gateway.port';
+import userServiceConfig from './infrastructure/config/user-service.config';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), JwtAuthModule, StorageModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true, load: [userServiceConfig] }),
+    JwtAuthModule,
+    StorageModule,
+  ],
   controllers: [ServiceController, GaleryController, HealthController],
   providers: [
     PrismaService,
@@ -48,6 +55,10 @@ import { PrismaService } from './infrastructure/prisma/prisma.service';
     {
       provide: GALERY_REPOSITORY,
       useClass: PrismaGaleryRepository,
+    },
+    {
+      provide: PLAN_ACCESS_GATEWAY,
+      useClass: HttpPlanAccessGateway,
     },
   ],
 })

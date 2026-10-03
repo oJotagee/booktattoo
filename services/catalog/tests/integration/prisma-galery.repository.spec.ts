@@ -108,6 +108,18 @@ describe('PrismaGaleryRepository (integration)', () => {
     });
   });
 
+  describe('countByUserId', () => {
+    it('counts only the galeries of the user', async () => {
+      const user = { id: crypto.randomUUID() };
+      const service = await createService(user.id);
+      await repository.create(buildGalery({ userId: user.id, serviceId: service.id }));
+      await repository.create(buildGalery({ userId: user.id, serviceId: service.id }));
+
+      expect(await repository.countByUserId(user.id)).toBe(2);
+      expect(await repository.countByUserId(crypto.randomUUID())).toBe(0);
+    });
+  });
+
   describe('findByUserId', () => {
     it('finds all galeries belonging to a user', async () => {
       const user = { id: crypto.randomUUID() };

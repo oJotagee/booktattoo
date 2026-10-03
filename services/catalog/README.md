@@ -27,6 +27,19 @@ Todos exigem JWT e operam sobre os dados do usuário logado.
 | `PATCH` | `/services/:id/status` | Ativa/desativa o serviço |
 | `GET` | `/health` | Health check (sem auth) |
 
+## Limites do plano
+
+Ao criar um serviço (`POST /services`) ou um flash (`POST /galeries`), o catalog consulta `GET /users/me/plan` no user-service repassando o mesmo token, e compara com quantos o usuário já tem:
+
+| Acesso | Serviços | Flashs na galeria |
+|---|---|---|
+| Trial (7 dias) | 20 | 50 |
+| Básico | 3 | 5 |
+| Profissional | 20 | 50 |
+| Expirado | bloqueado | bloqueado |
+
+Serviços desativados contam no limite. Plano expirado ou limite atingido respondem `403`, e user-service fora do ar responde `503`.
+
 ## Modelos
 
 - `Service` — `name`, `duration` (minutos), `depositAmount` (centavos), `status`
@@ -63,6 +76,7 @@ bun run --cwd services/catalog dev
 | `DATABASE_URL` | Conexão com o banco `catalog` |
 | `RABBITMQ_URL` | Conexão AMQP |
 | `JWT_SECRET` | Mesmo segredo do user-service, usado só para validar o token |
+| `USER_SERVICE_URL` | URL interna do user-service, para consultar o plano ao criar serviço ou flash |
 
 ## Testes
 

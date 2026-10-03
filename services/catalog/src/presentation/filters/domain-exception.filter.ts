@@ -2,6 +2,11 @@ import { type ArgumentsHost, Catch, type ExceptionFilter, HttpStatus } from '@ne
 
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import {
+  PlanAccessUnavailableError,
+  PlanExpiredError,
+  PlanLimitReachedError,
+} from '@/domain/errors/plan.error';
+import {
   InvalidServiceError,
   ServiceAlreadyInStatusError,
   ServiceNotFoundError,
@@ -25,6 +30,9 @@ const DOMAIN_ERRORS = [
   GaleryAlreadyInStatusError,
   GaleryNotFoundError,
   UnsupportedGaleryImageTypeError,
+  PlanExpiredError,
+  PlanLimitReachedError,
+  PlanAccessUnavailableError,
   ForbiddenResourceAccessError,
 ] as const;
 
@@ -36,9 +44,13 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [UnsupportedGaleryImageTypeError, HttpStatus.BAD_REQUEST],
 
   [ForbiddenResourceAccessError, HttpStatus.FORBIDDEN],
+  [PlanExpiredError, HttpStatus.FORBIDDEN],
+  [PlanLimitReachedError, HttpStatus.FORBIDDEN],
 
   [ServiceNotFoundError, HttpStatus.NOT_FOUND],
   [GaleryNotFoundError, HttpStatus.NOT_FOUND],
+
+  [PlanAccessUnavailableError, HttpStatus.SERVICE_UNAVAILABLE],
 ]);
 
 @Catch(...DOMAIN_ERRORS)

@@ -10,6 +10,7 @@ export type FindGaleriesByUserIdParams = FindByUserIdParams & {
 export interface GaleryRepository {
   findById(id: string): Promise<GaleryEntity | null>;
   findByUserId(params: FindGaleriesByUserIdParams): Promise<PaginatedResult<GaleryEntity>>;
+  countByUserId(userId: string): Promise<number>;
   create(galery: GaleryEntity): Promise<void>;
   update(galery: GaleryEntity): Promise<void>;
   delete(id: string): Promise<void>;

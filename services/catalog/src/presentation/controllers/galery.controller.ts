@@ -13,6 +13,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   MaxFileSizeValidator,
@@ -104,11 +105,13 @@ export class GaleryController {
     @TokenPayload() payload: SessionPayload,
     @Body() body: CreateGaleryRequestDto,
     @UploadedFile(imageFilePipe) file: Express.Multer.File,
+    @Headers('authorization') authorization: string,
   ): Promise<GaleryResponseDto> {
     this.assertImageType(file);
 
     return this.createGalery.execute({
       userId: payload.sub,
+      authorization,
       serviceId: body.serviceId,
       title: body.title,
       size: body.size,

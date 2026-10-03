@@ -35,7 +35,8 @@ front ──GET /users/me/subscription──────────────
 |---|---|---|---|
 | `POST` | `/billing/checkout` | JWT | Cria a Checkout Session (`{ plan: 'BASIC' \| 'PROFESSIONAL' }`) e devolve `{ url }`. 409 se já houver assinatura ativa |
 | `POST` | `/billing/portal` | JWT | Cria a sessão do Billing Portal e devolve `{ url }` |
-| `POST` | `/webhooks/billing` | assinatura Stripe | Webhook de `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted` |
+| `POST` | `/billing/change-plan` | JWT | Troca o plano da assinatura ativa (`{ plan }`), com proração. 404 sem assinatura ativa, 409 se já for o plano atual |
+| `POST` | `/webhooks/billing` | assinatura Stripe | Webhook de `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted` |
 | `GET` | `/health` | — | Health check |
 
 ## Eventos publicados
@@ -44,7 +45,7 @@ Exchange `bookink.events` (topic). Contrato em [`@bookink/shared/events`](../../
 
 | Routing key | Quando |
 |---|---|
-| `payment.subscription.activated` | `checkout.session.completed` em modo subscription |
+| `payment.subscription.activated` | `checkout.session.completed` (modo subscription) ou `customer.subscription.created` |
 | `payment.subscription.updated` | `customer.subscription.updated` |
 | `payment.subscription.canceled` | `customer.subscription.deleted` |
 

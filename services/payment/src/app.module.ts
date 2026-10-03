@@ -8,6 +8,7 @@ import { CreateCheckoutSessionUseCase } from '@/application/use-cases/billing/cr
 import { HandleBillingWebhookUseCase } from '@/application/use-cases/billing/handle-billing-webhook.use-case';
 import { PrismaBillingCustomerRepository } from './infrastructure/repository/prisma-billing-customer.repository';
 import { CreatePortalSessionUseCase } from '@/application/use-cases/billing/create-portal-session.use-case';
+import { ChangePlanUseCase } from '@/application/use-cases/billing/change-plan.use-case';
 import { PROCESSED_WEBHOOK_EVENT_REPOSITORY } from './application/port/processed-webhook-event-repository.port';
 import { BILLING_CUSTOMER_REPOSITORY } from './application/port/billing-customer-repository.port';
 import { StripeWebhookController } from './presentation/controllers/stripe-webhook.controller';
@@ -33,6 +34,7 @@ import stripeConfig from './infrastructure/config/stripe.config';
     StripeClientProvider,
     CreateCheckoutSessionUseCase,
     CreatePortalSessionUseCase,
+    ChangePlanUseCase,
     HandleBillingWebhookUseCase,
     {
       provide: BILLING_CUSTOMER_REPOSITORY,

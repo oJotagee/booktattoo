@@ -74,6 +74,17 @@ describe('PrismaServiceRepository (integration)', () => {
     });
   });
 
+  describe('countByUserId', () => {
+    it('counts active and inactive services of the user only', async () => {
+      const user = { id: crypto.randomUUID() };
+      await repository.create(buildService({ userId: user.id }));
+      await repository.create(buildService({ userId: user.id }).deactivate());
+      await repository.create(buildService({ userId: crypto.randomUUID() }));
+
+      expect(await repository.countByUserId(user.id)).toBe(2);
+    });
+  });
+
   describe('findByUserId', () => {
     it('finds all services belonging to a user', async () => {
       const user = { id: crypto.randomUUID() };

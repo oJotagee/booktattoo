@@ -16,6 +16,7 @@ export type PaginatedResult<T> = {
 export interface ServiceRepository {
   findById(id: string): Promise<ServiceEntity | null>;
   findByUserId(params: FindByUserIdParams): Promise<PaginatedResult<ServiceEntity>>;
+  countByUserId(userId: string): Promise<number>;
   create(service: ServiceEntity): Promise<void>;
   update(service: ServiceEntity): Promise<void>;
 }

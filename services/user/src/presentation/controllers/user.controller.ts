@@ -17,10 +17,10 @@ import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/updat
 import { UpdateUserAvatarUseCase } from '@/application/use-cases/user/update-user-avatar.use-case';
 import { UpdateUserContactInfoRequestDto } from '../dtos/user/update-user-contact-info.request.dto';
 import { UpdateUserStatusUseCase } from '@/application/use-cases/user/update-user-status.use-case';
-import { FindUserSubscriptionUseCase } from '@/application/use-cases/subscription/find-user-subscription.use-case';
+import { GetUserPlanAccessUseCase } from '@/application/use-cases/subscription/get-user-plan-access.use-case';
 import { FindUserByIdUseCase } from '@/application/use-cases/user/find-user-by-id.use-case';
 import { UpdateUserStatusRequestDto } from '../dtos/user/update-user-status.request.dto';
-import { SubscriptionResponseDto } from '../dtos/subscription/subscription.response.dto';
+import { PlanAccessResponseDto } from '../dtos/subscription/plan-access.response.dto';
 import type { PayloadSession } from '@/application/port/session-token-issuer.port';
 import { UnsupportedAvatarTypeError } from '@/domain/errors/user.error';
 import { JwtAuthGuard, TokenPayload } from '@bookink/shared/auth';
@@ -42,7 +42,7 @@ export class UserController {
     private readonly updateUserContactInfo: UpdateUserContactInfoUseCase,
     private readonly updateUserStatus: UpdateUserStatusUseCase,
     private readonly updateUserAvatar: UpdateUserAvatarUseCase,
-    private readonly findUserSubscription: FindUserSubscriptionUseCase,
+    private readonly getUserPlanAccess: GetUserPlanAccessUseCase,
   ) {}
 
   @Get('me')
@@ -53,12 +53,12 @@ export class UserController {
     return this.findUserById.execute({ id: payload.sub });
   }
 
-  @Get('me/subscription')
+  @Get('me/plan')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ type: SubscriptionResponseDto })
-  mySubscription(@TokenPayload() payload: PayloadSession): Promise<SubscriptionResponseDto> {
-    return this.findUserSubscription.execute({ userId: payload.sub });
+  @ApiOkResponse({ type: PlanAccessResponseDto })
+  myPlan(@TokenPayload() payload: PayloadSession): Promise<PlanAccessResponseDto> {
+    return this.getUserPlanAccess.execute({ userId: payload.sub });
   }
 
   @Put('me')

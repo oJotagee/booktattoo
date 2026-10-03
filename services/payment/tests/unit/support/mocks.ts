@@ -3,7 +3,7 @@ import { mock } from 'bun:test';
 
 import type { ProcessedWebhookEventRepository } from '@/application/port/processed-webhook-event-repository.port';
 import type { BillingCustomerRepository } from '@/application/port/billing-customer-repository.port';
-import type { BillingGateway } from '@/application/port/billing-gateway.port';
+import type { ActiveSubscription, BillingGateway } from '@/application/port/billing-gateway.port';
 import { BillingWebhookEventKind } from '@/application/port/billing-gateway.port';
 import type { PlanCatalog } from '@/application/port/plan-catalog.port';
 
@@ -25,7 +25,8 @@ export function createProcessedWebhookEventRepositoryMock(): ProcessedWebhookEve
 export function createBillingGatewayMock(): BillingGateway {
   return {
     createCustomer: mock(async () => ({ id: 'cus_new' })),
-    hasActiveSubscription: mock(async () => false),
+    findActiveSubscription: mock(async (): Promise<ActiveSubscription | null> => null),
+    changeSubscriptionPrice: mock(async () => undefined),
     createCheckoutSession: mock(async () => ({ url: 'https://checkout.stripe.com/session' })),
     createPortalSession: mock(async () => ({ url: 'https://billing.stripe.com/portal' })),
     parseWebhookEvent: mock(async () => ({

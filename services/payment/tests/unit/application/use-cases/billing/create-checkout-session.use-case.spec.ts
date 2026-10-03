@@ -59,7 +59,11 @@ describe('CreateCheckoutSessionUseCase', () => {
 
   it('throws SubscriptionAlreadyActiveError when the customer already subscribes', async () => {
     customers.findByUserId = async () => buildBillingCustomer();
-    gateway.hasActiveSubscription = async () => true;
+    gateway.findActiveSubscription = async () => ({
+      id: 'sub_123',
+      itemId: 'si_123',
+      priceId: 'price_basic',
+    });
 
     await expect(
       useCase.execute({ userId: 'user-1', email: 'john.doe@example.com', plan: 'BASIC' }),

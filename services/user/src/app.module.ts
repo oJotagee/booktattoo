@@ -7,7 +7,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 
 import { PrismaPasswordResetTokenRepository } from './infrastructure/repository/prisma-password-reset-token.repository';
-import { FindUserSubscriptionUseCase } from '@/application/use-cases/subscription/find-user-subscription.use-case';
+import { GetUserPlanAccessUseCase } from '@/application/use-cases/subscription/get-user-plan-access.use-case';
 import { SyncSubscriptionUseCase } from '@/application/use-cases/subscription/sync-subscription.use-case';
 import { PrismaSubscriptionRepository } from './infrastructure/repository/prisma-subscription.repository';
 import { SUBSCRIPTION_REPOSITORY } from '@/application/port/subscription-repository.port';
@@ -68,7 +68,7 @@ import jwtConfig from './infrastructure/config/jwt.config';
     UpdateUserAvatarUseCase,
     FindPublicArtistsUseCase,
     SyncSubscriptionUseCase,
-    FindUserSubscriptionUseCase,
+    GetUserPlanAccessUseCase,
     PaymentEventsHandler,
     PaymentEventsConsumer,
     {

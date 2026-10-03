@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { ServicesPageSkeleton } from './_components/services-page-skeleton';
 import { getAllServices } from './_data-access/get-all-services';
 import ServiceContent from './_components/service-content';
+import { canPermission } from '@/utils/permissions/can-permission';
 import DashboardHeader from '../_components/header';
 
 const PAGE_SIZE = 5;
@@ -23,10 +24,13 @@ export async function ServicesPageList({ searchParams }: ServicesPageProps) {
   const { page } = await searchParams;
   const currentPage = Math.max(Number(page) || 1, 1);
 
-  const services = await getAllServices({
-    limit: PAGE_SIZE,
-    offset: (currentPage - 1) * PAGE_SIZE,
-  });
+  const [services, permission] = await Promise.all([
+    getAllServices({
+      limit: PAGE_SIZE,
+      offset: (currentPage - 1) * PAGE_SIZE,
+    }),
+    canPermission({ type: 'service' }),
+  ]);
 
   return (
     <>
@@ -40,7 +44,11 @@ export async function ServicesPageList({ searchParams }: ServicesPageProps) {
         {services.pagination.total} serviços cadastrados
       </h2>
 
-      <ServiceContent services={services.list} pagination={services.pagination} />
+      <ServiceContent
+        services={services.list}
+        pagination={services.pagination}
+        permission={permission}
+      />
     </>
   );
 }

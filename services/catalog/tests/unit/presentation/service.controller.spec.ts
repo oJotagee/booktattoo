@@ -60,9 +60,13 @@ describe('ServiceController', () => {
     const { controller, createService } = buildController();
     const body = { name: 'Tatuagem Fineline', duration: 60, depositAmount: 5000 };
 
-    await controller.create(payload, body);
+    await controller.create(payload, body, 'Bearer access-token');
 
-    expect(createService.execute).toHaveBeenCalledWith({ userId: payload.sub, ...body });
+    expect(createService.execute).toHaveBeenCalledWith({
+      userId: payload.sub,
+      authorization: 'Bearer access-token',
+      ...body,
+    });
   });
 
   it('delegates updating a service to UpdateServiceInfoUseCase', async () => {

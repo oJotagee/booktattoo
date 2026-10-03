@@ -31,6 +31,10 @@ export class PrismaServiceRepository implements ServiceRepository {
     return { items: services.map(ServiceMapper.toDomain), total };
   }
 
+  async countByUserId(userId: string): Promise<number> {
+    return this.prisma.service.count({ where: { userId } });
+  }
+
   async create(service: ServiceEntity): Promise<void> {
     const data = ServiceMapper.toPersistence(service);
 

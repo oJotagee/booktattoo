@@ -27,7 +27,7 @@ API de usuários e autenticação (NestJS + Prisma). Emite os JWTs de sessão qu
 | `POST` | `/auth/forgot-password` | — | Envia email com link de redefinição |
 | `POST` | `/auth/reset-password` | — | Redefine a senha a partir do token |
 | `GET` | `/users/me` | JWT | Dados do usuário logado |
-| `GET` | `/users/me/subscription` | JWT | Assinatura do usuário logado (404 se não tiver) |
+| `GET` | `/users/me/plan` | JWT | Acesso do plano: `TRIAL` (7 dias após o cadastro), `ACTIVE` ou `EXPIRED`, com os limites e o resumo da assinatura |
 | `PUT` | `/users/me` | JWT | Atualiza dados de contato |
 | `PATCH` | `/users/me/status` | JWT | Atualiza status |
 | `PUT` | `/users/me/avatar` | JWT | Upload de avatar (`multipart`, campo `file`) |

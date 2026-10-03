@@ -4,10 +4,3 @@ export class InvalidSubscriptionError extends Error {
     this.name = 'InvalidSubscriptionError';
   }
 }
-
-export class SubscriptionNotFoundError extends Error {
-  constructor() {
-    super('Usuário não possui assinatura.');
-    this.name = 'SubscriptionNotFoundError';
-  }
-}

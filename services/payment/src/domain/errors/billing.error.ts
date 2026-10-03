@@ -32,3 +32,17 @@ export class UnknownPriceError extends Error {
     this.name = 'UnknownPriceError';
   }
 }
+
+export class NoActiveSubscriptionError extends Error {
+  constructor() {
+    super('Usuário não possui assinatura ativa para alterar o plano.');
+    this.name = 'NoActiveSubscriptionError';
+  }
+}
+
+export class PlanAlreadyActiveError extends Error {
+  constructor() {
+    super('Este já é o plano atual da assinatura.');
+    this.name = 'PlanAlreadyActiveError';
+  }
+}

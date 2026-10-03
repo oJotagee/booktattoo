@@ -11,8 +11,8 @@ function buildController() {
   const updateUserAvatar = {
     execute: mock(async () => ({ id: 'user-1', image: 'https://bucket/avatars/user-1/file.png' })),
   };
-  const findUserSubscription = {
-    execute: mock(async () => ({ status: 'active', plan: 'BASIC', active: true })),
+  const getUserPlanAccess = {
+    execute: mock(async () => ({ status: 'TRIAL', plan: null })),
   };
 
   const controller = new UserController(
@@ -20,7 +20,7 @@ function buildController() {
     updateUserContactInfo as never,
     updateUserStatus as never,
     updateUserAvatar as never,
-    findUserSubscription as never,
+    getUserPlanAccess as never,
   );
 
   return {
@@ -29,7 +29,7 @@ function buildController() {
     updateUserContactInfo,
     updateUserStatus,
     updateUserAvatar,
-    findUserSubscription,
+    getUserPlanAccess,
   };
 }
 
@@ -95,11 +95,11 @@ describe('UserController', () => {
     expect(updateUserAvatar.execute).not.toHaveBeenCalled();
   });
 
-  it('delegates fetching the current subscription to FindUserSubscriptionUseCase', async () => {
-    const { controller, findUserSubscription } = buildController();
+  it('delegates fetching the plan access to GetUserPlanAccessUseCase', async () => {
+    const { controller, getUserPlanAccess } = buildController();
 
-    await controller.mySubscription(payload);
+    await controller.myPlan(payload);
 
-    expect(findUserSubscription.execute).toHaveBeenCalledWith({ userId: payload.sub });
+    expect(getUserPlanAccess.execute).toHaveBeenCalledWith({ userId: payload.sub });
   });
 });

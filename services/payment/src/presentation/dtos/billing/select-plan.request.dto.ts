@@ -4,7 +4,7 @@ import { IsIn } from 'class-validator';
 
 const PLANS: SubscriptionPlan[] = ['BASIC', 'PROFESSIONAL'];
 
-export class CreateCheckoutSessionRequestDto {
+export class SelectPlanRequestDto {
   @ApiProperty({ enum: PLANS, example: 'BASIC' })
   @IsIn(PLANS)
   plan!: SubscriptionPlan;

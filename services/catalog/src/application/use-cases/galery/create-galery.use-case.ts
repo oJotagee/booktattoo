@@ -9,9 +9,13 @@ import { GALERY_REPOSITORY } from '../../port/galery-repository.port';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import { extractStorageKey } from '../../utils/storage-key';
+import type { PlanAccessGateway } from '../../port/plan-access-gateway.port';
+import { PLAN_ACCESS_GATEWAY } from '../../port/plan-access-gateway.port';
+import { ensureWithinPlanLimit } from '@/domain/plan/plan-access';
 
 type CreateGaleryInput = {
   userId: string;
+  authorization: string;
   serviceId: string;
   title: string;
   size: string;
@@ -47,10 +51,13 @@ export class CreateGaleryUseCase {
     private readonly services: ServiceRepository,
     @Inject(STORAGE_PORT)
     private readonly storage: StoragePort,
+    @Inject(PLAN_ACCESS_GATEWAY)
+    private readonly planAccess: PlanAccessGateway,
   ) {}
 
   async execute({
     userId,
+    authorization,
     serviceId,
     image,
     ...input
@@ -59,6 +66,12 @@ export class CreateGaleryUseCase {
     if (!service) throw new ServiceNotFoundError(serviceId);
 
     if (service.userId !== userId) throw new ForbiddenResourceAccessError();
+
+    const [access, currentCount] = await Promise.all([
+      this.planAccess.getPlanAccess(authorization),
+      this.galeries.countByUserId(userId),
+    ]);
+    ensureWithinPlanLimit(access, 'galeries', currentCount);
 
     const { url } = await this.storage.upload({
       assetType: ASSET_TYPES.GALLERY,

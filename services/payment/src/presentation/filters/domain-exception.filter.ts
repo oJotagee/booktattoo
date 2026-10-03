@@ -5,6 +5,8 @@ import {
   BillingCustomerNotFoundError,
   InvalidBillingCustomerError,
   InvalidWebhookSignatureError,
+  NoActiveSubscriptionError,
+  PlanAlreadyActiveError,
   SubscriptionAlreadyActiveError,
   UnknownPriceError,
 } from '@/domain/errors/billing.error';
@@ -17,6 +19,8 @@ const DOMAIN_ERRORS = [
   InvalidBillingCustomerError,
   InvalidWebhookSignatureError,
   BillingCustomerNotFoundError,
+  NoActiveSubscriptionError,
+  PlanAlreadyActiveError,
   SubscriptionAlreadyActiveError,
   UnknownPriceError,
   MessagingUnavailableError,
@@ -27,8 +31,10 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [InvalidWebhookSignatureError, HttpStatus.BAD_REQUEST],
 
   [BillingCustomerNotFoundError, HttpStatus.NOT_FOUND],
+  [NoActiveSubscriptionError, HttpStatus.NOT_FOUND],
 
   [SubscriptionAlreadyActiveError, HttpStatus.CONFLICT],
+  [PlanAlreadyActiveError, HttpStatus.CONFLICT],
 
   [UnknownPriceError, HttpStatus.INTERNAL_SERVER_ERROR],
 

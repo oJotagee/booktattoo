@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it } from 'bun:test';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 import {
   createGaleryRepositoryMock,
+  createPlanAccessGatewayMock,
   createServiceRepositoryMock,
   createStorageMock,
 } from '@tests/unit/support/mocks';
@@ -9,11 +10,13 @@ import { CreateGaleryUseCase } from '@/application/use-cases/galery/create-galer
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
 import { InvalidGaleryError } from '@/domain/errors/galery.error';
+import { PlanLimitReachedError } from '@/domain/errors/plan.error';
 import { GaleryStyle } from '@/domain/entities/galery.entity';
 import { buildService } from '@tests/unit/support/builders';
 
 const input = {
   userId: 'user-1',
+  authorization: 'Bearer access-token',
   serviceId: 'service-1',
   title: 'Rosa fineline',
   size: '10x15cm',
@@ -30,13 +33,15 @@ describe('CreateGaleryUseCase', () => {
   let galeries: ReturnType<typeof createGaleryRepositoryMock>;
   let services: ReturnType<typeof createServiceRepositoryMock>;
   let storage: ReturnType<typeof createStorageMock>;
+  let planAccess: ReturnType<typeof createPlanAccessGatewayMock>;
   let useCase: CreateGaleryUseCase;
 
   beforeEach(() => {
     galeries = createGaleryRepositoryMock();
     services = createServiceRepositoryMock();
     storage = createStorageMock();
-    useCase = new CreateGaleryUseCase(galeries, services, storage);
+    planAccess = createPlanAccessGatewayMock();
+    useCase = new CreateGaleryUseCase(galeries, services, storage, planAccess);
 
     services.findById = async () => buildService({ id: 'service-1', userId: 'user-1' });
   });
@@ -103,5 +108,18 @@ describe('CreateGaleryUseCase', () => {
     await expect(useCase.execute(input)).rejects.toThrow('database down');
 
     expect(storage.delete).toHaveBeenCalledWith('gallery/user-1/new-image.png');
+  });
+
+  it('throws PlanLimitReachedError before uploading when the plan limit was reached', async () => {
+    planAccess.getPlanAccess = mock(async () => ({
+      status: 'ACTIVE' as const,
+      limits: { services: 3, galeries: 5 },
+    }));
+    galeries.countByUserId = async () => 5;
+
+    await expect(useCase.execute(input)).rejects.toThrow(PlanLimitReachedError);
+    expect(planAccess.getPlanAccess).toHaveBeenCalledWith('Bearer access-token');
+    expect(storage.upload).not.toHaveBeenCalled();
+    expect(galeries.create).not.toHaveBeenCalled();
   });
 });

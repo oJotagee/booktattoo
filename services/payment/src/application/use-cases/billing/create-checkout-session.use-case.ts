@@ -38,7 +38,7 @@ export class CreateCheckoutSessionUseCase {
   }: CreateCheckoutSessionInput): Promise<CreateCheckoutSessionOutput> {
     const customer = await this.findOrCreateCustomer(userId, email);
 
-    if (await this.gateway.hasActiveSubscription(customer.stripeCustomerId)) {
+    if (await this.gateway.findActiveSubscription(customer.stripeCustomerId)) {
       throw new SubscriptionAlreadyActiveError();
     }
 

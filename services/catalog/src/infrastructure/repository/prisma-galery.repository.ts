@@ -39,6 +39,10 @@ export class PrismaGaleryRepository implements GaleryRepository {
     return { items: galeries.map(GaleryMapper.toDomain), total };
   }
 
+  async countByUserId(userId: string): Promise<number> {
+    return this.prisma.galery.count({ where: { userId } });
+  }
+
   async create(galery: GaleryEntity): Promise<void> {
     const data = GaleryMapper.toPersistence(galery);
 

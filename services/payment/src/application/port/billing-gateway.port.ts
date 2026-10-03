@@ -26,6 +26,18 @@ export type SubscriptionSnapshot = {
   cancelAtPeriodEnd: boolean;
 };
 
+export type ActiveSubscription = {
+  id: string;
+  itemId: string;
+  priceId: string;
+};
+
+export type ChangeSubscriptionPriceParams = {
+  subscriptionId: string;
+  itemId: string;
+  priceId: string;
+};
+
 export type CreateCheckoutSessionParams = {
   customerId: string;
   priceId: string;
@@ -34,7 +46,8 @@ export type CreateCheckoutSessionParams = {
 
 export interface BillingGateway {
   createCustomer(params: { userId: string; email: string }): Promise<{ id: string }>;
-  hasActiveSubscription(customerId: string): Promise<boolean>;
+  findActiveSubscription(customerId: string): Promise<ActiveSubscription | null>;
+  changeSubscriptionPrice(params: ChangeSubscriptionPriceParams): Promise<void>;
   createCheckoutSession(params: CreateCheckoutSessionParams): Promise<{ url: string }>;
   createPortalSession(customerId: string): Promise<{ url: string }>;
   parseWebhookEvent(rawBody: Buffer, signature: string): Promise<BillingWebhookEvent>;

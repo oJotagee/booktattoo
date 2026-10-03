@@ -35,9 +35,10 @@ interface GaleryListProps {
   galeries: Galery[];
   pagination: PaginationGalery;
   style?: GaleryStyle;
+  canCreate: boolean;
 }
 
-export function GaleryList({ galeries, pagination, style }: GaleryListProps) {
+export function GaleryList({ galeries, pagination, style, canCreate }: GaleryListProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -96,14 +97,21 @@ export function GaleryList({ galeries, pagination, style }: GaleryListProps) {
           ))}
         </fieldset>
 
-        <Button
-          render={<Link href="/dashboard/galery/new" />}
-          nativeButton={false}
-          className="w-full sm:w-fit bg-orange-600 text-white hover:brightness-75 duration-300 cursor-pointer"
-        >
-          <Plus />
-          Novo flash
-        </Button>
+        {canCreate ? (
+          <Button
+            render={<Link href="/dashboard/galery/new" />}
+            nativeButton={false}
+            className="w-full sm:w-fit bg-orange-600 text-white hover:brightness-75 duration-300 cursor-pointer"
+          >
+            <Plus />
+            Novo flash
+          </Button>
+        ) : (
+          <Button disabled className="w-full sm:w-fit bg-orange-600 text-white">
+            <Plus />
+            Novo flash
+          </Button>
+        )}
       </div>
 
       {isNavigating ? (

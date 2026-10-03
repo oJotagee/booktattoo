@@ -31,7 +31,9 @@ describe('GaleryList', () => {
   });
 
   it('renders a card per flash and the new flash link', () => {
-    renderWithProviders(<GaleryList galeries={galeries} pagination={buildPagination()} />);
+    renderWithProviders(
+      <GaleryList canCreate galeries={galeries} pagination={buildPagination()} />,
+    );
 
     expect(screen.getAllByRole('article')).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'Novo flash' })).toHaveAttribute(
@@ -40,9 +42,19 @@ describe('GaleryList', () => {
     );
   });
 
+  it('disables the new flash button when the plan does not allow creating', () => {
+    renderWithProviders(
+      <GaleryList canCreate={false} galeries={galeries} pagination={buildPagination()} />,
+    );
+
+    const button = screen.getByRole('button', { name: 'Novo flash' });
+    expect(button).toBeDisabled();
+    expect(button).not.toHaveAttribute('href');
+  });
+
   it('marks the active style chip', () => {
     renderWithProviders(
-      <GaleryList galeries={galeries} pagination={buildPagination()} style="JAPONES" />,
+      <GaleryList canCreate galeries={galeries} pagination={buildPagination()} style="JAPONES" />,
     );
 
     expect(getChips().getByRole('button', { name: 'Japonês' })).toHaveAttribute(
@@ -58,7 +70,7 @@ describe('GaleryList', () => {
   it('filters by style and resets the page when a chip is clicked', async () => {
     setSearchParams('page=2');
     const { user } = renderWithProviders(
-      <GaleryList galeries={galeries} pagination={buildPagination()} />,
+      <GaleryList canCreate galeries={galeries} pagination={buildPagination()} />,
     );
 
     await user.click(getChips().getByRole('button', { name: 'Blackwork' }));
@@ -69,7 +81,7 @@ describe('GaleryList', () => {
   it('clears the style filter when "Todos" is clicked', async () => {
     setSearchParams('style=JAPONES&page=3');
     const { user } = renderWithProviders(
-      <GaleryList galeries={galeries} pagination={buildPagination()} style="JAPONES" />,
+      <GaleryList canCreate galeries={galeries} pagination={buildPagination()} style="JAPONES" />,
     );
 
     await user.click(getChips().getByRole('button', { name: 'Todos' }));
@@ -79,7 +91,7 @@ describe('GaleryList', () => {
 
   it('filters by style through the mobile select', async () => {
     const { user } = renderWithProviders(
-      <GaleryList galeries={galeries} pagination={buildPagination()} />,
+      <GaleryList canCreate galeries={galeries} pagination={buildPagination()} />,
     );
 
     const select = screen.getByRole('combobox', { name: 'Filtrar por estilo' });
@@ -94,7 +106,7 @@ describe('GaleryList', () => {
   it('shows the range and navigates between pages keeping the style filter', async () => {
     setSearchParams('style=JAPONES&page=2');
     const { user } = renderWithProviders(
-      <GaleryList galeries={galeries} pagination={buildPagination()} style="JAPONES" />,
+      <GaleryList canCreate galeries={galeries} pagination={buildPagination()} style="JAPONES" />,
     );
 
     expect(screen.getByText('11–20 de 25')).toBeInTheDocument();
@@ -109,13 +121,15 @@ describe('GaleryList', () => {
 
   it('disables the previous button on the first page and next on the last', () => {
     const { rerender } = renderWithProviders(
-      <GaleryList galeries={galeries} pagination={buildPagination({ page: 1 })} />,
+      <GaleryList canCreate galeries={galeries} pagination={buildPagination({ page: 1 })} />,
     );
 
     expect(screen.getByRole('button', { name: 'Página anterior' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Próxima página' })).toBeEnabled();
 
-    rerender(<GaleryList galeries={galeries} pagination={buildPagination({ page: 3 })} />);
+    rerender(
+      <GaleryList canCreate galeries={galeries} pagination={buildPagination({ page: 3 })} />,
+    );
 
     expect(screen.getByRole('button', { name: 'Próxima página' })).toBeDisabled();
   });
@@ -123,6 +137,7 @@ describe('GaleryList', () => {
   it('shows the empty state without pagination', () => {
     renderWithProviders(
       <GaleryList
+        canCreate
         galeries={[]}
         pagination={buildPagination({ total: 0, page: 1, totalPages: 0 })}
       />,
@@ -135,6 +150,7 @@ describe('GaleryList', () => {
   it('mentions the active style in the empty state', () => {
     renderWithProviders(
       <GaleryList
+        canCreate
         galeries={[]}
         pagination={buildPagination({ total: 0, page: 1, totalPages: 0 })}
         style="CHICANO"

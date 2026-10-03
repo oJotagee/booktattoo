@@ -6,9 +6,11 @@ import { InvalidWebhookSignatureError } from '@/domain/errors/billing.error';
 import stripeConfig from '../config/stripe.config';
 import { STRIPE_CLIENT } from './stripe.client';
 import {
+  type ActiveSubscription,
   type BillingGateway,
   type BillingWebhookEvent,
   BillingWebhookEventKind,
+  type ChangeSubscriptionPriceParams,
   type CreateCheckoutSessionParams,
   type SubscriptionSnapshot,
 } from '@/application/port/billing-gateway.port';
@@ -39,16 +41,33 @@ export class StripeBillingGateway implements BillingGateway {
     return { id: customer.id };
   }
 
-  async hasActiveSubscription(customerId: string): Promise<boolean> {
+  async findActiveSubscription(customerId: string): Promise<ActiveSubscription | null> {
     const subscriptions = await this.stripe.subscriptions.list({
       customer: customerId,
       status: 'all',
       limit: 10,
     });
 
-    return subscriptions.data.some((subscription) =>
-      ACTIVE_SUBSCRIPTION_STATUSES.has(subscription.status),
+    const subscription = subscriptions.data.find(({ status }) =>
+      ACTIVE_SUBSCRIPTION_STATUSES.has(status),
     );
+    if (!subscription) return null;
+
+    const item = subscription.items.data[0];
+
+    return { id: subscription.id, itemId: item.id, priceId: item.price.id };
+  }
+
+  async changeSubscriptionPrice({
+    subscriptionId,
+    itemId,
+    priceId,
+  }: ChangeSubscriptionPriceParams): Promise<void> {
+    await this.stripe.subscriptions.update(subscriptionId, {
+      items: [{ id: itemId, price: priceId }],
+      proration_behavior: 'create_prorations',
+      cancel_at_period_end: false,
+    });
   }
 
   async createCheckoutSession({
@@ -111,6 +130,13 @@ export class StripeBillingGateway implements BillingGateway {
           subscriptionId,
         };
       }
+      case 'customer.subscription.created':
+        return {
+          id: event.id,
+          type: event.type,
+          kind: BillingWebhookEventKind.SUBSCRIPTION_CREATED,
+          subscriptionId: event.data.object.id,
+        };
       case 'customer.subscription.updated':
         return {
           id: event.id,
