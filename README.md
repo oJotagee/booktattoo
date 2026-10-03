@@ -1,4 +1,3 @@
-| `/billing`, `POST /webhooks` | payment |
 # Book Tattoo
 
 Micro-SaaS de agendamento para estúdios de tatuagem: cadastro/autenticação de usuários e marcação de horários (appointments), oferecido por assinatura mensal.
