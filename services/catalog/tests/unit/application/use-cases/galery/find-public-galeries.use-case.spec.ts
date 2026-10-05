@@ -3,15 +3,17 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { FindPublicGaleriesUseCase } from '@/application/use-cases/galery/find-public-galeries.use-case';
 import { GaleryStyle } from '@/domain/entities/galery.entity';
 import { buildGalery } from '@tests/unit/support/builders';
-import { createGaleryRepositoryMock } from '@tests/unit/support/mocks';
+import { createCacheMock, createGaleryRepositoryMock } from '@tests/unit/support/mocks';
 
 describe('FindPublicGaleriesUseCase', () => {
   let galeries: ReturnType<typeof createGaleryRepositoryMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: FindPublicGaleriesUseCase;
 
   beforeEach(() => {
     galeries = createGaleryRepositoryMock();
-    useCase = new FindPublicGaleriesUseCase(galeries);
+    cache = createCacheMock();
+    useCase = new FindPublicGaleriesUseCase(galeries, cache);
   });
 
   it('returns only the public fields of each galery', async () => {
@@ -86,5 +88,26 @@ describe('FindPublicGaleriesUseCase', () => {
     const result = await useCase.execute({ limit: 10, offset: 20 });
 
     expect(result.pagination).toEqual({ total: 23, page: 3, perPage: 10, totalPages: 3 });
+  });
+
+  it('caches the result under a key built from the normalized filters', async () => {
+    await useCase.execute({ userId: 'user-1', style: GaleryStyle.BLACKWORK, limit: 1000 });
+
+    expect(cache.getOrLoad).toHaveBeenCalledWith(
+      'catalog:public:galeries:user=user-1:style=BLACKWORK:limit=50:offset=0',
+      expect.any(Function),
+    );
+  });
+
+  it('returns the cached result without querying the repository', async () => {
+    const findPublic = mock(async () => ({ items: [], total: 0 }));
+    galeries.findPublic = findPublic;
+    const cached = { list: [], pagination: { total: 7, page: 1, perPage: 10, totalPages: 1 } };
+    cache.getOrLoad = mock(async () => cached) as typeof cache.getOrLoad;
+
+    const result = await useCase.execute({});
+
+    expect(result).toBe(cached);
+    expect(findPublic).not.toHaveBeenCalled();
   });
 });

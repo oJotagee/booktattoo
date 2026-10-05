@@ -1,3 +1,4 @@
+import { CacheModule } from '@bookink/shared/cache';
 import { StorageModule } from '@bookink/shared/storage';
 import { JwtAuthModule } from '@bookink/shared/auth';
 import { ConfigModule } from '@nestjs/config';
@@ -35,6 +36,7 @@ import userServiceConfig from './infrastructure/config/user-service.config';
     ConfigModule.forRoot({ isGlobal: true, load: [userServiceConfig] }),
     JwtAuthModule,
     StorageModule,
+    CacheModule,
   ],
   controllers: [
     ServiceController,

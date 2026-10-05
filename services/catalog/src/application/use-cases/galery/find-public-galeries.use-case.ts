@@ -1,3 +1,4 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { GaleryRepository } from '../../port/galery-repository.port';
@@ -41,6 +42,8 @@ export class FindPublicGaleriesUseCase {
   constructor(
     @Inject(GALERY_REPOSITORY)
     private readonly galeries: GaleryRepository,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute({
@@ -51,31 +54,34 @@ export class FindPublicGaleriesUseCase {
   }: FindPublicGaleriesInput): Promise<FindPublicGaleriesOutput> {
     const perPage = Math.min(limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const currentOffset = offset ?? DEFAULT_OFFSET;
+    const key = `catalog:public:galeries:user=${userId ?? ''}:style=${style ?? ''}:limit=${perPage}:offset=${currentOffset}`;
 
-    const { items, total } = await this.galeries.findPublic({
-      ...(userId && { userId }),
-      ...(style && { style }),
-      limit: perPage,
-      offset: currentOffset,
+    return this.cache.getOrLoad(key, async () => {
+      const { items, total } = await this.galeries.findPublic({
+        ...(userId && { userId }),
+        ...(style && { style }),
+        limit: perPage,
+        offset: currentOffset,
+      });
+
+      return {
+        list: items.map((galery) => ({
+          id: galery.id,
+          title: galery.title,
+          imageUrl: galery.imageUrl,
+          size: galery.size,
+          price: galery.price,
+          style: galery.style,
+          userId: galery.userId,
+          serviceId: galery.serviceId,
+        })),
+        pagination: {
+          total,
+          page: Math.floor(currentOffset / perPage) + 1,
+          perPage,
+          totalPages: Math.ceil(total / perPage),
+        },
+      };
     });
-
-    return {
-      list: items.map((galery) => ({
-        id: galery.id,
-        title: galery.title,
-        imageUrl: galery.imageUrl,
-        size: galery.size,
-        price: galery.price,
-        style: galery.style,
-        userId: galery.userId,
-        serviceId: galery.serviceId,
-      })),
-      pagination: {
-        total,
-        page: Math.floor(currentOffset / perPage) + 1,
-        perPage,
-        totalPages: Math.ceil(total / perPage),
-      },
-    };
   }
 }

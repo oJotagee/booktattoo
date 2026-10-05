@@ -1,3 +1,4 @@
+import type { CachePort } from '@bookink/shared/cache';
 import { mock } from 'bun:test';
 
 import type { PlanAccessGateway } from '@/application/port/plan-access-gateway.port';
@@ -48,5 +49,13 @@ export function createPlanAccessGatewayMock(): PlanAccessGateway {
         limits: { services: 20, galeries: 50 },
       }),
     ),
+  };
+}
+
+export function createCacheMock(): CachePort {
+  return {
+    getOrLoad: mock((_key: string, loader: () => Promise<unknown>) =>
+      loader(),
+    ) as CachePort['getOrLoad'],
   };
 }

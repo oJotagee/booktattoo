@@ -1,3 +1,4 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { ServiceRepository } from '../../port/service-repository.port';
@@ -36,6 +37,8 @@ export class FindPublicServicesUseCase {
   constructor(
     @Inject(SERVICE_REPOSITORY)
     private readonly services: ServiceRepository,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute({
@@ -45,27 +48,30 @@ export class FindPublicServicesUseCase {
   }: FindPublicServicesInput): Promise<FindPublicServicesOutput> {
     const perPage = Math.min(limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const currentOffset = offset ?? DEFAULT_OFFSET;
+    const key = `catalog:public:services:user=${userId ?? ''}:limit=${perPage}:offset=${currentOffset}`;
 
-    const { items, total } = await this.services.findPublic({
-      ...(userId && { userId }),
-      limit: perPage,
-      offset: currentOffset,
+    return this.cache.getOrLoad(key, async () => {
+      const { items, total } = await this.services.findPublic({
+        ...(userId && { userId }),
+        limit: perPage,
+        offset: currentOffset,
+      });
+
+      return {
+        list: items.map((service) => ({
+          id: service.id,
+          name: service.name,
+          duration: service.duration,
+          depositAmount: service.depositAmount,
+          userId: service.userId,
+        })),
+        pagination: {
+          total,
+          page: Math.floor(currentOffset / perPage) + 1,
+          perPage,
+          totalPages: Math.ceil(total / perPage),
+        },
+      };
     });
-
-    return {
-      list: items.map((service) => ({
-        id: service.id,
-        name: service.name,
-        duration: service.duration,
-        depositAmount: service.depositAmount,
-        userId: service.userId,
-      })),
-      pagination: {
-        total,
-        page: Math.floor(currentOffset / perPage) + 1,
-        perPage,
-        totalPages: Math.ceil(total / perPage),
-      },
-    };
   }
 }

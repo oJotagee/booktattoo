@@ -41,6 +41,17 @@ services:
       timeout: 5s
       retries: 10
 
+  # ── Redis (cache das rotas públicas) ───────────────────────
+  redis:
+    image: redis:8.2-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   # ── Serviços de aplicação ──────────────────────────────────
   user:
     build:
@@ -57,10 +68,13 @@ services:
       PORT: 8081
       DATABASE_URL: postgresql://admin:admin@postgres:5432/user
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   catalog:
@@ -76,10 +90,13 @@ services:
       DATABASE_URL: postgresql://admin:admin@postgres:5432/catalog
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
       USER_SERVICE_URL: http://user:8081
+      REDIS_URL: redis://redis:6379
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   appointment:

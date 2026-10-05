@@ -2,15 +2,17 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 import { FindPublicServicesUseCase } from '@/application/use-cases/service/find-public-services.use-case';
 import { buildService } from '@tests/unit/support/builders';
-import { createServiceRepositoryMock } from '@tests/unit/support/mocks';
+import { createCacheMock, createServiceRepositoryMock } from '@tests/unit/support/mocks';
 
 describe('FindPublicServicesUseCase', () => {
   let services: ReturnType<typeof createServiceRepositoryMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: FindPublicServicesUseCase;
 
   beforeEach(() => {
     services = createServiceRepositoryMock();
-    useCase = new FindPublicServicesUseCase(services);
+    cache = createCacheMock();
+    useCase = new FindPublicServicesUseCase(services, cache);
   });
 
   it('returns only the public fields of each service', async () => {
@@ -72,5 +74,26 @@ describe('FindPublicServicesUseCase', () => {
     const result = await useCase.execute({ limit: 10, offset: 20 });
 
     expect(result.pagination).toEqual({ total: 23, page: 3, perPage: 10, totalPages: 3 });
+  });
+
+  it('caches the result under a key built from the normalized filters', async () => {
+    await useCase.execute({ userId: 'user-1', offset: 20 });
+
+    expect(cache.getOrLoad).toHaveBeenCalledWith(
+      'catalog:public:services:user=user-1:limit=10:offset=20',
+      expect.any(Function),
+    );
+  });
+
+  it('returns the cached result without querying the repository', async () => {
+    const findPublic = mock(async () => ({ items: [], total: 0 }));
+    services.findPublic = findPublic;
+    const cached = { list: [], pagination: { total: 7, page: 1, perPage: 10, totalPages: 1 } };
+    cache.getOrLoad = mock(async () => cached) as typeof cache.getOrLoad;
+
+    const result = await useCase.execute({});
+
+    expect(result).toBe(cached);
+    expect(findPublic).not.toHaveBeenCalled();
   });
 });

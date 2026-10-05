@@ -1,3 +1,4 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { UserRepository } from '../../port/user-repository.port';
@@ -37,33 +38,38 @@ export class FindPublicArtistsUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly users: UserRepository,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute({ limit, offset }: FindPublicArtistsInput): Promise<FindPublicArtistsOutput> {
     const perPage = Math.min(limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const currentOffset = offset ?? DEFAULT_OFFSET;
+    const key = `user:public:artists:limit=${perPage}:offset=${currentOffset}`;
 
-    const { items, total } = await this.users.findPublicArtists({
-      limit: perPage,
-      offset: currentOffset,
+    return this.cache.getOrLoad(key, async () => {
+      const { items, total } = await this.users.findPublicArtists({
+        limit: perPage,
+        offset: currentOffset,
+      });
+
+      return {
+        list: items.map((user) => ({
+          id: user.id,
+          name: user.name,
+          image: user.image,
+          bio: user.bio,
+          role: user.role,
+          status: user.status,
+          times: user.times,
+        })),
+        pagination: {
+          total,
+          page: Math.floor(currentOffset / perPage) + 1,
+          perPage,
+          totalPages: Math.ceil(total / perPage),
+        },
+      };
     });
-
-    return {
-      list: items.map((user) => ({
-        id: user.id,
-        name: user.name,
-        image: user.image,
-        bio: user.bio,
-        role: user.role,
-        status: user.status,
-        times: user.times,
-      })),
-      pagination: {
-        total,
-        page: Math.floor(currentOffset / perPage) + 1,
-        perPage,
-        totalPages: Math.ceil(total / perPage),
-      },
-    };
   }
 }

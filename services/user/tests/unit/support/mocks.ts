@@ -1,3 +1,4 @@
+import type { CachePort } from '@bookink/shared/cache';
 import type { MailPort } from '@bookink/shared/mail';
 import { mock } from 'bun:test';
 
@@ -75,5 +76,13 @@ export function createSubscriptionRepositoryMock(): SubscriptionRepository {
   return {
     findByUserId: mock(async () => null),
     save: mock(async () => undefined),
+  };
+}
+
+export function createCacheMock(): CachePort {
+  return {
+    getOrLoad: mock((_key: string, loader: () => Promise<unknown>) =>
+      loader(),
+    ) as CachePort['getOrLoad'],
   };
 }

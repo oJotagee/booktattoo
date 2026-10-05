@@ -3,15 +3,17 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { FindPublicArtistsUseCase } from '@/application/use-cases/artist/find-public-artists.use-case';
 import { UserStatus } from '@/domain/entities/user.entity';
 import { buildUser } from '@tests/unit/support/builders';
-import { createUserRepositoryMock } from '@tests/unit/support/mocks';
+import { createCacheMock, createUserRepositoryMock } from '@tests/unit/support/mocks';
 
 describe('FindPublicArtistsUseCase', () => {
   let users: ReturnType<typeof createUserRepositoryMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: FindPublicArtistsUseCase;
 
   beforeEach(() => {
     users = createUserRepositoryMock();
-    useCase = new FindPublicArtistsUseCase(users);
+    cache = createCacheMock();
+    useCase = new FindPublicArtistsUseCase(users, cache);
   });
 
   it('returns only the public fields of each artist', async () => {
@@ -86,5 +88,26 @@ describe('FindPublicArtistsUseCase', () => {
     const result = await useCase.execute({ limit: 10, offset: 20 });
 
     expect(result.pagination).toEqual({ total: 23, page: 3, perPage: 10, totalPages: 3 });
+  });
+
+  it('caches the result under a key built from the normalized filters', async () => {
+    await useCase.execute({ limit: 1000, offset: 50 });
+
+    expect(cache.getOrLoad).toHaveBeenCalledWith(
+      'user:public:artists:limit=50:offset=50',
+      expect.any(Function),
+    );
+  });
+
+  it('returns the cached result without querying the repository', async () => {
+    const findPublicArtists = mock(async () => ({ items: [], total: 0 }));
+    users.findPublicArtists = findPublicArtists;
+    const cached = { list: [], pagination: { total: 7, page: 1, perPage: 10, totalPages: 1 } };
+    cache.getOrLoad = mock(async () => cached) as typeof cache.getOrLoad;
+
+    const result = await useCase.execute({});
+
+    expect(result).toBe(cached);
+    expect(findPublicArtists).not.toHaveBeenCalled();
   });
 });

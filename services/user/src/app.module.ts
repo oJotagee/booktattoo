@@ -1,3 +1,4 @@
+import { CacheModule } from '@bookink/shared/cache';
 import { StorageModule } from '@bookink/shared/storage';
 import { MailModule } from '@bookink/shared/mail';
 import { JwtAuthModule } from '@bookink/shared/auth';
@@ -49,6 +50,7 @@ import jwtConfig from './infrastructure/config/jwt.config';
     ConfigModule.forRoot({ isGlobal: true, load: [jwtConfig] }),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     StorageModule,
+    CacheModule,
     MailModule,
     JwtAuthModule,
     MessagingModule,
