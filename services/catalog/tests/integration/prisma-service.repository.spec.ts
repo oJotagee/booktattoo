@@ -125,6 +125,35 @@ describe('PrismaServiceRepository (integration)', () => {
     });
   });
 
+  describe('findPublic', () => {
+    it('returns only active services of the user, ordered by name', async () => {
+      const user = { id: crypto.randomUUID() };
+      const fineline = buildService({ userId: user.id, name: 'Fineline' });
+      const blackwork = buildService({ userId: user.id, name: 'Blackwork' });
+      const inactive = buildService({ userId: user.id, name: 'Aquarela' });
+      await repository.create(fineline);
+      await repository.create(blackwork);
+      await repository.create(inactive);
+      await repository.update(inactive.deactivate());
+
+      const found = await repository.findPublic({ userId: user.id, limit: 10, offset: 0 });
+
+      expect(found.items.map((service) => service.id)).toEqual([blackwork.id, fineline.id]);
+      expect(found.total).toBe(2);
+    });
+
+    it('respects limit and offset', async () => {
+      const user = { id: crypto.randomUUID() };
+      await repository.create(buildService({ userId: user.id, name: 'Fineline' }));
+      await repository.create(buildService({ userId: user.id, name: 'Blackwork' }));
+
+      const found = await repository.findPublic({ userId: user.id, limit: 1, offset: 1 });
+
+      expect(found.items).toHaveLength(1);
+      expect(found.total).toBe(2);
+    });
+  });
+
   describe('update', () => {
     it('persists changes made to the service', async () => {
       const user = { id: crypto.randomUUID() };

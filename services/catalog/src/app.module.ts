@@ -12,6 +12,10 @@ import { UpdateGaleryImageUseCase } from '@/application/use-cases/galery/update-
 import { FindServiceByIdUseCase } from '@/application/use-cases/service/find-service-by-id.use-case';
 import { UpdateGaleryInfoUseCase } from '@/application/use-cases/galery/update-galery-info.use-case';
 import { FindGaleryByIdUseCase } from '@/application/use-cases/galery/find-galery-by-id.use-case';
+import { FindPublicServicesUseCase } from '@/application/use-cases/service/find-public-services.use-case';
+import { FindPublicGaleriesUseCase } from '@/application/use-cases/galery/find-public-galeries.use-case';
+import { PublicServiceController } from './presentation/controllers/public-service.controller';
+import { PublicGaleryController } from './presentation/controllers/public-galery.controller';
 import { PrismaServiceRepository } from './infrastructure/repository/prisma-service.repository';
 import { CreateServiceUseCase } from '@/application/use-cases/service/create-service.use-case';
 import { PrismaGaleryRepository } from './infrastructure/repository/prisma-galery.repository';
@@ -33,17 +37,25 @@ import userServiceConfig from './infrastructure/config/user-service.config';
     JwtAuthModule,
     StorageModule,
   ],
-  controllers: [ServiceController, GaleryController, HealthController],
+  controllers: [
+    ServiceController,
+    GaleryController,
+    PublicServiceController,
+    PublicGaleryController,
+    HealthController,
+  ],
   providers: [
     PrismaService,
     CreateServiceUseCase,
     FindServiceByIdUseCase,
     FindServicesByUserUseCase,
+    FindPublicServicesUseCase,
     UpdateServiceInfoUseCase,
     UpdateServiceStatusUseCase,
     CreateGaleryUseCase,
     FindGaleryByIdUseCase,
     FindGaleriesByUserUseCase,
+    FindPublicGaleriesUseCase,
     UpdateGaleryInfoUseCase,
     UpdateGaleryImageUseCase,
     UpdateGaleryAvailabilityUseCase,

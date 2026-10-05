@@ -184,6 +184,59 @@ describe('PrismaGaleryRepository (integration)', () => {
     });
   });
 
+  describe('findPublic', () => {
+    it('returns only available galeries of the user', async () => {
+      const user = { id: crypto.randomUUID() };
+      const service = await createService(user.id);
+      const available = buildGalery({ userId: user.id, serviceId: service.id });
+      const unavailable = buildGalery({ userId: user.id, serviceId: service.id });
+      await repository.create(available);
+      await repository.create(unavailable);
+      await repository.update(unavailable.deactivate());
+
+      const found = await repository.findPublic({ userId: user.id, limit: 10, offset: 0 });
+
+      expect(found.items.map((galery) => galery.id)).toEqual([available.id]);
+      expect(found.total).toBe(1);
+    });
+
+    it('filters by style', async () => {
+      const user = { id: crypto.randomUUID() };
+      const service = await createService(user.id);
+      const chicano = buildGalery({
+        userId: user.id,
+        serviceId: service.id,
+        style: GaleryStyle.CHICANO,
+      });
+      await repository.create(chicano);
+      await repository.create(
+        buildGalery({ userId: user.id, serviceId: service.id, style: GaleryStyle.FINELINE }),
+      );
+
+      const found = await repository.findPublic({
+        userId: user.id,
+        limit: 10,
+        offset: 0,
+        style: GaleryStyle.CHICANO,
+      });
+
+      expect(found.items.map((galery) => galery.id)).toEqual([chicano.id]);
+      expect(found.total).toBe(1);
+    });
+
+    it('respects limit and offset', async () => {
+      const user = { id: crypto.randomUUID() };
+      const service = await createService(user.id);
+      await repository.create(buildGalery({ userId: user.id, serviceId: service.id }));
+      await repository.create(buildGalery({ userId: user.id, serviceId: service.id }));
+
+      const found = await repository.findPublic({ userId: user.id, limit: 1, offset: 1 });
+
+      expect(found.items).toHaveLength(1);
+      expect(found.total).toBe(2);
+    });
+  });
+
   describe('update', () => {
     it('persists changes made to the galery', async () => {
       const user = { id: crypto.randomUUID() };

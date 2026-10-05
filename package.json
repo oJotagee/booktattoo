@@ -35,7 +35,7 @@
     "prisma:migrate:dev:payment": "bun prisma migrate dev --config services/payment/prisma.config.ts",
     "prisma:generate:payment": "bunx prisma generate --config services/payment/prisma.config.ts",
     "prisma:studio:payment": "bunx prisma studio --config services/payment/prisma.config.ts",
-    "stripe:listen": "stripe listen --all-snapshot --forward-to localhost:3001/api/webhook"
+    "stripe:listen": "stripe listen --all-snapshot --forward-to localhost:8000/webhooks/billing"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.2",

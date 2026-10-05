@@ -10,6 +10,7 @@ export function createServiceRepositoryMock(): ServiceRepository {
   return {
     findById: mock(async () => null),
     findByUserId: mock(async () => ({ items: [], total: 0 })),
+    findPublic: mock(async () => ({ items: [], total: 0 })),
     countByUserId: mock(async () => 0),
     create: mock(async () => undefined),
     update: mock(async () => undefined),
@@ -20,6 +21,7 @@ export function createGaleryRepositoryMock(): GaleryRepository {
   return {
     findById: mock(async () => null),
     findByUserId: mock(async () => ({ items: [], total: 0 })),
+    findPublic: mock(async () => ({ items: [], total: 0 })),
     countByUserId: mock(async () => 0),
     create: mock(async () => undefined),
     update: mock(async () => undefined),

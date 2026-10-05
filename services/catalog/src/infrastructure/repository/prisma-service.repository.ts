@@ -1,5 +1,6 @@
 import type {
   FindByUserIdParams,
+  FindPublicParams,
   PaginatedResult,
   ServiceRepository,
 } from '@/application/port/service-repository.port';
@@ -26,6 +27,26 @@ export class PrismaServiceRepository implements ServiceRepository {
     const [services, total] = await Promise.all([
       this.prisma.service.findMany({ where: { userId }, take: limit, skip: offset }),
       this.prisma.service.count({ where: { userId } }),
+    ]);
+
+    return { items: services.map(ServiceMapper.toDomain), total };
+  }
+
+  async findPublic({
+    userId,
+    limit,
+    offset,
+  }: FindPublicParams): Promise<PaginatedResult<ServiceEntity>> {
+    const where = { status: true, ...(userId && { userId }) };
+
+    const [services, total] = await Promise.all([
+      this.prisma.service.findMany({
+        where,
+        orderBy: [{ name: 'asc' }, { id: 'asc' }],
+        take: limit,
+        skip: offset,
+      }),
+      this.prisma.service.count({ where }),
     ]);
 
     return { items: services.map(ServiceMapper.toDomain), total };

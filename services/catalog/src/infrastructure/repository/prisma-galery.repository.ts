@@ -1,5 +1,6 @@
 import type {
   FindGaleriesByUserIdParams,
+  FindPublicGaleriesParams,
   GaleryRepository,
 } from '@/application/port/galery-repository.port';
 import type { PaginatedResult } from '@/application/port/service-repository.port';
@@ -32,6 +33,27 @@ export class PrismaGaleryRepository implements GaleryRepository {
         take: limit,
         skip: offset,
         orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.galery.count({ where }),
+    ]);
+
+    return { items: galeries.map(GaleryMapper.toDomain), total };
+  }
+
+  async findPublic({
+    userId,
+    limit,
+    offset,
+    style,
+  }: FindPublicGaleriesParams): Promise<PaginatedResult<GaleryEntity>> {
+    const where = { available: true, ...(userId && { userId }), ...(style && { style }) };
+
+    const [galeries, total] = await Promise.all([
+      this.prisma.galery.findMany({
+        where,
+        orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+        take: limit,
+        skip: offset,
       }),
       this.prisma.galery.count({ where }),
     ]);
