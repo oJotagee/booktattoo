@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "bun run --watch src/main.ts",
+    "dev": "cd ../.. && bun --env-file=services/appointment/.env --watch services/appointment/src/main.ts",
     "start": "bun run src/main.ts",
     "postinstall": "prisma skills sync || exit 0"
   },

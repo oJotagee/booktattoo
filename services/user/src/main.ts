@@ -32,7 +32,7 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(port, '0.0.0.0');
+  await app.listen(port, '::');
 
   console.log(`User service running on port ${port}`);
 
