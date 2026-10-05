@@ -10,7 +10,7 @@ API de serviços oferecidos pelo tatuador e da galeria de flashes (NestJS + Pris
 ## Responsabilidades
 
 - CRUD de serviços do tatuador (nome, duração, valor do sinal, ativo/inativo)
-- Galeria de flashes vinculada a um serviço (estilo, tamanho, preço, disponibilidade) — modelo pronto, endpoints ainda não implementados
+- Galeria de flashes vinculada a um serviço (estilo, tamanho, preço) — o tatuador cria, edita e exclui; a disponibilidade não é editável, o flash fica indisponível quando um cliente agenda um horário para ele
 
 O serviço não conhece a tabela de usuários: guarda só o `userId` extraído do JWT, que é **validado** aqui (nunca emitido).
 

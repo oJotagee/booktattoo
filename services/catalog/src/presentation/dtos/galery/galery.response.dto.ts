@@ -56,14 +56,3 @@ export class GaleryUpdateImageResponseDto {
   @ApiProperty({ example: '2024-06-01T12:00:00Z' })
   updatedAt!: Date;
 }
-
-export class GaleryUpdateAvailabilityResponseDto {
-  @ApiProperty({ example: 'a1b2c3d4-e5f6-4a1b-8c9d-1234567890ab' })
-  id!: string;
-
-  @ApiProperty({ example: true })
-  available!: boolean;
-
-  @ApiProperty({ example: '2024-06-01T12:00:00Z' })
-  updatedAt!: Date;
-}

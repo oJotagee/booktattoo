@@ -5,17 +5,12 @@ import { resetNextMocks, toast } from '../../../../support/next';
 import { renderWithProviders } from '../../../../support/render';
 import { buildGalery } from '../../../../support/builders';
 
-const updateGaleryAvailability = mock(
-  async (_input: {
-    id: string;
-    available: boolean;
-  }): Promise<{ data?: string; error?: string }> => ({
-    data: 'ok',
-  }),
+const deleteGalery = mock(
+  async (_id: string): Promise<{ data?: string; error?: string }> => ({ data: 'galery-1' }),
 );
 
-mock.module('@/app/(panel)/dashboard/galery/_actions/update-galery-availability', () => ({
-  updateGaleryAvailability,
+mock.module('@/app/(panel)/dashboard/galery/_actions/delete-galery', () => ({
+  deleteGalery,
 }));
 
 const { GaleryCard } = await import('@/app/(panel)/dashboard/galery/_components/galery-card');
@@ -23,8 +18,8 @@ const { GaleryCard } = await import('@/app/(panel)/dashboard/galery/_components/
 describe('GaleryCard', () => {
   beforeEach(() => {
     resetNextMocks();
-    updateGaleryAvailability.mockClear();
-    updateGaleryAvailability.mockImplementation(async () => ({ data: 'ok' }));
+    deleteGalery.mockClear();
+    deleteGalery.mockImplementation(async () => ({ data: 'galery-1' }));
   });
 
   it('shows the flash details, style badge and edit link', () => {
@@ -38,52 +33,64 @@ describe('GaleryCard', () => {
       'href',
       '/dashboard/galery/edit/galery-1',
     );
-    expect(screen.queryByText('Indisponível', { selector: 'span.uppercase' })).toBeNull();
+    expect(screen.queryByText('Indisponível')).toBeNull();
+    expect(screen.queryByRole('switch')).toBeNull();
   });
 
   it('marks unavailable flashes', () => {
     renderWithProviders(<GaleryCard galery={buildGalery({ available: false })} />);
 
     expect(screen.getByRole('img', { name: 'Rosa Tradicional' })).toHaveClass('grayscale');
-    expect(screen.getByRole('switch')).not.toBeChecked();
+    expect(screen.getByText('Indisponível')).toBeInTheDocument();
   });
 
-  it('marks the flash as unavailable when toggling the switch', async () => {
+  it('asks for confirmation before deleting the flash', async () => {
     const { user } = renderWithProviders(<GaleryCard galery={buildGalery()} />);
 
-    await user.click(screen.getByRole('switch', { name: 'Marcar como indisponível' }));
+    await user.click(screen.getByRole('button', { name: 'Excluir Rosa Tradicional' }));
 
-    expect(updateGaleryAvailability).toHaveBeenCalledWith(
-      { id: 'galery-1', available: false },
-      expect.anything(),
-    );
-    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Flash indisponível'));
-    expect(screen.getByRole('switch')).not.toBeChecked();
+    expect(screen.getByRole('dialog', { name: 'Excluir item' })).toBeInTheDocument();
+    expect(deleteGalery).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(deleteGalery).not.toHaveBeenCalled();
   });
 
-  it('reverts the switch and shows the error when the update fails', async () => {
-    updateGaleryAvailability.mockImplementation(async () => ({ error: 'Falhou' }));
+  it('deletes the flash after confirming', async () => {
     const { user } = renderWithProviders(<GaleryCard galery={buildGalery()} />);
 
-    await user.click(screen.getByRole('switch'));
+    await user.click(screen.getByRole('button', { name: 'Excluir Rosa Tradicional' }));
+    await user.click(screen.getByRole('button', { name: 'Excluir' }));
+
+    expect(deleteGalery).toHaveBeenCalledWith('galery-1', expect.anything());
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Item excluído com sucesso'));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('keeps the dialog open and shows the error when the delete fails', async () => {
+    deleteGalery.mockImplementation(async () => ({ error: 'Falhou' }));
+    const { user } = renderWithProviders(<GaleryCard galery={buildGalery()} />);
+
+    await user.click(screen.getByRole('button', { name: 'Excluir Rosa Tradicional' }));
+    await user.click(screen.getByRole('button', { name: 'Excluir' }));
 
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Falhou'));
-    expect(screen.getByRole('switch')).toBeChecked();
+    expect(screen.getByRole('dialog', { name: 'Excluir item' })).toBeInTheDocument();
   });
 
-  it('reverts the switch when the request throws', async () => {
-    updateGaleryAvailability.mockImplementation(async () => {
+  it('shows a generic error when the request throws', async () => {
+    deleteGalery.mockImplementation(async () => {
       throw new Error('Network');
     });
-    const { user } = renderWithProviders(<GaleryCard galery={buildGalery({ available: false })} />);
+    const { user } = renderWithProviders(<GaleryCard galery={buildGalery()} />);
 
-    await user.click(screen.getByRole('switch'));
+    await user.click(screen.getByRole('button', { name: 'Excluir Rosa Tradicional' }));
+    await user.click(screen.getByRole('button', { name: 'Excluir' }));
 
     await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith(
-        'Não foi possível atualizar a disponibilidade do flash',
-      ),
+      expect(toast.error).toHaveBeenCalledWith('Não foi possível excluir o item'),
     );
-    expect(screen.getByRole('switch')).not.toBeChecked();
   });
 });

@@ -13,13 +13,11 @@ mock.module('axios', () => ({
   isAxiosError: (error: unknown) => Boolean((error as { isAxiosError?: boolean })?.isAxiosError),
 }));
 
-const { updateGaleryAvailability } = await import(
-  '@/app/(panel)/dashboard/galery/_actions/update-galery-availability'
-);
+const { deleteGalery } = await import('@/app/(panel)/dashboard/galery/_actions/delete-galery');
 
-describe('updateGaleryAvailability', () => {
+describe('deleteGalery', () => {
   beforeEach(() => {
-    api.patch.mockClear();
+    api.delete.mockClear();
     getAccessToken.mockClear();
     revalidatePath.mockClear();
     getAccessToken.mockImplementation(async () => 'access-token');
@@ -28,41 +26,40 @@ describe('updateGaleryAvailability', () => {
   it('returns an error when the user is not authenticated', async () => {
     getAccessToken.mockImplementationOnce(async () => null);
 
-    const result = await updateGaleryAvailability({ id: 'galery-1', available: false });
+    const result = await deleteGalery('galery-1');
 
     expect(result).toEqual({ error: 'Usuário não autenticado' });
-    expect(api.patch).not.toHaveBeenCalled();
+    expect(api.delete).not.toHaveBeenCalled();
   });
 
-  it('patches the availability and revalidates the galery page', async () => {
-    const result = await updateGaleryAvailability({ id: 'galery-1', available: false });
+  it('deletes the flash with the bearer token and revalidates the galery page', async () => {
+    const result = await deleteGalery('galery-1');
 
-    expect(api.patch).toHaveBeenCalledWith(
-      '/galeries/galery-1/availability',
-      { available: false },
-      { headers: { Authorization: 'Bearer access-token' } },
-    );
+    expect(api.delete).toHaveBeenCalledWith('/galeries/galery-1', {
+      headers: { Authorization: 'Bearer access-token' },
+    });
     expect(revalidatePath).toHaveBeenCalledWith('/dashboard/galery');
-    expect(result).toEqual({ data: 'Disponibilidade atualizada com sucesso' });
+    expect(result).toEqual({ data: 'galery-1' });
   });
 
   it('returns the API error message when the request fails with one', async () => {
-    api.patch.mockImplementationOnce(async () => {
-      throw createAxiosError(400, { message: 'Galery already unavailable' });
+    api.delete.mockImplementationOnce(async () => {
+      throw createAxiosError(404, { message: 'Galeria com ID galery-1 não encontrada.' });
     });
 
-    const result = await updateGaleryAvailability({ id: 'galery-1', available: false });
+    const result = await deleteGalery('galery-1');
 
-    expect(result).toEqual({ error: 'Galery already unavailable' });
+    expect(result).toEqual({ error: 'Galeria com ID galery-1 não encontrada.' });
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it('returns a generic error message when the request fails without one', async () => {
-    api.patch.mockImplementationOnce(async () => {
+    api.delete.mockImplementationOnce(async () => {
       throw createAxiosError(500);
     });
 
-    const result = await updateGaleryAvailability({ id: 'galery-1', available: true });
+    const result = await deleteGalery('galery-1');
 
-    expect(result).toEqual({ error: 'Não foi possível atualizar a disponibilidade do flash' });
+    expect(result).toEqual({ error: 'Não foi possível excluir o item' });
   });
 });

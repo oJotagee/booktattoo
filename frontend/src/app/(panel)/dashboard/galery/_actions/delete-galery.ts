@@ -6,31 +6,23 @@ import { isAxiosError } from 'axios';
 import { getAccessToken } from '@/lib/get-access-token';
 import { api } from '@/lib/api';
 
-export async function updateGaleryAvailability({
-  id,
-  available,
-}: {
-  id: string;
-  available: boolean;
-}) {
+export async function deleteGalery(id: string): Promise<{ data?: string; error?: string }> {
   const accessToken = await getAccessToken();
   if (!accessToken) return { error: 'Usuário não autenticado' };
 
   try {
-    await api.patch(
-      `/galeries/${id}/availability`,
-      { available },
-      { headers: { Authorization: `Bearer ${accessToken}` } },
-    );
+    await api.delete(`/galeries/${id}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
 
     revalidatePath('/dashboard/galery');
 
-    return { data: 'Disponibilidade atualizada com sucesso' };
+    return { data: id };
   } catch (error) {
     if (isAxiosError(error) && error.response?.data?.message) {
       return { error: error.response.data.message };
     }
 
-    return { error: 'Não foi possível atualizar a disponibilidade do flash' };
+    return { error: 'Não foi possível excluir o item' };
   }
 }

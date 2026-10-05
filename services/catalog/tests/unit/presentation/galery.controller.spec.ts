@@ -16,9 +16,6 @@ function buildController() {
   };
   const updateGaleryInfo = { execute: mock(async () => ({ id: 'galery-1' })) };
   const updateGaleryImage = { execute: mock(async () => ({ id: 'galery-1' })) };
-  const updateGaleryAvailability = {
-    execute: mock(async () => ({ id: 'galery-1', available: true })),
-  };
   const deleteGalery = { execute: mock(async () => undefined) };
 
   const controller = new GaleryController(
@@ -27,7 +24,6 @@ function buildController() {
     findGaleriesByUser as never,
     updateGaleryInfo as never,
     updateGaleryImage as never,
-    updateGaleryAvailability as never,
     deleteGalery as never,
   );
 
@@ -38,7 +34,6 @@ function buildController() {
     findGaleriesByUser,
     updateGaleryInfo,
     updateGaleryImage,
-    updateGaleryAvailability,
     deleteGalery,
   };
 }
@@ -169,19 +164,6 @@ describe('GaleryController', () => {
       UnsupportedGaleryImageTypeError,
     );
     expect(updateGaleryImage.execute).not.toHaveBeenCalled();
-  });
-
-  it('delegates updating the availability to UpdateGaleryAvailabilityUseCase', async () => {
-    const { controller, updateGaleryAvailability } = buildController();
-    const body = { available: false };
-
-    await controller.updateAvailability('galery-1', body, payload);
-
-    expect(updateGaleryAvailability.execute).toHaveBeenCalledWith({
-      galeryId: 'galery-1',
-      available: body.available,
-      userId: payload.sub,
-    });
   });
 
   it('delegates deleting a galery to DeleteGaleryUseCase', async () => {

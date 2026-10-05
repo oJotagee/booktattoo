@@ -3,8 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from 'cn';
 
-import { GaleryAvailabilitySwitch } from './galery-availability-switch';
 import type { Galery } from '../_data-access/get-all-galeries';
+import { GaleryDeleteButton } from './galery-delete-button';
 import { formatCurrency } from '@/utils/formatService';
 import { GaleryStyleBadge } from './galery-style-badge';
 import { Button } from '@/components/ui/button';
@@ -45,20 +45,19 @@ export function GaleryCard({ galery }: GaleryCardProps) {
         <div className="mt-auto flex items-center justify-between gap-2">
           <p className="text-sm font-semibold">{formatCurrency(galery.price)}</p>
 
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            className="cursor-pointer text-muted-foreground"
-            aria-label={`Editar ${galery.title}`}
-            render={<Link href={`/dashboard/galery/edit/${galery.id}`} />}
-            nativeButton={false}
-          >
-            <Pencil />
-          </Button>
-        </div>
-
-        <div className="border-t pt-2">
-          <GaleryAvailabilitySwitch galery={galery} />
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="cursor-pointer text-muted-foreground"
+              aria-label={`Editar ${galery.title}`}
+              render={<Link href={`/dashboard/galery/edit/${galery.id}`} />}
+              nativeButton={false}
+            >
+              <Pencil />
+            </Button>
+            <GaleryDeleteButton galery={galery} />
+          </div>
         </div>
       </div>
     </article>

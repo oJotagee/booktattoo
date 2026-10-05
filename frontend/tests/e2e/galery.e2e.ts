@@ -162,7 +162,7 @@ test.describe('Galeria', () => {
     expect(updated.imageUrl).not.toBe(galery.imageUrl);
   });
 
-  test('marca um flash como indisponível e mantém após recarregar', async ({ page, api }) => {
+  test('exclui um flash após confirmar e ele some da listagem', async ({ page, api }) => {
     const title = uniqueName('Borboleta');
     const galery = await api.createGalery({
       title,
@@ -175,13 +175,16 @@ test.describe('Galeria', () => {
     await page.goto('/dashboard/galery');
     const card = page.getByRole('article').filter({ hasText: title });
 
-    await card.getByRole('switch', { name: 'Marcar como indisponível' }).click();
-    await expect(page.getByText('Flash indisponível')).toBeVisible();
+    await card.getByRole('button', { name: `Excluir ${title}` }).click();
+    await page
+      .getByRole('dialog', { name: 'Excluir item' })
+      .getByRole('button', { name: 'Excluir' })
+      .click();
+    await expect(page.getByText('Item excluído com sucesso')).toBeVisible();
 
     await page.reload();
-    await expect(card.getByRole('switch')).not.toBeChecked();
-    await expect(card.getByRole('img', { name: title })).toHaveClass(/grayscale/);
-    expect((await api.getGalery(galery.id)).available).toBe(false);
+    await expect(card).toHaveCount(0);
+    expect((await api.listGaleries()).map(({ id }) => id)).not.toContain(galery.id);
   });
 
   test('abre 404 ao editar um flash inexistente', async ({ page }) => {

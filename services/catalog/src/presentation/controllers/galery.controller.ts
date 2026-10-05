@@ -19,7 +19,6 @@ import {
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
-  Patch,
   Post,
   Put,
   Query,
@@ -28,8 +27,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 
-import { UpdateGaleryAvailabilityUseCase } from '@/application/use-cases/galery/update-galery-availability.use-case';
-import { UpdateGaleryAvailabilityRequestDto } from '../dtos/galery/update-galery-availability.request.dto';
 import { FindGaleriesByUserUseCase } from '@/application/use-cases/galery/find-galeries-by-user.use-case';
 import { UpdateGaleryImageUseCase } from '@/application/use-cases/galery/update-galery-image.use-case';
 import { UpdateGaleryInfoUseCase } from '@/application/use-cases/galery/update-galery-info.use-case';
@@ -43,7 +40,6 @@ import { UnsupportedGaleryImageTypeError } from '@/domain/errors/galery.error';
 import {
   GaleryListResponseDto,
   GaleryResponseDto,
-  GaleryUpdateAvailabilityResponseDto,
   GaleryUpdateImageResponseDto,
 } from '../dtos/galery/galery.response.dto';
 
@@ -63,7 +59,6 @@ export class GaleryController {
     private readonly findGaleriesByUser: FindGaleriesByUserUseCase,
     private readonly updateGaleryInfo: UpdateGaleryInfoUseCase,
     private readonly updateGaleryImage: UpdateGaleryImageUseCase,
-    private readonly updateGaleryAvailability: UpdateGaleryAvailabilityUseCase,
     private readonly deleteGalery: DeleteGaleryUseCase,
   ) {}
 
@@ -162,22 +157,6 @@ export class GaleryController {
       filename: file.originalname,
       contentType: file.mimetype,
       body: file.buffer,
-    });
-  }
-
-  @Patch(':id/availability')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ type: GaleryUpdateAvailabilityResponseDto })
-  updateAvailability(
-    @Param('id') id: string,
-    @Body() body: UpdateGaleryAvailabilityRequestDto,
-    @TokenPayload() payload: SessionPayload,
-  ): Promise<GaleryUpdateAvailabilityResponseDto> {
-    return this.updateGaleryAvailability.execute({
-      galeryId: id,
-      available: body.available,
-      userId: payload.sub,
     });
   }
 

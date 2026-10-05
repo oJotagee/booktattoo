@@ -3,7 +3,6 @@ import { JwtAuthModule } from '@bookink/shared/auth';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 
-import { UpdateGaleryAvailabilityUseCase } from '@/application/use-cases/galery/update-galery-availability.use-case';
 import { UpdateServiceStatusUseCase } from '@/application/use-cases/service/update-service-status.use-case';
 import { FindServicesByUserUseCase } from '@/application/use-cases/service/find-services-by-user.use-case';
 import { FindGaleriesByUserUseCase } from '@/application/use-cases/galery/find-galeries-by-user.use-case';
@@ -58,7 +57,6 @@ import userServiceConfig from './infrastructure/config/user-service.config';
     FindPublicGaleriesUseCase,
     UpdateGaleryInfoUseCase,
     UpdateGaleryImageUseCase,
-    UpdateGaleryAvailabilityUseCase,
     DeleteGaleryUseCase,
     {
       provide: SERVICE_REPOSITORY,

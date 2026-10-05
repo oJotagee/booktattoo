@@ -5,8 +5,8 @@ import { resetNextMocks, router, setPathname, setSearchParams } from '../../../.
 import { renderWithProviders } from '../../../../support/render';
 import { buildGalery } from '../../../../support/builders';
 
-mock.module('@/app/(panel)/dashboard/galery/_actions/update-galery-availability', () => ({
-  updateGaleryAvailability: mock(async () => ({ data: 'ok' })),
+mock.module('@/app/(panel)/dashboard/galery/_actions/delete-galery', () => ({
+  deleteGalery: mock(async () => ({ data: 'ok' })),
 }));
 
 const { GaleryList } = await import('@/app/(panel)/dashboard/galery/_components/galery-list');
