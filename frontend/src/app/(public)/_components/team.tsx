@@ -1,13 +1,12 @@
 import { Suspense } from 'react';
 import Image from 'next/image';
+import { connection } from 'next/server';
 
 import { getAllArtists } from '../_data-access/get-all-artists';
 import { TeamSkeleton } from './team-skeleton';
 import { getInitials } from '@/lib/utils';
 
 const ARTISTS_LIMIT = 4;
-
-export const revalidate = 120;
 
 export function Team() {
   return (
@@ -23,6 +22,8 @@ export function Team() {
 }
 
 async function TeamList() {
+  await connection();
+
   const artists = await getAllArtists({ limit: ARTISTS_LIMIT, offset: 0 });
 
   if (artists.list.length === 0) {
