@@ -1,53 +1,19 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 import { Carousel, CarouselContent, CarouselItem, CarouselSlider } from '@/components/ui/carousel';
+import { getAllPublicGaleries } from '../_data-access/get-all-public-galeries';
+import { formatCurrency } from '@/utils/formatService';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card } from '@/components/ui/card';
-import { Suspense } from 'react';
 
-const flashes = [
-  {
-    id: 1,
-    title: 'Rosa Tradicional',
-    price: 'R$ 280,00',
-    image: '/flash-1.jpg',
-  },
-  {
-    id: 2,
-    title: 'Cobra Japonesa',
-    price: 'R$ 420,00',
-    image: '/flash-2.jpg',
-  },
-  {
-    id: 3,
-    title: 'Crânio Blackwork',
-    price: 'R$ 350,00',
-    image: '/flash-3.jpg',
-  },
-  {
-    id: 4,
-    title: 'Borboleta Fineline',
-    price: 'R$ 220,00',
-    image: '/flash-4.jpg',
-  },
-  {
-    id: 5,
-    title: 'Pantera Neotradicional',
-    price: 'R$ 480,00',
-    image: '/flash-5.jpg',
-  },
-  {
-    id: 6,
-    title: 'Caveira Mexicana',
-    price: 'R$ 360,00',
-    image: '/flash-6.jpg',
-  },
-];
+const GALERY_LIMIT = 10;
 
 export function Galery() {
   return (
@@ -67,7 +33,7 @@ export function Galery() {
         </Link>
       </div>
 
-      <Suspense>
+      <Suspense fallback={<GaleryCarouselSkeleton />}>
         <GaleryList />
       </Suspense>
     </section>
@@ -75,8 +41,26 @@ export function Galery() {
 }
 
 export function GaleryList() {
-  const isLoading = false;
   const isMobile = useIsMobile();
+
+  const { data, isPending, isError } = useQuery({
+    queryKey: ['public-galeries', 'featured'],
+    queryFn: () => getAllPublicGaleries({ limit: GALERY_LIMIT, offset: 0 }),
+  });
+
+  if (isError) {
+    return (
+      <p className="mt-10 text-center text-white/60">
+        Não foi possível carregar a galeria, tente novamente mais tarde.
+      </p>
+    );
+  }
+
+  if (isPending) return <GaleryCarouselSkeleton />;
+
+  if (data.list.length === 0) {
+    return <p className="mt-10 text-center text-white/60">Nenhum flash disponível no momento.</p>;
+  }
 
   return (
     <Carousel
@@ -88,33 +72,27 @@ export function GaleryList() {
       className="mt-10 w-full"
     >
       <CarouselContent>
-        {isLoading
-          ? Array.from({ length: 5 }).map((_, index) => (
-              <CarouselItem key={index} className="basis-[65%] sm:basis-[38%] lg:basis-[21%]">
-                <Card className="gap-0 overflow-hidden py-0">
-                  <Skeleton className="aspect-square w-full rounded-none" />
-                  <div className="flex flex-col gap-2 p-4">
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                </Card>
-              </CarouselItem>
-            ))
-          : flashes.map((flash) => (
-              <CarouselItem key={flash.id} className="basis-[65%] sm:basis-[38%] lg:basis-[21%]">
-                <Card className="gap-0 overflow-hidden py-0">
-                  <div className="relative aspect-square w-full">
-                    <Image src={flash.image} alt={flash.title} fill className="object-cover" />
-                  </div>
-                  <div className="flex flex-col p-4">
-                    <span className="text-white font-medium truncate">{flash.title}</span>
-                    <span className="text-white/50 text-sm">{flash.price}</span>
-                  </div>
-                </Card>
-              </CarouselItem>
-            ))}
+        {data.list.map((flash) => (
+          <CarouselItem key={flash.id} className="basis-[65%] sm:basis-[38%] lg:basis-[21%]">
+            <Card className="gap-0 overflow-hidden py-0">
+              <div className="relative aspect-square w-full">
+                <Image
+                  src={flash.imageUrl}
+                  alt={flash.title}
+                  fill
+                  sizes="(min-width: 1024px) 21vw, (min-width: 640px) 38vw, 65vw"
+                  className="object-cover"
+                />
+              </div>
+              <div className="flex flex-col p-4">
+                <span className="text-white font-medium truncate">{flash.title}</span>
+                <span className="text-white/50 text-sm">{formatCurrency(flash.price)}</span>
+              </div>
+            </Card>
+          </CarouselItem>
+        ))}
 
-        {!isLoading && isMobile && (
+        {isMobile && (
           <CarouselItem className="basis-[35%]">
             <Link
               href="/galery"
@@ -129,5 +107,24 @@ export function GaleryList() {
 
       <CarouselSlider className="mx-auto max-w-xs" />
     </Carousel>
+  );
+}
+
+function GaleryCarouselSkeleton() {
+  return (
+    <div className="mt-10 flex gap-4 overflow-hidden">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Card
+          key={index}
+          className="shrink-0 basis-[65%] gap-0 overflow-hidden py-0 sm:basis-[38%] lg:basis-[21%]"
+        >
+          <Skeleton className="aspect-square w-full rounded-none" />
+          <div className="flex flex-col gap-2 p-4">
+            <Skeleton className="h-5 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+        </Card>
+      ))}
+    </div>
   );
 }

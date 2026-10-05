@@ -16,10 +16,7 @@ export function Footer() {
         size={'lg'}
         className="mx-auto flex flex-row items-center mt-4 bg-orange-600 text-white hover:brightness-75 duration-300 font-semibold h-11 px-6 cursor-pointer"
       >
-        <Link
-          href="/galery"
-          className="flex flex-row items-center"
-        >
+        <Link href="/galery" className="flex flex-row items-center">
           Explorar galeria
           <ArrowRight />
         </Link>
