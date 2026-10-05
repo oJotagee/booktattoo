@@ -6,6 +6,7 @@ export function createApiMock() {
     put: mock(async (..._args: unknown[]) => ({ data: undefined as unknown })),
     patch: mock(async (..._args: unknown[]) => ({ data: undefined as unknown })),
     get: mock(async (..._args: unknown[]) => ({ data: undefined as unknown })),
+    delete: mock(async (..._args: unknown[]) => ({ data: undefined as unknown })),
   };
 }
 

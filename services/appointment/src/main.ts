@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+import { DomainExceptionFilter } from './presentation/filters/domain-exception.filter';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
@@ -19,9 +20,11 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
+  app.useGlobalFilters(new DomainExceptionFilter());
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Appointment Service')
-    .setDescription('API for managing appointments')
+    .setDescription('API for managing appointments and reminders')
     .addBearerAuth()
     .setVersion('1.0')
     .build();

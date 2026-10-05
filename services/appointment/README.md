@@ -2,7 +2,7 @@
 
 API de agendamentos (NestJS + Prisma).
 
-> **Status:** apenas scaffold. O schema do banco está definido, mas ainda não há módulos, controllers ou use cases.
+> **Status:** Reminders implementado. Booking requests e appointments têm só o schema.
 
 - **Porta:** `8082`
 - **Banco:** `appointment` (PostgreSQL)
@@ -25,6 +25,36 @@ Serviço e flash vêm do catalog-service e o tatuador do user-service; aqui fica
 
 Schema em [prisma/schema.prisma](prisma/schema.prisma).
 
+## Endpoints
+
+Todos exigem JWT e operam sobre os dados do usuário logado.
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/reminders` | Lista os lembretes do usuário, mais recentes primeiro (`limit`, `offset`) |
+| `GET` | `/reminders/:id` | Busca um lembrete |
+| `POST` | `/reminders` | Cria lembrete |
+| `PUT` | `/reminders/:id` | Atualiza a descrição |
+| `DELETE` | `/reminders/:id` | Remove o lembrete (`204`) |
+| `GET` | `/health` | Health check (sem auth) |
+
+## Arquitetura
+
+```
+src/
+  domain/          # entidade Reminder e erros de domínio
+  application/     # use cases + port do repositório
+  infrastructure/  # Prisma, repositório e mapper
+  presentation/    # controllers, DTOs e DomainExceptionFilter
+```
+
+## Testes
+
+```bash
+bun run --cwd services/appointment test               # unitários
+bun run --cwd services/appointment test:integration   # integração (precisa do banco)
+```
+
 ## Como rodar
 
 ```bash
@@ -43,6 +73,6 @@ bun run --cwd services/appointment dev
 | `PORT` | Porta HTTP (8082) |
 | `DATABASE_URL` | Conexão com o banco `appointment` |
 | `RABBITMQ_URL` | Conexão AMQP |
+| `JWT_SECRET` | Mesmo segredo do user-service, usado só para validar o token |
 | `USER_SERVICE_URL` | URL interna do user-service, para validar o usuário |
 | `CATALOG_SERVICE_URL` | URL interna do catalog-service, para validar serviço/flash |
-| `S3_*` | Storage compartilhado via `@bookink/shared` |
