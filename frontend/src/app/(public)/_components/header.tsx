@@ -21,8 +21,8 @@ export function Header() {
   const { data: session, status } = useSession();
 
   const navItems = [
-    { href: '/flash', label: 'Flash' },
-    { href: '/artistas', label: 'Artistas' },
+    { href: '/galery', label: 'Galeria' },
+    { href: '/artists', label: 'Artistas' },
   ];
 
   return (

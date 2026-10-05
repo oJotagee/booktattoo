@@ -35,12 +35,12 @@ export function Hero() {
         </p>
 
         <div className="mt-8 flex items-center gap-3 flex-wrap">
-          <Link href={'/flash'}>
+          <Link href={'/galery'}>
             <Button
               size="lg"
               className="bg-orange-600 text-white hover:brightness-75 duration-300 h-11 px-6 font-semibold cursor-pointer"
             >
-              Ver flashs disponíveis
+              Ver Galeria
               <ArrowRight />
             </Button>
           </Link>
@@ -50,7 +50,7 @@ export function Hero() {
               size="lg"
               className="h-11 px-6 border-white/30 bg-transparent text-white hover:bg-white/10 cursor-pointer"
             >
-              Como funciona
+              Como Funciona
             </Button>
           </Link>
         </div>

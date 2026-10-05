@@ -55,11 +55,11 @@ export function Galery() {
       <div className="flex flex-row items-end justify-between">
         <div>
           <h2 className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Galeria</h2>
-          <h1 className="text-white text-3xl md:text-4xl font-bold md:w-sm">Flashs em destaque</h1>
+          <h1 className="text-white text-3xl md:text-4xl font-bold md:w-sm">Itens em destaque</h1>
         </div>
 
         <Link
-          href="/flash"
+          href="/galery"
           className="hidden sm:flex flex-row items-center gap-2 justify-end text-white/50 hover:brightness-75 duration-300 text-sm sm:text-base"
         >
           Ver todos
@@ -117,7 +117,7 @@ export function GaleryList() {
         {!isLoading && isMobile && (
           <CarouselItem className="basis-[35%]">
             <Link
-              href="/flash"
+              href="/galery"
               className="flex h-full flex-col items-center justify-center gap-2 rounded-xl text-white/50 hover:brightness-75 duration-300 py-4"
             >
               Ver todos

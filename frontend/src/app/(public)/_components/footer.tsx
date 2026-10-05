@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export function Footer() {
   return (
@@ -15,8 +16,13 @@ export function Footer() {
         size={'lg'}
         className="mx-auto flex flex-row items-center mt-4 bg-orange-600 text-white hover:brightness-75 duration-300 font-semibold h-11 px-6 cursor-pointer"
       >
-        Explorar galeria
-        <ArrowRight />
+        <Link
+          href="/galery"
+          className="flex flex-row items-center"
+        >
+          Explorar galeria
+          <ArrowRight />
+        </Link>
       </Button>
 
       <span className="block text-center mt-4 text-white/20 text-sm">
