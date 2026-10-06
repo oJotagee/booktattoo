@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  services:
+    name: Services (typecheck + unit tests)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+
+      - name: Cache Bun packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-services-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-services-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate Prisma clients
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/dummy
+        run: |
+          bun run prisma:generate:user
+          bun run prisma:generate:catalog
+          bun run prisma:generate:appointment
+          bun run prisma:generate:payment
+
+      - name: Typecheck
+        run: |
+          for service in user catalog appointment payment; do
+            echo "::group::tsc $service"
+            bunx tsc --noEmit -p services/$service/tsconfig.json
+            echo "::endgroup::"
+          done
+
+      - name: Unit tests
+        run: bun run test:unit
+
+  frontend:
+    name: Frontend (typecheck + unit tests)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+
+      - name: Cache Bun packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-frontend-${{ runner.os }}-${{ hashFiles('frontend/bun.lock') }}
+          restore-keys: bun-frontend-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate Next.js types
+        run: bunx next typegen
+
+      - name: Typecheck
+        run: bunx tsc --noEmit -p tsconfig.json
+
+      - name: Unit tests
+        run: bun run test

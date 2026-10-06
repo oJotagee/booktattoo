@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 
 import { ArtistGridSkeleton } from './_components/artist-grid-skeleton';
 import { ArtistList } from './_components/artist-list';
-import { Footer } from '../_components/footer';
 import { Header } from '../_components/header';
 
 export default function ArtistsPage() {

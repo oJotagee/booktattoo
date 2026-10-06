@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 
 import { GaleryGridSkeleton } from './_components/galery-grid-skeleton';
 import { GaleryList } from './_components/galery-list';
-import { Footer } from '../_components/footer';
 import { Header } from '../_components/header';
 
 export default function GaleryPage() {
