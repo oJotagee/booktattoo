@@ -35,12 +35,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html
       lang="pt-BR"
-      className={cn(
-        'h-full',
-        'antialiased',
-        roboto.variable,
-        playfairDisplay.variable,
-      )}
+      className={cn('h-full', 'antialiased', roboto.variable, playfairDisplay.variable)}
     >
       <body className="min-h-full flex flex-col dark">
         <Providers>
