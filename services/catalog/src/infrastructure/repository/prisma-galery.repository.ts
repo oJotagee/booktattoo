@@ -1,13 +1,14 @@
+import { Injectable } from '@nestjs/common';
+
+import type { PaginatedResult } from '@/application/port/service-repository.port';
+import { GaleryEntity } from '@/domain/entities/galery.entity';
+import { GaleryMapper } from '../persistence/galery.mapper';
+import { PrismaService } from '../prisma/prisma.service';
 import type {
   FindGaleriesByUserIdParams,
   FindPublicGaleriesParams,
   GaleryRepository,
 } from '@/application/port/galery-repository.port';
-import type { PaginatedResult } from '@/application/port/service-repository.port';
-import { GaleryEntity } from '@/domain/entities/galery.entity';
-import { Injectable } from '@nestjs/common';
-import { GaleryMapper } from '../persistence/galery.mapper';
-import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PrismaGaleryRepository implements GaleryRepository {

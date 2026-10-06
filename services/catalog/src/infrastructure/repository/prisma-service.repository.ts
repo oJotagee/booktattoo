@@ -1,13 +1,14 @@
+import { Injectable } from '@nestjs/common';
+
+import { ServiceEntity } from '@/domain/entities/service.entity';
+import { ServiceMapper } from '../persistence/service.mapper';
+import { PrismaService } from '../prisma/prisma.service';
 import type {
   FindByUserIdParams,
   FindPublicParams,
   PaginatedResult,
   ServiceRepository,
 } from '@/application/port/service-repository.port';
-import { ServiceEntity } from '@/domain/entities/service.entity';
-import { Injectable } from '@nestjs/common';
-import { ServiceMapper } from '../persistence/service.mapper';
-import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PrismaServiceRepository implements ServiceRepository {
