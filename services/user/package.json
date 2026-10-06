@@ -5,8 +5,6 @@
   "scripts": {
     "dev": "cd ../.. && bun --env-file=services/user/.env --watch services/user/src/main.ts",
     "start": "bun run src/main.ts",
-    "sync:artists": "cd ../.. && bun --env-file=services/user/.env services/user/src/scripts/sync-artist-profiles.ts",
-    "sync:artists:prod": "bun run src/scripts/sync-artist-profiles.ts",
     "test": "bun test tests/unit",
     "test:integration": "bun test tests/integration",
     "postinstall": "prisma skills sync || exit 0"

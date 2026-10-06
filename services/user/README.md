@@ -58,14 +58,7 @@ Storage (S3), email (SMTP), cache (Redis) e o guard JWT vêm de [`@bookink/share
 |---|---|
 | `user.profile.updated` | Cadastro (e-mail ou OAuth) e alteração de contato, status ou avatar |
 
-O payload é o perfil público completo (`userId`, `name`, `image`, `status`), e o `occurredAt` é o `updatedAt` do usuário. A publicação acontece depois de salvar: se o RabbitMQ estiver fora, a operação conclui normalmente e a falha fica só no log. Para ressincronizar (carga inicial ou depois de uma queda do broker), republique todos os perfis:
-
-```bash
-bun run --cwd services/user sync:artists        # local, usando services/user/.env
-bun run sync:artists:prod                       # dentro do container do user em prod (ex.: railway ssh)
-```
-
-Republicar é seguro: o consumidor ignora eventos que não são mais novos que o estado que já tem.
+O payload é o perfil público completo (`userId`, `name`, `image`, `status`), e o `occurredAt` é o `updatedAt` do usuário. A publicação acontece depois de salvar: se o RabbitMQ estiver fora, a operação conclui normalmente e a falha fica só no log. Para ressincronizar (depois de uma queda do broker), o `RepublishArtistProfilesUseCase` republica todos os perfis. Republicar é seguro: o consumidor ignora eventos que não são mais novos que o estado que já tem.
 
 ## Eventos consumidos
 
