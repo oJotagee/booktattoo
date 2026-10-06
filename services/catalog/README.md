@@ -5,7 +5,7 @@ API de serviços oferecidos pelo tatuador e da galeria de flashes (NestJS + Pris
 - **Porta:** `8083`
 - **Banco:** `catalog` (PostgreSQL)
 - **Swagger:** `http://localhost:8083/api/docs`
-- **Rotas no Kong:** `/services`, `/galeries`
+- **Rotas no Kong:** `/services`, `/galeries`, `GET /public/services`, `GET /public/galeries`
 
 ## Responsabilidades
 
@@ -16,16 +16,24 @@ O serviço não conhece a tabela de usuários: guarda só o `userId` extraído d
 
 ## Endpoints
 
-Todos exigem JWT e operam sobre os dados do usuário logado.
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| `GET` | `/services` | JWT | Lista os serviços do usuário (`limit`, `offset`) |
+| `GET` | `/services/:id` | JWT | Busca um serviço |
+| `POST` | `/services` | JWT | Cria serviço |
+| `PUT` | `/services/:id` | JWT | Atualiza nome, duração e sinal |
+| `PATCH` | `/services/:id/status` | JWT | Ativa/desativa o serviço |
+| `GET` | `/galeries` | JWT | Lista os flashes do usuário (`limit`, `offset`, `style`) |
+| `GET` | `/galeries/:id` | JWT | Busca um flash |
+| `POST` | `/galeries` | JWT | Cria flash (`multipart`, com a imagem) |
+| `PUT` | `/galeries/:id` | JWT | Atualiza título, tamanho, preço, estilo e serviço |
+| `PUT` | `/galeries/:id/image` | JWT | Troca a imagem do flash |
+| `DELETE` | `/galeries/:id` | JWT | Exclui o flash |
+| `GET` | `/public/services` | — | Lista serviços públicos (`limit`, `offset`, `userId`), com cache |
+| `GET` | `/public/galeries` | — | Lista flashes públicos (`limit`, `offset`, `userId`, `style`), com cache |
+| `GET` | `/health` | — | Health check |
 
-| Método | Rota | Descrição |
-|---|---|---|
-| `GET` | `/services` | Lista os serviços do usuário (`limit`, `offset`) |
-| `GET` | `/services/:id` | Busca um serviço |
-| `POST` | `/services` | Cria serviço |
-| `PUT` | `/services/:id` | Atualiza nome, duração e sinal |
-| `PATCH` | `/services/:id/status` | Ativa/desativa o serviço |
-| `GET` | `/health` | Health check (sem auth) |
+As rotas autenticadas operam só sobre os dados do usuário logado. As rotas `/public/*` usam o cache Redis de [`@bookink/shared/cache`](../../packages/shared/src/cache): 15 minutos de TTL e uma única requisição recarregando do banco perto de vencer. Alterações na galeria ou nos serviços levam até 15 minutos para aparecer nelas.
 
 ## Limites do plano
 
@@ -51,9 +59,9 @@ Schema em [prisma/schema.prisma](prisma/schema.prisma).
 
 ```
 src/
-  domain/          # entidade Service e erros de domínio
+  domain/          # entidades Service e Galery e erros de domínio
   application/     # use cases + port do repositório
-  infrastructure/  # Prisma, repositório e mapper
+  infrastructure/  # Prisma, repositórios, mappers e gateway HTTP do plano
   presentation/    # controllers, DTOs e DomainExceptionFilter
 ```
 
@@ -77,6 +85,9 @@ bun run --cwd services/catalog dev
 | `RABBITMQ_URL` | Conexão AMQP |
 | `JWT_SECRET` | Mesmo segredo do user-service, usado só para validar o token |
 | `USER_SERVICE_URL` | URL interna do user-service, para consultar o plano ao criar serviço ou flash |
+| `S3_*` | Bucket das imagens da galeria |
+| `REDIS_URL` | Conexão com o Redis do cache das rotas públicas |
+| `CACHE_TTL_SECONDS` / `CACHE_REFRESH_AHEAD_SECONDS` | Validade do cache (900) e janela antes do vencimento em que uma requisição recarrega do banco (30) |
 
 ## Testes
 

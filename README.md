@@ -12,7 +12,7 @@ services/user/        # Usuários, autenticação e assinatura (NestJS) — :808
 services/catalog/     # Serviços e galeria (NestJS) — :8083
 services/appointment/ # Agendamentos (NestJS) — :8082
 services/payment/     # Cobrança com Stripe (NestJS) — :8084
-packages/shared/      # Guard JWT, eventos, e-mail, storage e DTOs compartilhados
+packages/shared/      # Guard JWT, eventos, e-mail, storage, cache e DTOs compartilhados
 docker/               # Configurações auxiliares (Postgres, Kong)
 ```
 
@@ -23,7 +23,7 @@ O frontend fala só com o **API gateway (Kong)** em `http://localhost:8000`, que
 | Rota | Serviço |
 |---|---|
 | `/auth`, `/users`, `GET /public/artists` | user |
-| `/services`, `/galeries` | catalog |
+| `/services`, `/galeries`, `GET /public/services`, `GET /public/galeries` | catalog |
 | `/appointments`, `/booking-requests`, `/reminders` | appointment |
 | `/billing`, `POST /webhooks` | payment |
 
@@ -39,6 +39,12 @@ O Swagger de cada serviço fica direto na porta dele: `http://localhost:<porta>/
 | `payment.subscription.activated` / `updated` / `canceled` | payment (a partir do webhook do Stripe) | user (fila `user.payment-events`), que atualiza a `Subscription` |
 
 Mensagens que falham no processamento vão para a fila `<fila>.dlq`, em vez de voltar em loop.
+
+## Cache das rotas públicas
+
+As listagens públicas (`GET /public/artists`, `/public/galeries` e `/public/services`) ficam em cache no **Redis** por 15 minutos, uma chave por combinação de filtros e página. Nos últimos 30 segundos antes de vencer, só uma requisição consulta o banco e regrava o cache. As outras esperam, mesmo em outras instâncias, e depois leem os dados novos. A trava é uma chave no próprio Redis.
+
+Se o Redis estiver fora do ar, as rotas continuam funcionando direto no banco. O cache não é invalidado quando o tatuador altera os dados, então mudanças levam até 15 minutos para aparecer na área pública. A implementação fica em [`@bookink/shared/cache`](packages/shared/src/cache).
 
 ## Assinatura e planos
 
@@ -57,6 +63,7 @@ O pagamento é feito pelo Stripe Billing: Checkout para assinar, `POST /billing/
 - **Backend:** NestJS + Prisma
 - **Banco de dados:** PostgreSQL (um banco por serviço)
 - **Mensageria:** RabbitMQ
+- **Cache:** Redis
 - **API gateway:** Kong (DB-less)
 - **Pagamentos:** Stripe
 - **Gerenciador de pacotes:** Bun
@@ -71,10 +78,10 @@ Pré-requisitos: [Bun](https://bun.sh) e Docker instalados. Para testar pagament
 # instalar dependências
 bun install
 
-# subir Postgres, RabbitMQ, serviços e Kong em containers
+# subir Postgres, RabbitMQ, Redis, serviços e Kong em containers
 bun run docker:up
 
-# ou, para ambiente de desenvolvimento (Postgres, RabbitMQ e Kong)
+# ou, para ambiente de desenvolvimento (Postgres, RabbitMQ, Redis e Kong)
 bun run docker:dev:up
 # ...e cada serviço na máquina, com hot reload
 bun run --cwd services/user dev
@@ -89,7 +96,7 @@ stripe listen --forward-to localhost:8000/webhooks/billing
 
 No dev, o Kong roda no Docker e alcança os serviços na sua máquina via `extra_hosts` (`host-gateway`), então o mesmo `kong.yml` serve para os dois composes.
 
-Cada serviço tem um `.env.example`. Em dev fora do Docker, troque os hosts (`postgres`, `rabbitmq`, `user`) por `localhost`.
+Cada serviço tem um `.env.example`. Em dev fora do Docker, troque os hosts (`postgres`, `rabbitmq`, `redis`, `user`) por `localhost`.
 
 Outros comandos úteis estão em [package.json](package.json), como `lint`, `test:unit` e os comandos `prisma:*` para migrations de cada serviço.
 
@@ -99,8 +106,8 @@ Projeto em desenvolvimento. Já funcionam:
 - Cadastro, login (e-mail/senha, Google e GitHub) e recuperação de senha
 - Perfil e status do artista
 - Serviços e galeria
+- Listagens públicas de artistas, galeria e serviços, com cache no Redis
 - Assinatura mensal com trial, limites por plano e troca de plano
 
 Próximos passos:
-- Área pública do cliente para escolher flash ou serviço
 - Agendamento com pagamento do sinal pelo Stripe Connect, direto para o tatuador

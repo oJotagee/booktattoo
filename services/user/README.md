@@ -14,7 +14,7 @@ API de usuários e autenticação (NestJS + Prisma). Emite os JWTs de sessão qu
 - Emissão de `accessToken` (JWT) e rotação de `refreshToken`
 - Esqueci/redefinir senha com token enviado por email
 - Perfil do tatuador: contato, status (ativo/inativo/férias) e avatar (S3)
-- Listagem pública de artistas, paginada
+- Listagem pública de artistas, paginada e com cache no Redis
 
 ## Endpoints
 
@@ -31,7 +31,7 @@ API de usuários e autenticação (NestJS + Prisma). Emite os JWTs de sessão qu
 | `PUT` | `/users/me` | JWT | Atualiza dados de contato |
 | `PATCH` | `/users/me/status` | JWT | Atualiza status |
 | `PUT` | `/users/me/avatar` | JWT | Upload de avatar (`multipart`, campo `file`) |
-| `GET` | `/public/artists` | — | Lista artistas (`limit`, `offset`) |
+| `GET` | `/public/artists` | — | Lista artistas (`limit`, `offset`), com cache de 15 minutos |
 | `GET` | `/health` | — | Health check |
 
 ## Modelos
@@ -50,7 +50,7 @@ src/
   presentation/    # controllers, DTOs e DomainExceptionFilter
 ```
 
-Storage (S3), email (SMTP) e o guard JWT vêm de [`@bookink/shared`](../../packages/shared).
+Storage (S3), email (SMTP), cache (Redis) e o guard JWT vêm de [`@bookink/shared`](../../packages/shared).
 
 ## Eventos consumidos
 
@@ -67,8 +67,9 @@ cp .env.example .env
 # em dev fora do Docker, troque os hosts para localhost:
 # DATABASE_URL="postgresql://admin:admin@localhost:5432/user"
 # RABBITMQ_URL="amqp://admin:admin@localhost:5672"
+# REDIS_URL="redis://localhost:6379"
 
-bun run docker:dev:up              # (na raiz) Postgres, RabbitMQ e Kong
+bun run docker:dev:up              # (na raiz) Postgres, RabbitMQ, Redis e Kong
 bun run prisma:migrate:dev:user    # (na raiz) aplica as migrations
 bun run --cwd services/user dev    # hot reload
 ```
@@ -84,6 +85,8 @@ bun run --cwd services/user dev    # hot reload
 | `S3_*` | Bucket de avatares (`S3_ENDPOINT` / `S3_FORCE_PATH_STYLE` para MinIO em dev) |
 | `MAIL_*` | SMTP para envio dos emails de redefinição de senha |
 | `FRONTEND_RESET_PASSWORD_URL` | Base do link enviado no email de redefinição |
+| `REDIS_URL` | Conexão com o Redis do cache de `GET /public/artists` |
+| `CACHE_TTL_SECONDS` / `CACHE_REFRESH_AHEAD_SECONDS` | Validade do cache (900) e janela antes do vencimento em que uma requisição recarrega do banco (30) |
 
 ## Testes
 
