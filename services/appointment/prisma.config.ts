@@ -6,6 +6,12 @@ config({
   path: process.cwd().endsWith('/services/appointment') ? '.env' : 'services/appointment/.env',
 });
 
+const isProduction = process.env['PRISMA_TARGET'] === 'production';
+
+if (isProduction && !process.env['DATABASE_PROD_URL']) {
+  throw new Error('DATABASE_PROD_URL não configurada em services/appointment/.env');
+}
+
 export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: {
@@ -13,6 +19,6 @@ export default defineConfig({
     seed: 'prisma/seed.ts',
   },
   datasource: {
-    url: process.env['DATABASE_URL'],
+    url: isProduction ? process.env['DATABASE_PROD_URL'] : process.env['DATABASE_URL'],
   },
 });

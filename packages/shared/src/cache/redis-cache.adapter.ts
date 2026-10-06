@@ -36,6 +36,7 @@ export class RedisCacheAdapter implements CachePort, OnModuleDestroy {
     this.refreshAheadMs = config.refreshAheadSeconds * 1000;
 
     this.redis = new Redis(config.url, {
+      family: 0,
       enableOfflineQueue: false,
       maxRetriesPerRequest: 1,
     });

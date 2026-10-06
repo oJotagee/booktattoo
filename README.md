@@ -98,6 +98,17 @@ No dev, o Kong roda no Docker e alcança os serviços na sua máquina via `extra
 
 Cada serviço tem um `.env.example`. Em dev fora do Docker, troque os hosts (`postgres`, `rabbitmq`, `redis`, `user`) por `localhost`.
 
+### Migrations em produção
+
+Preencha `DATABASE_PROD_URL` no `.env` de cada serviço com a `DATABASE_PUBLIC_URL` do Postgres no Railway, trocando o banco no fim da URL pelo do serviço (`/user`, `/catalog`...). Depois:
+
+```bash
+bun run prisma:status:prod:catalog          # lista as migrations pendentes
+bun run prisma:migrate:deploy:prod:catalog  # aplica as pendentes
+```
+
+O mesmo vale para `user`, `appointment` e `payment`. Antes de aplicar as migrations do `user` que movem tabelas para o catalog e o appointment, leia o comentário no topo delas.
+
 Outros comandos úteis estão em [package.json](package.json), como `lint`, `test:unit` e os comandos `prisma:*` para migrations de cada serviço.
 
 ## Status
