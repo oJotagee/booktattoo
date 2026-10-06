@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 
 import { UpdateGaleryInfoUseCase } from '@/application/use-cases/galery/update-galery-info.use-case';
-import { createGaleryRepositoryMock, createServiceRepositoryMock } from '@tests/unit/support/mocks';
+import {
+  createCacheMock,
+  createGaleryRepositoryMock,
+  createServiceRepositoryMock,
+} from '@tests/unit/support/mocks';
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import { buildGalery, buildService } from '@tests/unit/support/builders';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
@@ -11,12 +15,14 @@ import { GaleryStyle } from '@/domain/entities/galery.entity';
 describe('UpdateGaleryInfoUseCase', () => {
   let galeries: ReturnType<typeof createGaleryRepositoryMock>;
   let services: ReturnType<typeof createServiceRepositoryMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: UpdateGaleryInfoUseCase;
 
   beforeEach(() => {
     galeries = createGaleryRepositoryMock();
     services = createServiceRepositoryMock();
-    useCase = new UpdateGaleryInfoUseCase(galeries, services);
+    cache = createCacheMock();
+    useCase = new UpdateGaleryInfoUseCase(galeries, services, cache);
   });
 
   it('updates the info of an existing galery', async () => {
@@ -37,6 +43,7 @@ describe('UpdateGaleryInfoUseCase', () => {
       price: galery.price,
     });
     expect(galeries.update).toHaveBeenCalledTimes(1);
+    expect(cache.invalidate).toHaveBeenCalledWith('catalog:public:galeries');
   });
 
   it('keeps existing fields untouched when not provided', async () => {

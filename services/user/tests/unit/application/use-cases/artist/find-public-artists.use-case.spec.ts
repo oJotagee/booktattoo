@@ -94,7 +94,8 @@ describe('FindPublicArtistsUseCase', () => {
     await useCase.execute({ limit: 1000, offset: 50 });
 
     expect(cache.getOrLoad).toHaveBeenCalledWith(
-      'user:public:artists:limit=50:offset=50',
+      'user:public:artists',
+      'limit=50:offset=50',
       expect.any(Function),
     );
   });

@@ -4,17 +4,23 @@ import { RegisterUserUseCase } from '@/application/use-cases/auth/register-user.
 import { UserAlreadyExistsError } from '@/domain/errors/user.error';
 import { InvalidEmailError } from '@/domain/errors/email.error';
 import { buildUser } from '@tests/unit/support/builders';
-import { createPasswordHasherMock, createUserRepositoryMock } from '@tests/unit/support/mocks';
+import {
+  createCacheMock,
+  createPasswordHasherMock,
+  createUserRepositoryMock,
+} from '@tests/unit/support/mocks';
 
 describe('RegisterUserUseCase', () => {
   let users: ReturnType<typeof createUserRepositoryMock>;
   let passwordHasher: ReturnType<typeof createPasswordHasherMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: RegisterUserUseCase;
 
   beforeEach(() => {
     users = createUserRepositoryMock();
     passwordHasher = createPasswordHasherMock();
-    useCase = new RegisterUserUseCase(users, passwordHasher);
+    cache = createCacheMock();
+    useCase = new RegisterUserUseCase(users, passwordHasher, cache);
   });
 
   it('creates a new user with a hashed password when the email is not in use', async () => {
@@ -34,6 +40,7 @@ describe('RegisterUserUseCase', () => {
     });
     expect(result.id).toBeString();
     expect(result.createdAt).toBeInstanceOf(Date);
+    expect(cache.invalidate).toHaveBeenCalledWith('user:public:artists');
   });
 
   it('throws UserAlreadyExistsError when the email is already registered', async () => {

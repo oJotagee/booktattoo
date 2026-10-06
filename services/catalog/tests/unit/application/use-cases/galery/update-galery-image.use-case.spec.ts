@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 
 import { UpdateGaleryImageUseCase } from '@/application/use-cases/galery/update-galery-image.use-case';
-import { createGaleryRepositoryMock, createStorageMock } from '@tests/unit/support/mocks';
+import {
+  createCacheMock,
+  createGaleryRepositoryMock,
+  createStorageMock,
+} from '@tests/unit/support/mocks';
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import { GaleryNotFoundError } from '@/domain/errors/galery.error';
 import { buildGalery } from '@tests/unit/support/builders';
@@ -15,12 +19,14 @@ const image = {
 describe('UpdateGaleryImageUseCase', () => {
   let galeries: ReturnType<typeof createGaleryRepositoryMock>;
   let storage: ReturnType<typeof createStorageMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: UpdateGaleryImageUseCase;
 
   beforeEach(() => {
     galeries = createGaleryRepositoryMock();
     storage = createStorageMock();
-    useCase = new UpdateGaleryImageUseCase(galeries, storage);
+    cache = createCacheMock();
+    useCase = new UpdateGaleryImageUseCase(galeries, storage, cache);
   });
 
   it('uploads the new image and updates the galery image url', async () => {
@@ -38,6 +44,7 @@ describe('UpdateGaleryImageUseCase', () => {
       imageUrl: 'https://bookink-assets.s3.amazonaws.com/gallery/user-1/new-image.png',
     });
     expect(galeries.update).toHaveBeenCalledTimes(1);
+    expect(cache.invalidate).toHaveBeenCalledWith('catalog:public:galeries');
   });
 
   it('deletes the previous image from storage', async () => {

@@ -50,11 +50,13 @@ export class RedisCacheAdapter implements CachePort, OnModuleDestroy {
     await this.redis.quit().catch(() => undefined);
   }
 
-  async getOrLoad<T>(key: string, loader: () => Promise<T>): Promise<T> {
+  async getOrLoad<T>(namespace: string, key: string, loader: () => Promise<T>): Promise<T> {
+    let fullKey: string;
     let cached: CachedEntry<T> | null;
 
     try {
-      cached = await this.read<T>(key);
+      fullKey = `${namespace}:v${await this.generation(namespace)}:${key}`;
+      cached = await this.read<T>(fullKey);
     } catch {
       return loader();
     }
@@ -63,17 +65,33 @@ export class RedisCacheAdapter implements CachePort, OnModuleDestroy {
       return cached.value;
     }
 
-    const pending = this.inflight.get(key) as Promise<T> | undefined;
+    const pending = this.inflight.get(fullKey) as Promise<T> | undefined;
     if (pending) {
       return pending;
     }
 
-    const refresh = this.refresh(key, loader, cached).finally(() => {
-      this.inflight.delete(key);
+    const refresh = this.refresh(fullKey, loader, cached).finally(() => {
+      this.inflight.delete(fullKey);
     });
-    this.inflight.set(key, refresh);
+    this.inflight.set(fullKey, refresh);
 
     return refresh;
+  }
+
+  async invalidate(namespace: string): Promise<void> {
+    try {
+      await this.redis.incr(this.generationKey(namespace));
+    } catch (error) {
+      this.logger.warn(`Falha ao invalidar o cache ${namespace}: ${(error as Error).message}`);
+    }
+  }
+
+  private async generation(namespace: string): Promise<string> {
+    return (await this.redis.get(this.generationKey(namespace))) ?? '0';
+  }
+
+  private generationKey(namespace: string): string {
+    return `${namespace}:generation`;
   }
 
   private async refresh<T>(

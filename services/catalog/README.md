@@ -33,7 +33,7 @@ O serviço não conhece a tabela de usuários: guarda só o `userId` extraído d
 | `GET` | `/public/galeries` | — | Lista flashes públicos (`limit`, `offset`, `userId`, `style`), com cache |
 | `GET` | `/health` | — | Health check |
 
-As rotas autenticadas operam só sobre os dados do usuário logado. As rotas `/public/*` usam o cache Redis de [`@bookink/shared/cache`](../../packages/shared/src/cache): 15 minutos de TTL e uma única requisição recarregando do banco perto de vencer. Alterações na galeria ou nos serviços levam até 15 minutos para aparecer nelas.
+As rotas autenticadas operam só sobre os dados do usuário logado. As rotas `/public/*` usam o cache Redis de [`@bookink/shared/cache`](../../packages/shared/src/cache): 15 minutos de TTL e uma única requisição recarregando do banco perto de vencer. Cadastrar, editar ou excluir um flash invalida `/public/galeries`, e cadastrar, editar ou ativar/desativar um serviço invalida `/public/services`.
 
 ## Limites do plano
 

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 import { buildUser } from '@tests/unit/support/builders';
 import {
+  createCacheMock,
   createAccountRepositoryMock,
   createRefreshTokenRepositoryMock,
   createSessionTokenIssuerMock,
@@ -25,6 +26,7 @@ describe('OAuthUpsertUseCase', () => {
   let tokenGenerator: ReturnType<typeof createTokenGeneratorMock>;
   let sessionTokenIssuer: ReturnType<typeof createSessionTokenIssuerMock>;
   let refreshTokens: ReturnType<typeof createRefreshTokenRepositoryMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: OAuthUpsertUseCase;
 
   beforeEach(() => {
@@ -33,12 +35,14 @@ describe('OAuthUpsertUseCase', () => {
     tokenGenerator = createTokenGeneratorMock();
     sessionTokenIssuer = createSessionTokenIssuerMock();
     refreshTokens = createRefreshTokenRepositoryMock();
+    cache = createCacheMock();
     useCase = new OAuthUpsertUseCase(
       users,
       accounts,
       tokenGenerator,
       sessionTokenIssuer,
       refreshTokens,
+      cache,
     );
   });
 
@@ -58,6 +62,7 @@ describe('OAuthUpsertUseCase', () => {
 
     expect(accounts.update).toHaveBeenCalledTimes(1);
     expect(users.create).not.toHaveBeenCalled();
+    expect(cache.invalidate).not.toHaveBeenCalled();
     expect(result.user.id).toBe('user-1');
     expect(result.accessToken).toBe('access-token');
     expect(result.refreshToken).toBe('opaque-refresh-token');
@@ -133,6 +138,7 @@ describe('OAuthUpsertUseCase', () => {
     });
 
     expect(users.create).toHaveBeenCalledTimes(1);
+    expect(cache.invalidate).toHaveBeenCalledWith('user:public:artists');
     expect(accounts.create).toHaveBeenCalledTimes(1);
     expect(result.user.email).toBe('new.user@example.com');
     expect(result.user.name).toBe('New User');

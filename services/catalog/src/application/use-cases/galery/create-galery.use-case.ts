@@ -1,3 +1,4 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { ASSET_TYPES, STORAGE_PORT, type StoragePort } from '@bookink/shared/storage';
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -12,6 +13,7 @@ import { extractStorageKey } from '../../utils/storage-key';
 import type { PlanAccessGateway } from '../../port/plan-access-gateway.port';
 import { PLAN_ACCESS_GATEWAY } from '../../port/plan-access-gateway.port';
 import { ensureWithinPlanLimit } from '@/domain/plan/plan-access';
+import { PUBLIC_GALERIES_CACHE } from '@/application/cache/public-cache';
 
 type CreateGaleryInput = {
   userId: string;
@@ -53,6 +55,8 @@ export class CreateGaleryUseCase {
     private readonly storage: StoragePort,
     @Inject(PLAN_ACCESS_GATEWAY)
     private readonly planAccess: PlanAccessGateway,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute({
@@ -97,6 +101,8 @@ export class CreateGaleryUseCase {
       await this.deleteImage(url);
       throw error;
     }
+
+    await this.cache.invalidate(PUBLIC_GALERIES_CACHE);
 
     return {
       id: galery.id,

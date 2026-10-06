@@ -4,6 +4,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { GaleryRepository } from '../../port/galery-repository.port';
 import { GALERY_REPOSITORY } from '../../port/galery-repository.port';
 import type { GaleryStyle } from '@/domain/entities/galery.entity';
+import { PUBLIC_GALERIES_CACHE } from '@/application/cache/public-cache';
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
@@ -54,9 +55,9 @@ export class FindPublicGaleriesUseCase {
   }: FindPublicGaleriesInput): Promise<FindPublicGaleriesOutput> {
     const perPage = Math.min(limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const currentOffset = offset ?? DEFAULT_OFFSET;
-    const key = `catalog:public:galeries:user=${userId ?? ''}:style=${style ?? ''}:limit=${perPage}:offset=${currentOffset}`;
+    const key = `user=${userId ?? ''}:style=${style ?? ''}:limit=${perPage}:offset=${currentOffset}`;
 
-    return this.cache.getOrLoad(key, async () => {
+    return this.cache.getOrLoad(PUBLIC_GALERIES_CACHE, key, async () => {
       const { items, total } = await this.galeries.findPublic({
         ...(userId && { userId }),
         ...(style && { style }),

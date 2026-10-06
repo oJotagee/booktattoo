@@ -1,3 +1,4 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 import { AccountEntity, type AccountProvider } from '@/domain/entities/account.entity';
@@ -14,6 +15,7 @@ import type { TokenGenerator } from '../../port/token-generator.port';
 import { TOKEN_GENERATOR } from '../../port/token-generator.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
 import { Email } from '@/domain/value-objects/email.vo';
+import { PUBLIC_ARTISTS_CACHE } from '@/application/cache/public-cache';
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -54,6 +56,7 @@ export class OAuthUpsertUseCase {
     @Inject(TOKEN_GENERATOR) private readonly tokenGenerator: TokenGenerator,
     @Inject(SESSION_TOKEN_ISSUER) private readonly sessionTokenIssuer: SessionTokenIssuer,
     @Inject(REFRESH_TOKEN_REPOSITORY) private readonly refreshTokens: RefreshTokenRepository,
+    @Inject(CACHE_PORT) private readonly cache: CachePort,
   ) {}
 
   async execute(input: OAuthUpsertInput): Promise<OAuthUpsertOutput> {
@@ -141,6 +144,7 @@ export class OAuthUpsertUseCase {
       });
 
       await this.users.create(user);
+      await this.cache.invalidate(PUBLIC_ARTISTS_CACHE);
     }
 
     const account = AccountEntity.create({

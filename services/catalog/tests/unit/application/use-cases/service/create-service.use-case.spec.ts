@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'bun:test';
 import { CreateServiceUseCase } from '@/application/use-cases/service/create-service.use-case';
 import { PlanExpiredError, PlanLimitReachedError } from '@/domain/errors/plan.error';
 import {
+  createCacheMock,
   createPlanAccessGatewayMock,
   createServiceRepositoryMock,
 } from '@tests/unit/support/mocks';
@@ -18,12 +19,14 @@ const input = {
 describe('CreateServiceUseCase', () => {
   let services: ReturnType<typeof createServiceRepositoryMock>;
   let planAccess: ReturnType<typeof createPlanAccessGatewayMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: CreateServiceUseCase;
 
   beforeEach(() => {
     services = createServiceRepositoryMock();
     planAccess = createPlanAccessGatewayMock();
-    useCase = new CreateServiceUseCase(services, planAccess);
+    cache = createCacheMock();
+    useCase = new CreateServiceUseCase(services, planAccess, cache);
   });
 
   it('creates a service active by default for the given user', async () => {
@@ -36,6 +39,7 @@ describe('CreateServiceUseCase', () => {
       depositAmount: 5000,
       status: true,
     });
+    expect(cache.invalidate).toHaveBeenCalledWith('catalog:public:services');
   });
 
   it('checks the plan with the caller authorization', async () => {

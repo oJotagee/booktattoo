@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 import {
+  createCacheMock,
   createGaleryRepositoryMock,
   createPlanAccessGatewayMock,
   createServiceRepositoryMock,
@@ -34,6 +35,7 @@ describe('CreateGaleryUseCase', () => {
   let services: ReturnType<typeof createServiceRepositoryMock>;
   let storage: ReturnType<typeof createStorageMock>;
   let planAccess: ReturnType<typeof createPlanAccessGatewayMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: CreateGaleryUseCase;
 
   beforeEach(() => {
@@ -41,7 +43,8 @@ describe('CreateGaleryUseCase', () => {
     services = createServiceRepositoryMock();
     storage = createStorageMock();
     planAccess = createPlanAccessGatewayMock();
-    useCase = new CreateGaleryUseCase(galeries, services, storage, planAccess);
+    cache = createCacheMock();
+    useCase = new CreateGaleryUseCase(galeries, services, storage, planAccess, cache);
 
     services.findById = async () => buildService({ id: 'service-1', userId: 'user-1' });
   });
@@ -59,6 +62,7 @@ describe('CreateGaleryUseCase', () => {
       available: true,
       imageUrl: 'https://bookink-assets.s3.amazonaws.com/gallery/user-1/new-image.png',
     });
+    expect(cache.invalidate).toHaveBeenCalledWith('catalog:public:galeries');
   });
 
   it('uploads the image to the gallery folder of the user', async () => {

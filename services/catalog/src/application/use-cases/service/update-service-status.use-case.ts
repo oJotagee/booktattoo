@@ -1,3 +1,4 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { ServiceRepository } from '../../port/service-repository.port';
@@ -5,6 +6,7 @@ import { SERVICE_REPOSITORY } from '../../port/service-repository.port';
 import { type ServiceEntity } from '@/domain/entities/service.entity';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
+import { PUBLIC_SERVICES_CACHE } from '@/application/cache/public-cache';
 
 type UpdateServiceStatusInput = {
   serviceId: string;
@@ -23,6 +25,8 @@ export class UpdateServiceStatusUseCase {
   constructor(
     @Inject(SERVICE_REPOSITORY)
     private readonly services: ServiceRepository,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute({
@@ -38,6 +42,7 @@ export class UpdateServiceStatusUseCase {
     const updatedService = this.applyStatus(service, status);
 
     await this.services.update(updatedService);
+    await this.cache.invalidate(PUBLIC_SERVICES_CACHE);
 
     return {
       id: updatedService.id,

@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import type { UserRepository } from '../../port/user-repository.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
+import { PUBLIC_ARTISTS_CACHE } from '@/application/cache/public-cache';
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
@@ -45,9 +46,9 @@ export class FindPublicArtistsUseCase {
   async execute({ limit, offset }: FindPublicArtistsInput): Promise<FindPublicArtistsOutput> {
     const perPage = Math.min(limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const currentOffset = offset ?? DEFAULT_OFFSET;
-    const key = `user:public:artists:limit=${perPage}:offset=${currentOffset}`;
+    const key = `limit=${perPage}:offset=${currentOffset}`;
 
-    return this.cache.getOrLoad(key, async () => {
+    return this.cache.getOrLoad(PUBLIC_ARTISTS_CACHE, key, async () => {
       const { items, total } = await this.users.findPublicArtists({
         limit: perPage,
         offset: currentOffset,

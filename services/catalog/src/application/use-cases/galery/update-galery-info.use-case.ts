@@ -1,3 +1,4 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { ServiceRepository } from '../../port/service-repository.port';
@@ -8,6 +9,7 @@ import { ServiceNotFoundError } from '@/domain/errors/service.error';
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import type { GaleryStyle } from '@/domain/entities/galery.entity';
 import { GaleryNotFoundError } from '@/domain/errors/galery.error';
+import { PUBLIC_GALERIES_CACHE } from '@/application/cache/public-cache';
 
 type UpdateGaleryInfoInput = {
   galeryId: string;
@@ -40,6 +42,8 @@ export class UpdateGaleryInfoUseCase {
     private readonly galeries: GaleryRepository,
     @Inject(SERVICE_REPOSITORY)
     private readonly services: ServiceRepository,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute({
@@ -62,6 +66,7 @@ export class UpdateGaleryInfoUseCase {
     const updatedGalery = galery.update(input);
 
     await this.galeries.update(updatedGalery);
+    await this.cache.invalidate(PUBLIC_GALERIES_CACHE);
 
     return {
       id: updatedGalery.id,

@@ -31,7 +31,7 @@ API de usuários e autenticação (NestJS + Prisma). Emite os JWTs de sessão qu
 | `PUT` | `/users/me` | JWT | Atualiza dados de contato |
 | `PATCH` | `/users/me/status` | JWT | Atualiza status |
 | `PUT` | `/users/me/avatar` | JWT | Upload de avatar (`multipart`, campo `file`) |
-| `GET` | `/public/artists` | — | Lista artistas (`limit`, `offset`), com cache de 15 minutos |
+| `GET` | `/public/artists` | — | Lista artistas (`limit`, `offset`), com cache de 15 minutos invalidado por cadastro e alterações de perfil, status ou avatar |
 | `GET` | `/health` | — | Health check |
 
 ## Modelos

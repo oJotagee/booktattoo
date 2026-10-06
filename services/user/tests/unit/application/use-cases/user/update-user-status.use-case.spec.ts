@@ -4,15 +4,17 @@ import { UpdateUserStatusUseCase } from '@/application/use-cases/user/update-use
 import { UserStatus } from '@/domain/entities/user.entity';
 import { UserAlreadyInStatusError, UserNotFoundError } from '@/domain/errors/user.error';
 import { buildUser } from '@tests/unit/support/builders';
-import { createUserRepositoryMock } from '@tests/unit/support/mocks';
+import { createCacheMock, createUserRepositoryMock } from '@tests/unit/support/mocks';
 
 describe('UpdateUserStatusUseCase', () => {
   let users: ReturnType<typeof createUserRepositoryMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: UpdateUserStatusUseCase;
 
   beforeEach(() => {
     users = createUserRepositoryMock();
-    useCase = new UpdateUserStatusUseCase(users);
+    cache = createCacheMock();
+    useCase = new UpdateUserStatusUseCase(users, cache);
   });
 
   it('activates a user', async () => {
@@ -22,6 +24,7 @@ describe('UpdateUserStatusUseCase', () => {
     const result = await useCase.execute({ userId: user.id, status: UserStatus.ACTIVE });
 
     expect(result.status).toBe(UserStatus.ACTIVE);
+    expect(cache.invalidate).toHaveBeenCalledWith('user:public:artists');
   });
 
   it('deactivates a user', async () => {

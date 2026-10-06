@@ -54,8 +54,9 @@ export function createPlanAccessGatewayMock(): PlanAccessGateway {
 
 export function createCacheMock(): CachePort {
   return {
-    getOrLoad: mock((_key: string, loader: () => Promise<unknown>) =>
+    getOrLoad: mock((_namespace: string, _key: string, loader: () => Promise<unknown>) =>
       loader(),
     ) as CachePort['getOrLoad'],
+    invalidate: mock(async () => undefined),
   };
 }

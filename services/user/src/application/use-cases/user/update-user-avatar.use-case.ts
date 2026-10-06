@@ -1,9 +1,11 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { ASSET_TYPES, STORAGE_PORT, type StoragePort } from '@bookink/shared/storage';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { UserRepository } from '../../port/user-repository.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
 import { UserNotFoundError } from '@/domain/errors/user.error';
+import { PUBLIC_ARTISTS_CACHE } from '@/application/cache/public-cache';
 
 type UpdateUserAvatarInput = {
   userId: string;
@@ -25,6 +27,8 @@ export class UpdateUserAvatarUseCase {
     private readonly users: UserRepository,
     @Inject(STORAGE_PORT)
     private readonly storage: StoragePort,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute({
@@ -48,6 +52,7 @@ export class UpdateUserAvatarUseCase {
 
     const updatedUser = user.updateImage(url);
     await this.users.update(updatedUser);
+    await this.cache.invalidate(PUBLIC_ARTISTS_CACHE);
 
     if (previousImage) {
       await this.deletePreviousAvatar(previousImage);

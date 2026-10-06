@@ -44,7 +44,7 @@ Mensagens que falham no processamento vão para a fila `<fila>.dlq`, em vez de v
 
 As listagens públicas (`GET /public/artists`, `/public/galeries` e `/public/services`) ficam em cache no **Redis** por 15 minutos, uma chave por combinação de filtros e página. Nos últimos 30 segundos antes de vencer, só uma requisição consulta o banco e regrava o cache. As outras esperam, mesmo em outras instâncias, e depois leem os dados novos. A trava é uma chave no próprio Redis.
 
-Se o Redis estiver fora do ar, as rotas continuam funcionando direto no banco. O cache não é invalidado quando o tatuador altera os dados, então mudanças levam até 15 minutos para aparecer na área pública. A implementação fica em [`@bookink/shared/cache`](packages/shared/src/cache).
+Se o Redis estiver fora do ar, as rotas continuam funcionando direto no banco. Cadastrar, editar ou excluir um flash, serviço ou perfil invalida na hora a listagem correspondente (todas as páginas e filtros): cada listagem tem um contador de geração no Redis que faz parte da chave, e a escrita incrementa o contador. A implementação fica em [`@bookink/shared/cache`](packages/shared/src/cache).
 
 ## Assinatura e planos
 

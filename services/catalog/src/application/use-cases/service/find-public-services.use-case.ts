@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import type { ServiceRepository } from '../../port/service-repository.port';
 import { SERVICE_REPOSITORY } from '../../port/service-repository.port';
+import { PUBLIC_SERVICES_CACHE } from '@/application/cache/public-cache';
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
@@ -48,9 +49,9 @@ export class FindPublicServicesUseCase {
   }: FindPublicServicesInput): Promise<FindPublicServicesOutput> {
     const perPage = Math.min(limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const currentOffset = offset ?? DEFAULT_OFFSET;
-    const key = `catalog:public:services:user=${userId ?? ''}:limit=${perPage}:offset=${currentOffset}`;
+    const key = `user=${userId ?? ''}:limit=${perPage}:offset=${currentOffset}`;
 
-    return this.cache.getOrLoad(key, async () => {
+    return this.cache.getOrLoad(PUBLIC_SERVICES_CACHE, key, async () => {
       const { items, total } = await this.services.findPublic({
         ...(userId && { userId }),
         limit: perPage,

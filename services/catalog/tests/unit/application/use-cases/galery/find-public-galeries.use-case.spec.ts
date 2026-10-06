@@ -94,7 +94,8 @@ describe('FindPublicGaleriesUseCase', () => {
     await useCase.execute({ userId: 'user-1', style: GaleryStyle.BLACKWORK, limit: 1000 });
 
     expect(cache.getOrLoad).toHaveBeenCalledWith(
-      'catalog:public:galeries:user=user-1:style=BLACKWORK:limit=50:offset=0',
+      'catalog:public:galeries',
+      'user=user-1:style=BLACKWORK:limit=50:offset=0',
       expect.any(Function),
     );
   });

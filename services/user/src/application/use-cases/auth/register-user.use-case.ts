@@ -1,3 +1,4 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 import { UserEntity, UserStatus } from '@/domain/entities/user.entity';
@@ -7,6 +8,7 @@ import { UserAlreadyExistsError } from '@/domain/errors/user.error';
 import { PASSWORD_HASHER } from '../../port/password-hasher.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
 import { Email } from '@/domain/value-objects/email.vo';
+import { PUBLIC_ARTISTS_CACHE } from '@/application/cache/public-cache';
 
 type RegisterUserInput = {
   name: string;
@@ -26,6 +28,7 @@ export class RegisterUserUseCase {
   constructor(
     @Inject(USER_REPOSITORY) private readonly users: UserRepository,
     @Inject(PASSWORD_HASHER) private readonly passwordHasher: PasswordHasher,
+    @Inject(CACHE_PORT) private readonly cache: CachePort,
   ) {}
 
   async execute({ name, email, password }: RegisterUserInput): Promise<RegisterUserOutput> {
@@ -51,6 +54,7 @@ export class RegisterUserUseCase {
     });
 
     await this.users.create(user);
+    await this.cache.invalidate(PUBLIC_ARTISTS_CACHE);
 
     return {
       id: user.id,

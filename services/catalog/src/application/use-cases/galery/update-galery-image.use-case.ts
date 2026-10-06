@@ -1,3 +1,4 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { ASSET_TYPES, STORAGE_PORT, type StoragePort } from '@bookink/shared/storage';
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -6,6 +7,7 @@ import { GALERY_REPOSITORY } from '../../port/galery-repository.port';
 import { GaleryNotFoundError } from '@/domain/errors/galery.error';
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import { extractStorageKey } from '../../utils/storage-key';
+import { PUBLIC_GALERIES_CACHE } from '@/application/cache/public-cache';
 
 type UpdateGaleryImageInput = {
   galeryId: string;
@@ -28,6 +30,8 @@ export class UpdateGaleryImageUseCase {
     private readonly galeries: GaleryRepository,
     @Inject(STORAGE_PORT)
     private readonly storage: StoragePort,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute({
@@ -54,6 +58,7 @@ export class UpdateGaleryImageUseCase {
 
     const updatedGalery = galery.updateImage(url);
     await this.galeries.update(updatedGalery);
+    await this.cache.invalidate(PUBLIC_GALERIES_CACHE);
 
     await this.deleteImage(previousImageUrl);
 

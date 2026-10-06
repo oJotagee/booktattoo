@@ -1,3 +1,4 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { ServiceRepository } from '../../port/service-repository.port';
@@ -6,6 +7,7 @@ import { ServiceEntity } from '@/domain/entities/service.entity';
 import type { PlanAccessGateway } from '../../port/plan-access-gateway.port';
 import { PLAN_ACCESS_GATEWAY } from '../../port/plan-access-gateway.port';
 import { ensureWithinPlanLimit } from '@/domain/plan/plan-access';
+import { PUBLIC_SERVICES_CACHE } from '@/application/cache/public-cache';
 
 type CreateServiceInput = {
   userId: string;
@@ -33,6 +35,8 @@ export class CreateServiceUseCase {
     private readonly services: ServiceRepository,
     @Inject(PLAN_ACCESS_GATEWAY)
     private readonly planAccess: PlanAccessGateway,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute({
@@ -57,6 +61,7 @@ export class CreateServiceUseCase {
     });
 
     await this.services.create(service);
+    await this.cache.invalidate(PUBLIC_SERVICES_CACHE);
 
     return {
       id: service.id,

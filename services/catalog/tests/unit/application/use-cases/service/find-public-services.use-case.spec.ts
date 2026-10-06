@@ -80,7 +80,8 @@ describe('FindPublicServicesUseCase', () => {
     await useCase.execute({ userId: 'user-1', offset: 20 });
 
     expect(cache.getOrLoad).toHaveBeenCalledWith(
-      'catalog:public:services:user=user-1:limit=10:offset=20',
+      'catalog:public:services',
+      'user=user-1:limit=10:offset=20',
       expect.any(Function),
     );
   });

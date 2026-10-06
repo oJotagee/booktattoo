@@ -3,15 +3,17 @@ import { beforeEach, describe, expect, it } from 'bun:test';
 import { UpdateServiceInfoUseCase } from '@/application/use-cases/service/update-service-info.use-case';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
 import { buildService } from '@tests/unit/support/builders';
-import { createServiceRepositoryMock } from '@tests/unit/support/mocks';
+import { createCacheMock, createServiceRepositoryMock } from '@tests/unit/support/mocks';
 
 describe('UpdateServiceInfoUseCase', () => {
   let services: ReturnType<typeof createServiceRepositoryMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: UpdateServiceInfoUseCase;
 
   beforeEach(() => {
     services = createServiceRepositoryMock();
-    useCase = new UpdateServiceInfoUseCase(services);
+    cache = createCacheMock();
+    useCase = new UpdateServiceInfoUseCase(services, cache);
   });
 
   it('updates the info of an existing service', async () => {
@@ -32,6 +34,7 @@ describe('UpdateServiceInfoUseCase', () => {
       duration: 90,
       depositAmount: service.depositAmount,
     });
+    expect(cache.invalidate).toHaveBeenCalledWith('catalog:public:services');
   });
 
   it('keeps existing fields untouched when not provided', async () => {

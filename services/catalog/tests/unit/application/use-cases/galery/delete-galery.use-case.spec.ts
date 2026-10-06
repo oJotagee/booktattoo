@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 
-import { createGaleryRepositoryMock, createStorageMock } from '@tests/unit/support/mocks';
+import {
+  createCacheMock,
+  createGaleryRepositoryMock,
+  createStorageMock,
+} from '@tests/unit/support/mocks';
 import { DeleteGaleryUseCase } from '@/application/use-cases/galery/delete-galery.use-case';
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import { GaleryNotFoundError } from '@/domain/errors/galery.error';
@@ -9,12 +13,14 @@ import { buildGalery } from '@tests/unit/support/builders';
 describe('DeleteGaleryUseCase', () => {
   let galeries: ReturnType<typeof createGaleryRepositoryMock>;
   let storage: ReturnType<typeof createStorageMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: DeleteGaleryUseCase;
 
   beforeEach(() => {
     galeries = createGaleryRepositoryMock();
     storage = createStorageMock();
-    useCase = new DeleteGaleryUseCase(galeries, storage);
+    cache = createCacheMock();
+    useCase = new DeleteGaleryUseCase(galeries, storage, cache);
   });
 
   it('deletes the galery and its image from storage', async () => {
@@ -28,6 +34,7 @@ describe('DeleteGaleryUseCase', () => {
 
     expect(galeries.delete).toHaveBeenCalledWith('galery-1');
     expect(storage.delete).toHaveBeenCalledWith('gallery/user-1/rosa.png');
+    expect(cache.invalidate).toHaveBeenCalledWith('catalog:public:galeries');
   });
 
   it('still succeeds when deleting the image from storage fails', async () => {

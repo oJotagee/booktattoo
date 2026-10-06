@@ -3,15 +3,17 @@ import { beforeEach, describe, expect, it } from 'bun:test';
 import { UpdateServiceStatusUseCase } from '@/application/use-cases/service/update-service-status.use-case';
 import { ServiceAlreadyInStatusError, ServiceNotFoundError } from '@/domain/errors/service.error';
 import { buildService } from '@tests/unit/support/builders';
-import { createServiceRepositoryMock } from '@tests/unit/support/mocks';
+import { createCacheMock, createServiceRepositoryMock } from '@tests/unit/support/mocks';
 
 describe('UpdateServiceStatusUseCase', () => {
   let services: ReturnType<typeof createServiceRepositoryMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: UpdateServiceStatusUseCase;
 
   beforeEach(() => {
     services = createServiceRepositoryMock();
-    useCase = new UpdateServiceStatusUseCase(services);
+    cache = createCacheMock();
+    useCase = new UpdateServiceStatusUseCase(services, cache);
   });
 
   it('activates an inactive service', async () => {
@@ -21,6 +23,7 @@ describe('UpdateServiceStatusUseCase', () => {
     const result = await useCase.execute({ serviceId: service.id, status: true, userId: 'user-1' });
 
     expect(result.status).toBe(true);
+    expect(cache.invalidate).toHaveBeenCalledWith('catalog:public:services');
   });
 
   it('deactivates an active service', async () => {
