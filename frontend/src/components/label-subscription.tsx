@@ -13,7 +13,7 @@ export function LabelSubscription({ expired, limit, resource }: LabelSubscriptio
       role="alert"
       className="mb-4 flex flex-col gap-3 rounded-xl border border-orange-600/40 bg-orange-600/5 px-4 py-3 md:flex-row md:items-center md:justify-between"
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <TriangleAlert className="mt-0.5 size-5 shrink-0 text-orange-600" />
         <div>
           <h3 className="font-semibold">
