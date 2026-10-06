@@ -5,19 +5,19 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AccountEntity, type AccountProvider } from '@/domain/entities/account.entity';
 import type { RefreshTokenRepository } from '../../port/refresh-token-repository.port';
 import { REFRESH_TOKEN_REPOSITORY } from '../../port/refresh-token-repository.port';
+import { userProfileUpdatedEvent } from '@/application/events/user-profile.events';
 import type { SessionTokenIssuer } from '../../port/session-token-issuer.port';
 import { RefreshTokenEntity } from '@/domain/entities/refresh-token.entity';
 import type { AccountRepository } from '../../port/account-repository.port';
 import { SESSION_TOKEN_ISSUER } from '../../port/session-token-issuer.port';
 import { ACCOUNT_REPOSITORY } from '../../port/account-repository.port';
+import { PUBLIC_ARTISTS_CACHE } from '@/application/cache/public-cache';
 import { UserEntity, UserStatus } from '@/domain/entities/user.entity';
 import type { UserRepository } from '../../port/user-repository.port';
 import type { TokenGenerator } from '../../port/token-generator.port';
 import { TOKEN_GENERATOR } from '../../port/token-generator.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
 import { Email } from '@/domain/value-objects/email.vo';
-import { PUBLIC_ARTISTS_CACHE } from '@/application/cache/public-cache';
-import { userProfileUpdatedEvent } from '@/application/events/user-profile.events';
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 

@@ -17,7 +17,6 @@ export function createUserRepositoryMock(): UserRepository {
     findById: mock(async () => null),
     findByEmail: mock(async () => null),
     findPublicArtists: mock(async () => ({ items: [], total: 0 })),
-    findAll: mock(async () => []),
     create: mock(async () => undefined),
     update: mock(async () => undefined),
   };

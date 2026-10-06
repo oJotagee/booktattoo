@@ -8,7 +8,6 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 
 import { PrismaPasswordResetTokenRepository } from './infrastructure/repository/prisma-password-reset-token.repository';
-import { RepublishArtistProfilesUseCase } from '@/application/use-cases/artist/republish-artist-profiles.use-case';
 import { GetUserPlanAccessUseCase } from '@/application/use-cases/subscription/get-user-plan-access.use-case';
 import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/update-user-contact-info.use-case';
 import { PrismaRefreshTokenRepository } from './infrastructure/repository/prisma-refresh-token.repository';
@@ -70,7 +69,6 @@ import jwtConfig from './infrastructure/config/jwt.config';
     UpdateUserStatusUseCase,
     UpdateUserAvatarUseCase,
     FindPublicArtistsUseCase,
-    RepublishArtistProfilesUseCase,
     SyncSubscriptionUseCase,
     GetUserPlanAccessUseCase,
     PaymentEventsHandler,
