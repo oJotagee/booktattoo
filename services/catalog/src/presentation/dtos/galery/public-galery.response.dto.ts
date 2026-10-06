@@ -25,6 +25,9 @@ export class PublicGaleryResponseDto {
   @ApiProperty({ example: 'a1b2c3d4-e5f6-4a1b-8c9d-1234567890ab' })
   userId!: string;
 
+  @ApiProperty({ example: 'Joao Guilherme', nullable: true, type: String })
+  artistName!: string | null;
+
   @ApiProperty({ example: 'a1b2c3d4-e5f6-4a1b-8c9d-1234567890ab' })
   serviceId!: string;
 }

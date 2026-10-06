@@ -1,5 +1,6 @@
 import { CacheModule } from '@bookink/shared/cache';
 import { StorageModule } from '@bookink/shared/storage';
+import { MessagingModule } from '@bookink/shared/events';
 import { JwtAuthModule } from '@bookink/shared/auth';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
@@ -27,6 +28,11 @@ import { HealthController } from './presentation/controllers/health.controller';
 import { SERVICE_REPOSITORY } from './application/port/service-repository.port';
 import { GALERY_REPOSITORY } from './application/port/galery-repository.port';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
+import { SyncArtistUseCase } from '@/application/use-cases/artist/sync-artist.use-case';
+import { UserEventsHandler } from '@/application/handlers/user-events.handler';
+import { UserEventsConsumer } from './infrastructure/messaging/user-events.consumer';
+import { PrismaArtistRepository } from './infrastructure/repository/prisma-artist.repository';
+import { ARTIST_REPOSITORY } from './application/port/artist-repository.port';
 import { HttpPlanAccessGateway } from './infrastructure/http/http-plan-access.gateway';
 import { PLAN_ACCESS_GATEWAY } from './application/port/plan-access-gateway.port';
 import userServiceConfig from './infrastructure/config/user-service.config';
@@ -37,6 +43,7 @@ import userServiceConfig from './infrastructure/config/user-service.config';
     JwtAuthModule,
     StorageModule,
     CacheModule,
+    MessagingModule,
   ],
   controllers: [
     ServiceController,
@@ -60,6 +67,9 @@ import userServiceConfig from './infrastructure/config/user-service.config';
     UpdateGaleryInfoUseCase,
     UpdateGaleryImageUseCase,
     DeleteGaleryUseCase,
+    SyncArtistUseCase,
+    UserEventsHandler,
+    UserEventsConsumer,
     {
       provide: SERVICE_REPOSITORY,
       useClass: PrismaServiceRepository,
@@ -67,6 +77,10 @@ import userServiceConfig from './infrastructure/config/user-service.config';
     {
       provide: GALERY_REPOSITORY,
       useClass: PrismaGaleryRepository,
+    },
+    {
+      provide: ARTIST_REPOSITORY,
+      useClass: PrismaArtistRepository,
     },
     {
       provide: PLAN_ACCESS_GATEWAY,

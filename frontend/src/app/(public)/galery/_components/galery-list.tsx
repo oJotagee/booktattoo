@@ -8,7 +8,6 @@ import { cn } from 'cn';
 import { GALERY_GRID_CLASS, GaleryCardSkeletons, GaleryGridSkeleton } from './galery-grid-skeleton';
 import { getAllPublicGaleries } from '../../_data-access/get-all-public-galeries';
 import { ListPagination } from '../../_components/list-pagination';
-import { getAllArtists } from '../../_data-access/get-all-artists';
 import { GaleryCard } from './galery-card';
 import {
   formatGaleryStyle,
@@ -25,7 +24,6 @@ import {
 } from '@/components/ui/select';
 
 const PAGE_SIZE = 10;
-const ARTISTS_LIMIT = 50;
 const ALL_STYLES = 'ALL';
 
 const STYLE_ITEMS = [
@@ -50,13 +48,6 @@ export function GaleryList() {
         style,
       }),
     placeholderData: keepPreviousData,
-  });
-
-  const { data: artists } = useQuery({
-    queryKey: ['public-artists', 'names'],
-    queryFn: () => getAllArtists({ limit: ARTISTS_LIMIT, offset: 0 }),
-    select: (result) => new Map(result.list.map((artist) => [artist.id, artist.name])),
-    staleTime: 5 * 60 * 1000,
   });
 
   function navigate(update: (params: URLSearchParams) => void) {
@@ -120,7 +111,11 @@ export function GaleryList() {
       ) : data.list.length ? (
         <div className={GALERY_GRID_CLASS}>
           {data.list.map((galery) => (
-            <GaleryCard key={galery.id} galery={galery} artistName={artists?.get(galery.userId)} />
+            <GaleryCard
+              key={galery.id}
+              galery={galery}
+              artistName={galery.artistName ?? undefined}
+            />
           ))}
         </div>
       ) : (

@@ -55,3 +55,16 @@ model Galery {
   @@index([userId])
   @@index([serviceId])
 }
+
+model Artist {
+  id          String    @id
+  name        String
+  image       String?
+  status      String
+  lastEventAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}

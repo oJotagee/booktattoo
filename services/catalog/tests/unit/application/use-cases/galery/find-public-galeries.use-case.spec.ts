@@ -2,18 +2,24 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 import { FindPublicGaleriesUseCase } from '@/application/use-cases/galery/find-public-galeries.use-case';
 import { GaleryStyle } from '@/domain/entities/galery.entity';
-import { buildGalery } from '@tests/unit/support/builders';
-import { createCacheMock, createGaleryRepositoryMock } from '@tests/unit/support/mocks';
+import { buildArtist, buildGalery } from '@tests/unit/support/builders';
+import {
+  createArtistRepositoryMock,
+  createCacheMock,
+  createGaleryRepositoryMock,
+} from '@tests/unit/support/mocks';
 
 describe('FindPublicGaleriesUseCase', () => {
   let galeries: ReturnType<typeof createGaleryRepositoryMock>;
+  let artists: ReturnType<typeof createArtistRepositoryMock>;
   let cache: ReturnType<typeof createCacheMock>;
   let useCase: FindPublicGaleriesUseCase;
 
   beforeEach(() => {
     galeries = createGaleryRepositoryMock();
+    artists = createArtistRepositoryMock();
     cache = createCacheMock();
-    useCase = new FindPublicGaleriesUseCase(galeries, cache);
+    useCase = new FindPublicGaleriesUseCase(galeries, artists, cache);
   });
 
   it('returns only the public fields of each galery', async () => {
@@ -31,6 +37,7 @@ describe('FindPublicGaleriesUseCase', () => {
         price: 35000,
         style: GaleryStyle.FINELINE,
         userId: 'user-1',
+        artistName: null,
         serviceId: 'service-1',
       },
     ]);
@@ -110,5 +117,29 @@ describe('FindPublicGaleriesUseCase', () => {
 
     expect(result).toBe(cached);
     expect(findPublic).not.toHaveBeenCalled();
+  });
+
+  it('returns the artist name from the local artist projection', async () => {
+    galeries.findPublic = async () => ({
+      items: [buildGalery({ id: 'galery-1', userId: 'user-1' })],
+      total: 1,
+    });
+    const findByIds = mock(async () => [buildArtist({ id: 'user-1', name: 'Joao Guilherme' })]);
+    artists.findByIds = findByIds;
+
+    const result = await useCase.execute({});
+
+    expect(findByIds).toHaveBeenCalledWith(['user-1']);
+    expect(result.list[0]?.artistName).toBe('Joao Guilherme');
+  });
+
+  it('hides galeries of inactive artists', async () => {
+    const findPublic = mock(async () => ({ items: [], total: 0 }));
+    galeries.findPublic = findPublic;
+    artists.findInactiveIds = async () => ['user-2'];
+
+    await useCase.execute({});
+
+    expect(findPublic).toHaveBeenCalledWith({ excludeUserIds: ['user-2'], limit: 10, offset: 0 });
   });
 });

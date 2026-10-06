@@ -8,14 +8,12 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 
 import { PrismaPasswordResetTokenRepository } from './infrastructure/repository/prisma-password-reset-token.repository';
+import { RepublishArtistProfilesUseCase } from '@/application/use-cases/artist/republish-artist-profiles.use-case';
 import { GetUserPlanAccessUseCase } from '@/application/use-cases/subscription/get-user-plan-access.use-case';
-import { SyncSubscriptionUseCase } from '@/application/use-cases/subscription/sync-subscription.use-case';
-import { PrismaSubscriptionRepository } from './infrastructure/repository/prisma-subscription.repository';
-import { SUBSCRIPTION_REPOSITORY } from '@/application/port/subscription-repository.port';
-import { PaymentEventsConsumer } from './infrastructure/messaging/payment-events.consumer';
-import { PaymentEventsHandler } from '@/application/handlers/payment-events.handler';
 import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/update-user-contact-info.use-case';
 import { PrismaRefreshTokenRepository } from './infrastructure/repository/prisma-refresh-token.repository';
+import { SyncSubscriptionUseCase } from '@/application/use-cases/subscription/sync-subscription.use-case';
+import { PrismaSubscriptionRepository } from './infrastructure/repository/prisma-subscription.repository';
 import { PASSWORD_RESET_TOKEN_REPOSITORY } from '@/application/port/password-reset-token-repository.port';
 import { FindPublicArtistsUseCase } from '@/application/use-cases/artist/find-public-artists.use-case';
 import { UpdateUserAvatarUseCase } from '@/application/use-cases/user/update-user-avatar.use-case';
@@ -26,12 +24,15 @@ import { PublicArtistController } from './presentation/controllers/public-artist
 import { FindUserByIdUseCase } from '@/application/use-cases/user/find-user-by-id.use-case';
 import { REFRESH_TOKEN_REPOSITORY } from '@/application/port/refresh-token-repository.port';
 import { ResetPasswordUseCase } from '@/application/use-cases/auth/reset-password.use-case';
+import { PaymentEventsConsumer } from './infrastructure/messaging/payment-events.consumer';
+import { SUBSCRIPTION_REPOSITORY } from '@/application/port/subscription-repository.port';
 import { RefreshTokenUseCase } from '@/application/use-cases/auth/refresh-token.use-case';
 import { PrismaUserRepository } from './infrastructure/repository/prisma-user.repository';
 import { RegisterUserUseCase } from '@/application/use-cases/auth/register-user.use-case';
 import { OAuthUpsertUseCase } from '@/application/use-cases/auth/oauth-upsert.use-case';
 import { JwtSessionTokenIssuer } from './infrastructure/auth/jwt-session-token-issuer';
 import { BcryptPasswordHasher } from './infrastructure/crypto/bcrypt-password-hasher';
+import { PaymentEventsHandler } from '@/application/handlers/payment-events.handler';
 import { SESSION_TOKEN_ISSUER } from '@/application/port/session-token-issuer.port';
 import { NodeTokenGenerator } from './infrastructure/crypto/node-token-generator';
 import { ACCOUNT_REPOSITORY } from '@/application/port/account-repository.port';
@@ -69,6 +70,7 @@ import jwtConfig from './infrastructure/config/jwt.config';
     UpdateUserStatusUseCase,
     UpdateUserAvatarUseCase,
     FindPublicArtistsUseCase,
+    RepublishArtistProfilesUseCase,
     SyncSubscriptionUseCase,
     GetUserPlanAccessUseCase,
     PaymentEventsHandler,

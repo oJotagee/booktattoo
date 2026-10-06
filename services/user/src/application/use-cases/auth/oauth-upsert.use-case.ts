@@ -1,5 +1,6 @@
 import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
-import { Inject, Injectable } from '@nestjs/common';
+import { EVENT_PUBLISHER, type EventPublisher } from '@bookink/shared/events';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { AccountEntity, type AccountProvider } from '@/domain/entities/account.entity';
 import type { RefreshTokenRepository } from '../../port/refresh-token-repository.port';
@@ -16,6 +17,7 @@ import { TOKEN_GENERATOR } from '../../port/token-generator.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
 import { Email } from '@/domain/value-objects/email.vo';
 import { PUBLIC_ARTISTS_CACHE } from '@/application/cache/public-cache';
+import { userProfileUpdatedEvent } from '@/application/events/user-profile.events';
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -50,6 +52,8 @@ type OAuthUpsertOutput = {
 
 @Injectable()
 export class OAuthUpsertUseCase {
+  private readonly logger = new Logger(OAuthUpsertUseCase.name);
+
   constructor(
     @Inject(USER_REPOSITORY) private readonly users: UserRepository,
     @Inject(ACCOUNT_REPOSITORY) private readonly accounts: AccountRepository,
@@ -57,6 +61,7 @@ export class OAuthUpsertUseCase {
     @Inject(SESSION_TOKEN_ISSUER) private readonly sessionTokenIssuer: SessionTokenIssuer,
     @Inject(REFRESH_TOKEN_REPOSITORY) private readonly refreshTokens: RefreshTokenRepository,
     @Inject(CACHE_PORT) private readonly cache: CachePort,
+    @Inject(EVENT_PUBLISHER) private readonly publisher: EventPublisher,
   ) {}
 
   async execute(input: OAuthUpsertInput): Promise<OAuthUpsertOutput> {
@@ -143,8 +148,17 @@ export class OAuthUpsertUseCase {
         times: [],
       });
 
-      await this.users.create(user);
+      const createdUser = user;
+
+      await this.users.create(createdUser);
       await this.cache.invalidate(PUBLIC_ARTISTS_CACHE);
+      await this.publisher
+        .publish(userProfileUpdatedEvent(createdUser))
+        .catch((error: Error) =>
+          this.logger.warn(
+            `Falha ao publicar user.profile.updated de ${createdUser.id}: ${error.message}`,
+          ),
+        );
     }
 
     const account = AccountEntity.create({

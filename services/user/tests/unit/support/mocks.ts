@@ -1,4 +1,5 @@
 import type { CachePort } from '@bookink/shared/cache';
+import type { EventPublisher } from '@bookink/shared/events';
 import type { MailPort } from '@bookink/shared/mail';
 import { mock } from 'bun:test';
 
@@ -16,6 +17,7 @@ export function createUserRepositoryMock(): UserRepository {
     findById: mock(async () => null),
     findByEmail: mock(async () => null),
     findPublicArtists: mock(async () => ({ items: [], total: 0 })),
+    findAll: mock(async () => []),
     create: mock(async () => undefined),
     update: mock(async () => undefined),
   };
@@ -85,5 +87,11 @@ export function createCacheMock(): CachePort {
       loader(),
     ) as CachePort['getOrLoad'],
     invalidate: mock(async () => undefined),
+  };
+}
+
+export function createEventPublisherMock(): EventPublisher {
+  return {
+    publish: mock(async () => undefined),
   };
 }

@@ -1,6 +1,8 @@
 import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
+import type { ArtistRepository } from '../../port/artist-repository.port';
+import { ARTIST_REPOSITORY } from '../../port/artist-repository.port';
 import type { GaleryRepository } from '../../port/galery-repository.port';
 import { GALERY_REPOSITORY } from '../../port/galery-repository.port';
 import type { GaleryStyle } from '@/domain/entities/galery.entity';
@@ -25,6 +27,7 @@ type PublicGaleryOutput = {
   price: number;
   style: GaleryStyle;
   userId: string;
+  artistName: string | null;
   serviceId: string;
 };
 
@@ -43,6 +46,8 @@ export class FindPublicGaleriesUseCase {
   constructor(
     @Inject(GALERY_REPOSITORY)
     private readonly galeries: GaleryRepository,
+    @Inject(ARTIST_REPOSITORY)
+    private readonly artists: ArtistRepository,
     @Inject(CACHE_PORT)
     private readonly cache: CachePort,
   ) {}
@@ -58,12 +63,21 @@ export class FindPublicGaleriesUseCase {
     const key = `user=${userId ?? ''}:style=${style ?? ''}:limit=${perPage}:offset=${currentOffset}`;
 
     return this.cache.getOrLoad(PUBLIC_GALERIES_CACHE, key, async () => {
+      const inactiveArtistIds = await this.artists.findInactiveIds();
+
       const { items, total } = await this.galeries.findPublic({
         ...(userId && { userId }),
         ...(style && { style }),
+        ...(inactiveArtistIds.length > 0 && { excludeUserIds: inactiveArtistIds }),
         limit: perPage,
         offset: currentOffset,
       });
+
+      const artists = await this.artists.findByIds([
+        ...new Set(items.map((galery) => galery.userId)),
+      ]);
+
+      const artistNames = new Map(artists.map((artist) => [artist.id, artist.name]));
 
       return {
         list: items.map((galery) => ({
@@ -74,6 +88,7 @@ export class FindPublicGaleriesUseCase {
           price: galery.price,
           style: galery.style,
           userId: galery.userId,
+          artistName: artistNames.get(galery.userId) ?? null,
           serviceId: galery.serviceId,
         })),
         pagination: {

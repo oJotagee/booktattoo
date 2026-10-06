@@ -1,3 +1,4 @@
+import { ArtistEntity, ArtistStatus } from '@/domain/entities/artist.entity';
 import { GaleryEntity, GaleryStyle } from '@/domain/entities/galery.entity';
 import { ServiceEntity } from '@/domain/entities/service.entity';
 
@@ -41,5 +42,23 @@ export function buildGalery(
     style: overrides.style ?? GaleryStyle.FINELINE,
     userId: overrides.userId ?? 'user-1',
     serviceId: overrides.serviceId ?? 'service-1',
+  });
+}
+
+export function buildArtist(
+  overrides: Partial<{
+    id: string;
+    name: string;
+    image: string | null;
+    status: ArtistStatus;
+    occurredAt: Date;
+  }> = {},
+): ArtistEntity {
+  return ArtistEntity.create({
+    id: overrides.id ?? 'user-1',
+    name: overrides.name ?? 'John Doe',
+    image: overrides.image ?? null,
+    status: overrides.status ?? ArtistStatus.ACTIVE,
+    occurredAt: overrides.occurredAt ?? new Date('2026-10-01T12:00:00.000Z'),
   });
 }

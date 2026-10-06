@@ -45,8 +45,18 @@ export class PrismaGaleryRepository implements GaleryRepository {
     limit,
     offset,
     style,
+    excludeUserIds,
   }: FindPublicGaleriesParams): Promise<PaginatedResult<GaleryEntity>> {
-    const where = { available: true, ...(userId && { userId }), ...(style && { style }) };
+    const userFilter = {
+      ...(userId && { equals: userId }),
+      ...(excludeUserIds?.length && { notIn: excludeUserIds }),
+    };
+
+    const where = {
+      available: true,
+      ...(Object.keys(userFilter).length > 0 && { userId: userFilter }),
+      ...(style && { style }),
+    };
 
     const [galeries, total] = await Promise.all([
       this.prisma.galery.findMany({

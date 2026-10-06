@@ -7,6 +7,7 @@ import {
   createSessionTokenIssuerMock,
   createTokenGeneratorMock,
   createUserRepositoryMock,
+  createEventPublisherMock,
 } from '@tests/unit/support/mocks';
 import { OAuthUpsertUseCase } from '@/application/use-cases/auth/oauth-upsert.use-case';
 import { AccountEntity } from '@/domain/entities/account.entity';
@@ -27,6 +28,7 @@ describe('OAuthUpsertUseCase', () => {
   let sessionTokenIssuer: ReturnType<typeof createSessionTokenIssuerMock>;
   let refreshTokens: ReturnType<typeof createRefreshTokenRepositoryMock>;
   let cache: ReturnType<typeof createCacheMock>;
+  let publisher: ReturnType<typeof createEventPublisherMock>;
   let useCase: OAuthUpsertUseCase;
 
   beforeEach(() => {
@@ -36,6 +38,7 @@ describe('OAuthUpsertUseCase', () => {
     sessionTokenIssuer = createSessionTokenIssuerMock();
     refreshTokens = createRefreshTokenRepositoryMock();
     cache = createCacheMock();
+    publisher = createEventPublisherMock();
     useCase = new OAuthUpsertUseCase(
       users,
       accounts,
@@ -43,6 +46,7 @@ describe('OAuthUpsertUseCase', () => {
       sessionTokenIssuer,
       refreshTokens,
       cache,
+      publisher,
     );
   });
 
@@ -63,6 +67,7 @@ describe('OAuthUpsertUseCase', () => {
     expect(accounts.update).toHaveBeenCalledTimes(1);
     expect(users.create).not.toHaveBeenCalled();
     expect(cache.invalidate).not.toHaveBeenCalled();
+    expect(publisher.publish).not.toHaveBeenCalled();
     expect(result.user.id).toBe('user-1');
     expect(result.accessToken).toBe('access-token');
     expect(result.refreshToken).toBe('opaque-refresh-token');
@@ -139,6 +144,7 @@ describe('OAuthUpsertUseCase', () => {
 
     expect(users.create).toHaveBeenCalledTimes(1);
     expect(cache.invalidate).toHaveBeenCalledWith('user:public:artists');
+    expect(publisher.publish).toHaveBeenCalledTimes(1);
     expect(accounts.create).toHaveBeenCalledTimes(1);
     expect(result.user.email).toBe('new.user@example.com');
     expect(result.user.name).toBe('New User');

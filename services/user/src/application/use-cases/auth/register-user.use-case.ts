@@ -1,5 +1,6 @@
 import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
-import { Inject, Injectable } from '@nestjs/common';
+import { EVENT_PUBLISHER, type EventPublisher } from '@bookink/shared/events';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { UserEntity, UserStatus } from '@/domain/entities/user.entity';
 import type { PasswordHasher } from '../../port/password-hasher.port';
@@ -9,6 +10,7 @@ import { PASSWORD_HASHER } from '../../port/password-hasher.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
 import { Email } from '@/domain/value-objects/email.vo';
 import { PUBLIC_ARTISTS_CACHE } from '@/application/cache/public-cache';
+import { userProfileUpdatedEvent } from '@/application/events/user-profile.events';
 
 type RegisterUserInput = {
   name: string;
@@ -25,10 +27,13 @@ type RegisterUserOutput = {
 
 @Injectable()
 export class RegisterUserUseCase {
+  private readonly logger = new Logger(RegisterUserUseCase.name);
+
   constructor(
     @Inject(USER_REPOSITORY) private readonly users: UserRepository,
     @Inject(PASSWORD_HASHER) private readonly passwordHasher: PasswordHasher,
     @Inject(CACHE_PORT) private readonly cache: CachePort,
+    @Inject(EVENT_PUBLISHER) private readonly publisher: EventPublisher,
   ) {}
 
   async execute({ name, email, password }: RegisterUserInput): Promise<RegisterUserOutput> {
@@ -55,6 +60,11 @@ export class RegisterUserUseCase {
 
     await this.users.create(user);
     await this.cache.invalidate(PUBLIC_ARTISTS_CACHE);
+    await this.publisher
+      .publish(userProfileUpdatedEvent(user))
+      .catch((error: Error) =>
+        this.logger.warn(`Falha ao publicar user.profile.updated de ${user.id}: ${error.message}`),
+      );
 
     return {
       id: user.id,

@@ -3,17 +3,23 @@ import { beforeEach, describe, expect, it } from 'bun:test';
 import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/update-user-contact-info.use-case';
 import { UserNotFoundError } from '@/domain/errors/user.error';
 import { buildUser } from '@tests/unit/support/builders';
-import { createCacheMock, createUserRepositoryMock } from '@tests/unit/support/mocks';
+import {
+  createCacheMock,
+  createUserRepositoryMock,
+  createEventPublisherMock,
+} from '@tests/unit/support/mocks';
 
 describe('UpdateUserContactInfoUseCase', () => {
   let users: ReturnType<typeof createUserRepositoryMock>;
   let cache: ReturnType<typeof createCacheMock>;
+  let publisher: ReturnType<typeof createEventPublisherMock>;
   let useCase: UpdateUserContactInfoUseCase;
 
   beforeEach(() => {
     users = createUserRepositoryMock();
     cache = createCacheMock();
-    useCase = new UpdateUserContactInfoUseCase(users, cache);
+    publisher = createEventPublisherMock();
+    useCase = new UpdateUserContactInfoUseCase(users, cache, publisher);
   });
 
   it('updates the contact info of an existing user', async () => {
@@ -35,6 +41,7 @@ describe('UpdateUserContactInfoUseCase', () => {
       bio: 'Updated bio',
     });
     expect(cache.invalidate).toHaveBeenCalledWith('user:public:artists');
+    expect(publisher.publish).toHaveBeenCalledTimes(1);
   });
 
   it('keeps existing fields untouched when not provided', async () => {

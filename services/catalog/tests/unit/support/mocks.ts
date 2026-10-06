@@ -1,6 +1,7 @@
 import type { CachePort } from '@bookink/shared/cache';
 import { mock } from 'bun:test';
 
+import type { ArtistRepository } from '@/application/port/artist-repository.port';
 import type { PlanAccessGateway } from '@/application/port/plan-access-gateway.port';
 import type { ServiceRepository } from '@/application/port/service-repository.port';
 import type { GaleryRepository } from '@/application/port/galery-repository.port';
@@ -58,5 +59,14 @@ export function createCacheMock(): CachePort {
       loader(),
     ) as CachePort['getOrLoad'],
     invalidate: mock(async () => undefined),
+  };
+}
+
+export function createArtistRepositoryMock(): ArtistRepository {
+  return {
+    findById: mock(async () => null),
+    findByIds: mock(async () => []),
+    findInactiveIds: mock(async () => []),
+    save: mock(async () => undefined),
   };
 }

@@ -8,19 +8,22 @@ import {
   createCacheMock,
   createPasswordHasherMock,
   createUserRepositoryMock,
+  createEventPublisherMock,
 } from '@tests/unit/support/mocks';
 
 describe('RegisterUserUseCase', () => {
   let users: ReturnType<typeof createUserRepositoryMock>;
   let passwordHasher: ReturnType<typeof createPasswordHasherMock>;
   let cache: ReturnType<typeof createCacheMock>;
+  let publisher: ReturnType<typeof createEventPublisherMock>;
   let useCase: RegisterUserUseCase;
 
   beforeEach(() => {
     users = createUserRepositoryMock();
     passwordHasher = createPasswordHasherMock();
     cache = createCacheMock();
-    useCase = new RegisterUserUseCase(users, passwordHasher, cache);
+    publisher = createEventPublisherMock();
+    useCase = new RegisterUserUseCase(users, passwordHasher, cache, publisher);
   });
 
   it('creates a new user with a hashed password when the email is not in use', async () => {
@@ -41,6 +44,7 @@ describe('RegisterUserUseCase', () => {
     expect(result.id).toBeString();
     expect(result.createdAt).toBeInstanceOf(Date);
     expect(cache.invalidate).toHaveBeenCalledWith('user:public:artists');
+    expect(publisher.publish).toHaveBeenCalledTimes(1);
   });
 
   it('throws UserAlreadyExistsError when the email is already registered', async () => {

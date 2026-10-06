@@ -13,6 +13,7 @@ export type FindGaleriesByUserIdParams = FindByUserIdParams & {
 
 export type FindPublicGaleriesParams = FindPublicParams & {
   style?: GaleryStyle;
+  excludeUserIds?: string[];
 };
 
 export interface GaleryRepository {

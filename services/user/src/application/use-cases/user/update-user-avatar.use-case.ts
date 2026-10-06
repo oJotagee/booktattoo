@@ -1,11 +1,13 @@
 import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { ASSET_TYPES, STORAGE_PORT, type StoragePort } from '@bookink/shared/storage';
-import { Inject, Injectable } from '@nestjs/common';
+import { EVENT_PUBLISHER, type EventPublisher } from '@bookink/shared/events';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import type { UserRepository } from '../../port/user-repository.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
 import { UserNotFoundError } from '@/domain/errors/user.error';
 import { PUBLIC_ARTISTS_CACHE } from '@/application/cache/public-cache';
+import { userProfileUpdatedEvent } from '@/application/events/user-profile.events';
 
 type UpdateUserAvatarInput = {
   userId: string;
@@ -22,6 +24,8 @@ type UpdateUserAvatarOutput = {
 
 @Injectable()
 export class UpdateUserAvatarUseCase {
+  private readonly logger = new Logger(UpdateUserAvatarUseCase.name);
+
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly users: UserRepository,
@@ -29,6 +33,8 @@ export class UpdateUserAvatarUseCase {
     private readonly storage: StoragePort,
     @Inject(CACHE_PORT)
     private readonly cache: CachePort,
+    @Inject(EVENT_PUBLISHER)
+    private readonly publisher: EventPublisher,
   ) {}
 
   async execute({
@@ -53,6 +59,13 @@ export class UpdateUserAvatarUseCase {
     const updatedUser = user.updateImage(url);
     await this.users.update(updatedUser);
     await this.cache.invalidate(PUBLIC_ARTISTS_CACHE);
+    await this.publisher
+      .publish(userProfileUpdatedEvent(updatedUser))
+      .catch((error: Error) =>
+        this.logger.warn(
+          `Falha ao publicar user.profile.updated de ${updatedUser.id}: ${error.message}`,
+        ),
+      );
 
     if (previousImage) {
       await this.deletePreviousAvatar(previousImage);

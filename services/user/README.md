@@ -52,6 +52,21 @@ src/
 
 Storage (S3), email (SMTP), cache (Redis) e o guard JWT vêm de [`@bookink/shared`](../../packages/shared).
 
+## Eventos publicados
+
+| Routing key | Quando |
+|---|---|
+| `user.profile.updated` | Cadastro (e-mail ou OAuth) e alteração de contato, status ou avatar |
+
+O payload é o perfil público completo (`userId`, `name`, `image`, `status`), e o `occurredAt` é o `updatedAt` do usuário. A publicação acontece depois de salvar: se o RabbitMQ estiver fora, a operação conclui normalmente e a falha fica só no log. Para ressincronizar (carga inicial ou depois de uma queda do broker), republique todos os perfis:
+
+```bash
+bun run --cwd services/user sync:artists        # local, usando services/user/.env
+bun run sync:artists:prod                       # dentro do container do user em prod (ex.: railway ssh)
+```
+
+Republicar é seguro: o consumidor ignora eventos que não são mais novos que o estado que já tem.
+
 ## Eventos consumidos
 
 | Fila | Exchange | Routing keys | Ação |
@@ -80,7 +95,7 @@ bun run --cwd services/user dev    # hot reload
 |---|---|
 | `PORT` | Porta HTTP (8081) |
 | `DATABASE_URL` | Conexão com o banco `user` |
-| `RABBITMQ_URL` | Conexão AMQP |
+| `RABBITMQ_URL` | Conexão AMQP, para consumir eventos do payment e publicar `user.profile.updated` |
 | `JWT_SECRET` / `JWT_EXPIRES_IN` | Assinatura e validade do access token. O mesmo `JWT_SECRET` deve estar nos outros serviços |
 | `S3_*` | Bucket de avatares (`S3_ENDPOINT` / `S3_FORCE_PATH_STYLE` para MinIO em dev) |
 | `MAIL_*` | SMTP para envio dos emails de redefinição de senha |

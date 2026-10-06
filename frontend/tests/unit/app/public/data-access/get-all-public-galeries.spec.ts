@@ -25,6 +25,7 @@ describe('getAllPublicGaleries', () => {
         price: 28000,
         style: 'TRADICIONAL' as const,
         userId: 'user-1',
+        artistName: 'Joao Guilherme',
         serviceId: 'service-1',
       },
     ];

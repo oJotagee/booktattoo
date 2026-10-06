@@ -35,6 +35,8 @@ O serviço não conhece a tabela de usuários: guarda só o `userId` extraído d
 
 As rotas autenticadas operam só sobre os dados do usuário logado. As rotas `/public/*` usam o cache Redis de [`@bookink/shared/cache`](../../packages/shared/src/cache): 15 minutos de TTL e uma única requisição recarregando do banco perto de vencer. Cadastrar, editar ou excluir um flash invalida `/public/galeries`, e cadastrar, editar ou ativar/desativar um serviço invalida `/public/services`.
 
+`/public/galeries` devolve o `artistName` de cada flash e esconde os flashes de artistas inativos. Esses dados vêm da projeção local `Artist` (ver abaixo), sem chamar o user-service.
+
 ## Limites do plano
 
 Ao criar um serviço (`POST /services`) ou um flash (`POST /galeries`), o catalog consulta `GET /users/me/plan` no user-service repassando o mesmo token, e compara com quantos o usuário já tem:
@@ -48,10 +50,19 @@ Ao criar um serviço (`POST /services`) ou um flash (`POST /galeries`), o catalo
 
 Serviços desativados contam no limite. Plano expirado ou limite atingido respondem `403`, e user-service fora do ar responde `503`.
 
+## Eventos consumidos
+
+| Fila | Exchange | Routing keys | Ação |
+|---|---|---|---|
+| `catalog.user-events` | `bookink.events` | `user.profile.*` | Upsert do `Artist` (nome, avatar e status do tatuador) e invalidação do cache de `/public/galeries` |
+
+O evento carrega o estado completo do perfil. Eventos com `occurredAt` igual ou mais antigo que o `lastEventAt` salvo são ignorados (reentrega ou fora de ordem). Status desconhecido ou payload inválido vão para `catalog.user-events.dlq`.
+
 ## Modelos
 
 - `Service` — `name`, `duration` (minutos), `depositAmount` (centavos), `status`
 - `Galery` — `title`, `imageUrl`, `size`, `price`, `style` (`GaleryStyle`), `available`, pertence a um `Service`
+- `Artist` — projeção somente leitura do perfil público do tatuador (`id` = id do user, `name`, `image`, `status`, `lastEventAt`), escrita só pelo consumer de `user.profile.updated`
 
 Schema em [prisma/schema.prisma](prisma/schema.prisma).
 
@@ -82,7 +93,7 @@ bun run --cwd services/catalog dev
 |---|---|
 | `PORT` | Porta HTTP (8083) |
 | `DATABASE_URL` | Conexão com o banco `catalog` |
-| `RABBITMQ_URL` | Conexão AMQP |
+| `RABBITMQ_URL` | Conexão AMQP, para consumir `user.profile.updated` |
 | `JWT_SECRET` | Mesmo segredo do user-service, usado só para validar o token |
 | `USER_SERVICE_URL` | URL interna do user-service, para consultar o plano ao criar serviço ou flash |
 | `S3_*` | Bucket das imagens da galeria |

@@ -37,6 +37,7 @@ O Swagger de cada serviço fica direto na porta dele: `http://localhost:<porta>/
 | Evento | Publicado por | Consumido por |
 |---|---|---|
 | `payment.subscription.activated` / `updated` / `canceled` | payment (a partir do webhook do Stripe) | user (fila `user.payment-events`), que atualiza a `Subscription` |
+| `user.profile.updated` | user (cadastro e alterações de nome, avatar ou status) | catalog (fila `catalog.user-events`), que atualiza a projeção local `Artist` usada na galeria pública |
 
 Mensagens que falham no processamento vão para a fila `<fila>.dlq`, em vez de voltar em loop.
 

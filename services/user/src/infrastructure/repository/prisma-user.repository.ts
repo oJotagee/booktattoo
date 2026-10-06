@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
+
+import { type UserEntity, UserStatus } from '@/domain/entities/user.entity';
+import { PrismaService } from '../prisma/prisma.service';
+import { UserMapper } from '../persistence/user.mapper';
 import type {
+  FindAllUsersParams,
   FindPublicArtistsParams,
   PaginatedResult,
   UserRepository,
 } from '@/application/port/user-repository.port';
-import { type UserEntity, UserStatus } from '@/domain/entities/user.entity';
-import { UserMapper } from '../persistence/user.mapper';
-import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -41,6 +43,16 @@ export class PrismaUserRepository implements UserRepository {
     ]);
 
     return { items: users.map(UserMapper.toDomain), total };
+  }
+
+  async findAll({ limit, offset }: FindAllUsersParams): Promise<UserEntity[]> {
+    const users = await this.prisma.user.findMany({
+      orderBy: { id: 'asc' },
+      take: limit,
+      skip: offset,
+    });
+
+    return users.map(UserMapper.toDomain);
   }
 
   async create(user: UserEntity): Promise<void> {

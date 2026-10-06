@@ -25,6 +25,7 @@ export interface PublicGalery {
   price: number;
   style: GaleryStyle;
   userId: string;
+  artistName: string | null;
   serviceId: string;
 }
 
