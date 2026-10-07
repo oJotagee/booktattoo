@@ -50,7 +50,7 @@ export class FindPublicGaleriesUseCase {
     private readonly artists: ArtistRepository,
     @Inject(CACHE_PORT)
     private readonly cache: CachePort,
-  ) {}
+  ) { }
 
   async execute({
     userId,

@@ -1,6 +1,6 @@
+import { connection } from 'next/server';
 import { Suspense } from 'react';
 import Image from 'next/image';
-import { connection } from 'next/server';
 
 import { getAllArtists } from '../_data-access/get-all-artists';
 import { TeamSkeleton } from './team-skeleton';
@@ -24,7 +24,15 @@ export function Team() {
 async function TeamList() {
   await connection();
 
-  const artists = await getAllArtists({ limit: ARTISTS_LIMIT, offset: 0 });
+  const artists = await getAllArtists({ limit: ARTISTS_LIMIT, offset: 0 }).catch(() => null);
+
+  if (!artists) {
+    return (
+      <p className="mt-10 text-center text-white/60">
+        Não foi possível carregar os artistas, tente novamente mais tarde.
+      </p>
+    );
+  }
 
   if (artists.list.length === 0) {
     return (
