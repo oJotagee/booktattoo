@@ -1,15 +1,13 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { type RegisterFormValues, registerSchema } from './schemas';
+import { type RegisterSchemaData, useRegisterSchema } from './schemas';
 import { registerUser } from '../_actions/register';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,12 +28,10 @@ export function RegisterForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-  });
+  } = useRegisterSchema();
 
   const registerMutation = useMutation({
-    mutationFn: async (values: RegisterFormValues) => {
+    mutationFn: async (values: RegisterSchemaData) => {
       await registerUser(values);
 
       const result = await signIn('credentials', {

@@ -1,17 +1,15 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { type LoginFormValues, loginSchema } from './schemas';
+import { type LoginSchemaData, useLoginSchema } from './schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -23,12 +21,10 @@ export function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-  });
+  } = useLoginSchema();
 
   const loginMutation = useMutation({
-    mutationFn: async (values: LoginFormValues) => {
+    mutationFn: async (values: LoginSchemaData) => {
       const result = await signIn('credentials', {
         email: values.email,
         password: values.password,

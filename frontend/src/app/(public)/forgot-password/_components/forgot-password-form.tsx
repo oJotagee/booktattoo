@@ -1,15 +1,13 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { type ForgotPasswordFormValues, forgotPasswordSchema } from './schemas';
 import { forgotPassword } from '../_actions/forgot-password';
+import { useForgotPasswordSchema } from './schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -18,9 +16,7 @@ export function ForgotPasswordForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ForgotPasswordFormValues>({
-    resolver: zodResolver(forgotPasswordSchema),
-  });
+  } = useForgotPasswordSchema();
 
   const forgotPasswordMutation = useMutation({
     mutationFn: forgotPassword,

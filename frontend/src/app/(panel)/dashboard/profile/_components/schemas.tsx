@@ -13,7 +13,7 @@ interface UseProfileSchemaProps {
   status: UserStatus;
 }
 
-const profileSchema = z.object({
+export const profileSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   address: z.string(),
   phone: z.string(),

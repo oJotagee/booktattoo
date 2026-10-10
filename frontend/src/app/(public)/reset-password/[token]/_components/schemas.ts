@@ -1,3 +1,5 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 export const resetPasswordSchema = z
@@ -16,4 +18,14 @@ export const resetPasswordSchema = z
     path: ['confirmPassword'],
   });
 
-export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+export type ResetPasswordSchemaData = z.infer<typeof resetPasswordSchema>;
+
+export function useResetPasswordSchema() {
+  return useForm<ResetPasswordSchemaData>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      password: '',
+      confirmPassword: '',
+    },
+  });
+}

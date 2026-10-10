@@ -1,3 +1,5 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 export const loginSchema = z.object({
@@ -5,7 +7,17 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Informe sua senha.'),
 });
 
-export type LoginFormValues = z.infer<typeof loginSchema>;
+export type LoginSchemaData = z.infer<typeof loginSchema>;
+
+export function useLoginSchema() {
+  return useForm<LoginSchemaData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+}
 
 export const registerSchema = z.object({
   name: z.string().min(1, 'Informe seu nome completo.'),
@@ -19,4 +31,15 @@ export const registerSchema = z.object({
     .regex(/[^a-zA-Z0-9]/, 'Inclua ao menos um símbolo.'),
 });
 
-export type RegisterFormValues = z.infer<typeof registerSchema>;
+export type RegisterSchemaData = z.infer<typeof registerSchema>;
+
+export function useRegisterSchema() {
+  return useForm<RegisterSchemaData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+    },
+  });
+}

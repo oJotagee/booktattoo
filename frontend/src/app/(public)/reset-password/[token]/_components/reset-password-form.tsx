@@ -1,16 +1,14 @@
 'use client';
 
 import { CheckCircle2, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { type ResetPasswordFormValues, resetPasswordSchema } from './schemas';
+import { type ResetPasswordSchemaData, useResetPasswordSchema } from './schemas';
 import { resetPassword } from '../_actions/reset-password';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,12 +26,10 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ResetPasswordFormValues>({
-    resolver: zodResolver(resetPasswordSchema),
-  });
+  } = useResetPasswordSchema();
 
   const resetPasswordMutation = useMutation({
-    mutationFn: (values: ResetPasswordFormValues) =>
+    mutationFn: (values: ResetPasswordSchemaData) =>
       resetPassword({ token, newPassword: values.password }),
     onSuccess: () => {
       toast.success('Senha redefinida com sucesso!');
