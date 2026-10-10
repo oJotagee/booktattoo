@@ -55,7 +55,7 @@ describe('updateAvatar', () => {
 
   it('returns the API error message when the request fails with one', async () => {
     api.put.mockImplementationOnce(async () => {
-      throw createAxiosError(400, { message: 'Arquivo inválido' });
+      throw createAxiosError(400, { error: 'UnsupportedAvatarTypeError', message: 'Arquivo inválido' });
     });
 
     const result = await updateAvatar(new FormData());

@@ -1,10 +1,10 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { isAxiosError } from 'axios';
 
 import type { Service } from '../_data-access/get-all-services';
 import { getAccessToken } from '@/lib/get-access-token';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { api } from '@/lib/api';
 
 export type CreateServiceInput = {
@@ -28,10 +28,6 @@ export async function createService(
 
     return { data };
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.message) {
-      return { error: error.response.data.message };
-    }
-
-    return { error: 'Não foi possível criar o serviço' };
+    return { error: getApiErrorMessage(error, 'Não foi possível criar o serviço') };
   }
 }

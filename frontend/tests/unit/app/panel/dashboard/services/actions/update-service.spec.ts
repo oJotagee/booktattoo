@@ -55,7 +55,7 @@ describe('updateService', () => {
 
   it('returns the API error message when the request fails with one', async () => {
     api.put.mockImplementationOnce(async () => {
-      throw createAxiosError(404, { message: 'Serviço não encontrado' });
+      throw createAxiosError(404, { error: 'ServiceNotFoundError', message: 'Serviço não encontrado' });
     });
 
     const result = await updateService({ id: 'service-1', ...body });

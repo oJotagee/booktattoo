@@ -6,8 +6,8 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { type ForgotPasswordSchemaData, useForgotPasswordSchema } from './schemas';
 import { forgotPassword } from '../_actions/forgot-password';
-import { useForgotPasswordSchema } from './schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -19,7 +19,10 @@ export function ForgotPasswordForm() {
   } = useForgotPasswordSchema();
 
   const forgotPasswordMutation = useMutation({
-    mutationFn: forgotPassword,
+    mutationFn: async (values: ForgotPasswordSchemaData) => {
+      const { error } = await forgotPassword(values);
+      if (error) throw new Error(error);
+    },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : 'Não foi possível enviar o e-mail.');
     },

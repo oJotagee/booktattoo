@@ -41,7 +41,7 @@ describe('createPortal', () => {
 
   it('returns the API error message when the user never subscribed', async () => {
     api.post.mockImplementationOnce(async () => {
-      throw createAxiosError(404, { message: 'Nenhuma assinatura encontrada para este usuário.' });
+      throw createAxiosError(404, { error: 'BillingCustomerNotFoundError', message: 'Nenhuma assinatura encontrada para este usuário.' });
     });
 
     expect(await createPortal()).toEqual({

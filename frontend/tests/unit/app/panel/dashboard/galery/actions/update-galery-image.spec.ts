@@ -73,7 +73,7 @@ describe('updateGaleryImage', () => {
 
   it('returns the API error message when the request fails with one', async () => {
     api.put.mockImplementationOnce(async () => {
-      throw createAxiosError(400, { message: 'Unsupported image type' });
+      throw createAxiosError(400, { error: 'UnsupportedGaleryImageTypeError', message: 'Unsupported image type' });
     });
 
     const result = await updateGaleryImage(buildFormData());

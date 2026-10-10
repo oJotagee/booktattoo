@@ -24,23 +24,23 @@ describe('registerUser', () => {
     expect(api.post).toHaveBeenCalledWith('/auth/register', input);
   });
 
-  it('throws a duplicate-account error for a 409 response', async () => {
+  it('returns a duplicate-account error for a 409 response', async () => {
     api.post.mockImplementationOnce(async () => {
       throw createAxiosError(409);
     });
 
-    await expect(
-      registerUser({ name: 'John Doe', email: 'john.doe@example.com', password: 'Secret123!' }),
-    ).rejects.toThrow('Já existe uma conta com este e-mail.');
+    expect(await registerUser({ name: 'John Doe', email: 'john.doe@example.com', password: 'Secret123!' })).toEqual({
+      error: 'Já existe uma conta com este e-mail.',
+    });
   });
 
-  it('throws a generic error for any other failure', async () => {
+  it('returns a generic error for any other failure', async () => {
     api.post.mockImplementationOnce(async () => {
       throw createAxiosError(500);
     });
 
-    await expect(
-      registerUser({ name: 'John Doe', email: 'john.doe@example.com', password: 'Secret123!' }),
-    ).rejects.toThrow('Não foi possível criar sua conta. Tente novamente.');
+    expect(await registerUser({ name: 'John Doe', email: 'john.doe@example.com', password: 'Secret123!' })).toEqual({
+      error: 'Não foi possível criar sua conta. Tente novamente.',
+    });
   });
 });

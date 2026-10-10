@@ -1,8 +1,7 @@
 'use server';
 
-import { isAxiosError } from 'axios';
-
 import { getAccessToken } from '@/lib/get-access-token';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { api } from '@/lib/api';
 
 export async function createPortal(): Promise<{ url?: string; error?: string }> {
@@ -16,10 +15,6 @@ export async function createPortal(): Promise<{ url?: string; error?: string }> 
 
     return { url: data.url };
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.message) {
-      return { error: error.response.data.message };
-    }
-
-    return { error: 'Não foi possível abrir o portal da assinatura' };
+    return { error: getApiErrorMessage(error, 'Não foi possível abrir o portal da assinatura') };
   }
 }

@@ -1,10 +1,10 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { isAxiosError } from 'axios';
 
 import type { Service } from '../_data-access/get-all-services';
 import { getAccessToken } from '@/lib/get-access-token';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { api } from '@/lib/api';
 
 export type UpdateServiceInput = {
@@ -30,10 +30,6 @@ export async function updateService({
 
     return { data };
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.message) {
-      return { error: error.response.data.message };
-    }
-
-    return { error: 'Não foi possível atualizar o serviço' };
+    return { error: getApiErrorMessage(error, 'Não foi possível atualizar o serviço') };
   }
 }

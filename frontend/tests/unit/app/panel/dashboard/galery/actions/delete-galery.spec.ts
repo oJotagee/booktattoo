@@ -44,7 +44,7 @@ describe('deleteGalery', () => {
 
   it('returns the API error message when the request fails with one', async () => {
     api.delete.mockImplementationOnce(async () => {
-      throw createAxiosError(404, { message: 'Galeria com ID galery-1 não encontrada.' });
+      throw createAxiosError(404, { error: 'GaleryNotFoundError', message: 'Galeria com ID galery-1 não encontrada.' });
     });
 
     const result = await deleteGalery('galery-1');

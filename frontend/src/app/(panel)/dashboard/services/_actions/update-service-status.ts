@@ -1,9 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { isAxiosError } from 'axios';
 
 import { getAccessToken } from '@/lib/get-access-token';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { api } from '@/lib/api';
 
 export async function updateServiceStatus({ id, status }: { id: string; status: boolean }) {
@@ -21,10 +21,6 @@ export async function updateServiceStatus({ id, status }: { id: string; status: 
 
     return { data: 'Status atualizado com sucesso' };
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.message) {
-      return { error: error.response.data.message };
-    }
-
-    return { error: 'Não foi possível atualizar o status do serviço' };
+    return { error: getApiErrorMessage(error, 'Não foi possível atualizar o status do serviço') };
   }
 }

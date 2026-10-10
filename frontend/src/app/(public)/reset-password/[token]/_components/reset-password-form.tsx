@@ -29,8 +29,10 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   } = useResetPasswordSchema();
 
   const resetPasswordMutation = useMutation({
-    mutationFn: (values: ResetPasswordSchemaData) =>
-      resetPassword({ token, newPassword: values.password }),
+    mutationFn: async (values: ResetPasswordSchemaData) => {
+      const { error } = await resetPassword({ token, newPassword: values.password });
+      if (error) throw new Error(error);
+    },
     onSuccess: () => {
       toast.success('Senha redefinida com sucesso!');
       router.push('/login');

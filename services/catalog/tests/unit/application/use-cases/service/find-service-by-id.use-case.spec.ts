@@ -44,7 +44,7 @@ describe('FindServiceByIdUseCase', () => {
     services.findById = async () => buildService({ id: 'service-1', userId: 'user-1' });
 
     await expect(useCase.execute({ id: 'service-1', userId: 'user-2' })).rejects.toThrow(
-      'Usuario não autorizado',
+      'Você não tem permissão para acessar este recurso.',
     );
   });
 });

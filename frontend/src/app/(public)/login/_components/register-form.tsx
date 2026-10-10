@@ -32,7 +32,8 @@ export function RegisterForm() {
 
   const registerMutation = useMutation({
     mutationFn: async (values: RegisterSchemaData) => {
-      await registerUser(values);
+      const { error } = await registerUser(values);
+      if (error) throw new Error(error);
 
       const result = await signIn('credentials', {
         email: values.email,

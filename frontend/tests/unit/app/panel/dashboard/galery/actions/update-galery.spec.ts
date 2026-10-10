@@ -56,7 +56,7 @@ describe('updateGalery', () => {
 
   it('returns the API error message when the request fails with one', async () => {
     api.put.mockImplementationOnce(async () => {
-      throw createAxiosError(404, { message: 'Galery not found' });
+      throw createAxiosError(404, { error: 'GaleryNotFoundError', message: 'Galery not found' });
     });
 
     const result = await updateGalery(input);

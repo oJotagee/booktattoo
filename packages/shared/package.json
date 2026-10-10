@@ -10,7 +10,8 @@
     "./common": "./src/common/index.ts",
     "./storage": "./src/storage/index.ts",
     "./mail": "./src/mail/index.ts",
-    "./cache": "./src/cache/index.ts"
+    "./cache": "./src/cache/index.ts",
+    "./http": "./src/http/index.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1136.0",

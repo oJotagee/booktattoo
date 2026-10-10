@@ -62,7 +62,7 @@ describe('UpdateServiceStatusUseCase', () => {
 
     await expect(
       useCase.execute({ serviceId: service.id, status: false, userId: 'user-2' }),
-    ).rejects.toThrow('Usuario não autorizado');
+    ).rejects.toThrow('Você não tem permissão para acessar este recurso.');
     expect(services.update).not.toHaveBeenCalled();
   });
 });

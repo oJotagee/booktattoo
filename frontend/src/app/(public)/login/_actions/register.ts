@@ -2,6 +2,7 @@
 
 import { isAxiosError } from 'axios';
 
+import { getApiErrorMessage } from '@/lib/api-error';
 import { api } from '@/lib/api';
 
 export type RegisterInput = {
@@ -10,14 +11,18 @@ export type RegisterInput = {
   password: string;
 };
 
-export async function registerUser(input: RegisterInput) {
+export async function registerUser(input: RegisterInput): Promise<{ error?: string }> {
   try {
     await api.post('/auth/register', input);
+
+    return {};
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 409) {
-      throw new Error('Já existe uma conta com este e-mail.');
+      return { error: 'Já existe uma conta com este e-mail.' };
     }
 
-    throw new Error('Não foi possível criar sua conta. Tente novamente.');
+    return {
+      error: getApiErrorMessage(error, 'Não foi possível criar sua conta. Tente novamente.'),
+    };
   }
 }

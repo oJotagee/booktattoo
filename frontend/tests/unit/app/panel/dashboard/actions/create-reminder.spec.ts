@@ -55,7 +55,7 @@ describe('createReminder', () => {
 
   it('returns the API error message when the request fails with one', async () => {
     api.post.mockImplementationOnce(async () => {
-      throw createAxiosError(400, { message: 'Reminder description cannot be empty.' });
+      throw createAxiosError(400, { error: 'InvalidReminderError', message: 'Reminder description cannot be empty.' });
     });
 
     const result = await createReminder(input);

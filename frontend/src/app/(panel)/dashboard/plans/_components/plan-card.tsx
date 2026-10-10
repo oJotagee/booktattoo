@@ -35,7 +35,7 @@ export function PlanCard({ plan, action }: PlanCardProps) {
       const { url, error } = await createCheckout(plan.id);
 
       if (error || !url) {
-        toast.error(error ?? 'Não foi possível iniciar o checkout');
+        toast.error(error ?? 'Não foi possível iniciar o pagamento. Tente novamente em instantes.');
         return;
       }
 

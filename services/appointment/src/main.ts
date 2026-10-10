@@ -3,6 +3,7 @@ import 'reflect-metadata';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { UnhandledExceptionFilter } from '@bookink/shared/http';
 
 import { DomainExceptionFilter } from './presentation/filters/domain-exception.filter';
 import { AppModule } from './app.module';
@@ -20,7 +21,7 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  app.useGlobalFilters(new DomainExceptionFilter());
+  app.useGlobalFilters(new UnhandledExceptionFilter(), new DomainExceptionFilter());
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Appointment Service')

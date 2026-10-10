@@ -24,13 +24,13 @@ describe('forgotPassword', () => {
     });
   });
 
-  it('throws a friendly error when the request fails', async () => {
+  it('returns a friendly error when the request fails', async () => {
     api.post.mockImplementationOnce(async () => {
       throw createAxiosError(500);
     });
 
-    await expect(forgotPassword({ email: 'john.doe@example.com' })).rejects.toThrow(
-      'Não foi possível enviar o e-mail. Tente novamente.',
-    );
+    expect(await forgotPassword({ email: 'john.doe@example.com' })).toEqual({
+      error: 'Não foi possível enviar o e-mail. Tente novamente.',
+    });
   });
 });

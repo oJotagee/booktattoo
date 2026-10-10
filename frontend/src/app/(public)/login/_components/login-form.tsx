@@ -31,8 +31,12 @@ export function LoginForm() {
         redirect: false,
       });
 
-      if (result?.error) {
+      if (result?.error === 'CredentialsSignin') {
         throw new Error('E-mail ou senha inválidos.');
+      }
+
+      if (result?.error) {
+        throw new Error('Não foi possível entrar agora. Tente novamente em instantes.');
       }
 
       return result;

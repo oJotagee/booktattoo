@@ -62,15 +62,16 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [InvalidCredentialsError, HttpStatus.UNAUTHORIZED],
   [RefreshTokenExpiredError, HttpStatus.UNAUTHORIZED],
   [RefreshTokenRevokedError, HttpStatus.UNAUTHORIZED],
-  [PasswordResetTokenExpiredError, HttpStatus.UNAUTHORIZED],
-  [PasswordResetTokenUsedError, HttpStatus.UNAUTHORIZED],
+  [RefreshTokenNotFoundError, HttpStatus.UNAUTHORIZED],
 
   [UserNotFoundError, HttpStatus.NOT_FOUND],
-  [RefreshTokenNotFoundError, HttpStatus.NOT_FOUND],
   [PasswordResetTokenNotFoundError, HttpStatus.NOT_FOUND],
 
   [UserAlreadyExistsError, HttpStatus.CONFLICT],
   [AccountAlreadyLinkedError, HttpStatus.CONFLICT],
+
+  [PasswordResetTokenExpiredError, HttpStatus.GONE],
+  [PasswordResetTokenUsedError, HttpStatus.GONE],
 ]);
 
 @Catch(...DOMAIN_ERRORS)

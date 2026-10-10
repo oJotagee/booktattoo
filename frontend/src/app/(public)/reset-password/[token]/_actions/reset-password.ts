@@ -2,6 +2,7 @@
 
 import { isAxiosError } from 'axios';
 
+import { getApiErrorMessage } from '@/lib/api-error';
 import { api } from '@/lib/api';
 
 export type ResetPasswordInput = {
@@ -9,14 +10,18 @@ export type ResetPasswordInput = {
   newPassword: string;
 };
 
-export async function resetPassword(input: ResetPasswordInput) {
+export async function resetPassword(input: ResetPasswordInput): Promise<{ error?: string }> {
   try {
     await api.post('/auth/reset-password', input);
+
+    return {};
   } catch (error) {
-    if (isAxiosError(error) && (error.response?.status === 401 || error.response?.status === 404)) {
-      throw new Error('Link inválido ou expirado. Solicite um novo.');
+    if (isAxiosError(error) && [404, 410].includes(error.response?.status ?? 0)) {
+      return { error: 'Link inválido ou expirado. Solicite um novo.' };
     }
 
-    throw new Error('Não foi possível redefinir sua senha. Tente novamente.');
+    return {
+      error: getApiErrorMessage(error, 'Não foi possível redefinir sua senha. Tente novamente.'),
+    };
   }
 }

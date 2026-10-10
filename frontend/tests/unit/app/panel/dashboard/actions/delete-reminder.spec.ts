@@ -44,7 +44,7 @@ describe('deleteReminder', () => {
 
   it('returns the API error message when the request fails with one', async () => {
     api.delete.mockImplementationOnce(async () => {
-      throw createAxiosError(404, { message: 'Lembrete com ID reminder-1 não encontrado.' });
+      throw createAxiosError(404, { error: 'ReminderNotFoundError', message: 'Lembrete com ID reminder-1 não encontrado.' });
     });
 
     const result = await deleteReminder('reminder-1');

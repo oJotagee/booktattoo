@@ -41,7 +41,7 @@ describe('changePlan', () => {
 
   it('returns the API error message when the plan is already active', async () => {
     api.post.mockImplementationOnce(async () => {
-      throw createAxiosError(409, { message: 'Este já é o plano atual da assinatura.' });
+      throw createAxiosError(409, { error: 'PlanAlreadyActiveError', message: 'Este já é o plano atual da assinatura.' });
     });
 
     expect(await changePlan('BASIC')).toEqual({

@@ -59,7 +59,7 @@ describe('updateProfile', () => {
 
   it('returns the API error message when the request fails with one', async () => {
     api.put.mockImplementationOnce(async () => {
-      throw createAxiosError(400, { message: 'Nome inválido' });
+      throw createAxiosError(400, { error: 'InvalidUserError', message: 'Nome inválido' });
     });
 
     const result = await updateProfile({ name: '' });

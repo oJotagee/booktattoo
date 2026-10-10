@@ -1,9 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { isAxiosError } from 'axios';
 
 import { getAccessToken } from '@/lib/get-access-token';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { api } from '@/lib/api';
 
 export type UpdateAvatarOutput = {
@@ -30,10 +30,6 @@ export async function updateAvatar(
 
     return { data };
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.message) {
-      return { error: error.response.data.message };
-    }
-
-    return { error: 'Não foi possível atualizar a foto de perfil' };
+    return { error: getApiErrorMessage(error, 'Não foi possível atualizar a foto de perfil') };
   }
 }

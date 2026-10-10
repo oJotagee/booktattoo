@@ -1,9 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { isAxiosError } from 'axios';
 
 import { getAccessToken } from '@/lib/get-access-token';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { api } from '@/lib/api';
 
 export type UpdateGaleryImageOutput = {
@@ -39,10 +39,6 @@ export async function updateGaleryImage(
 
     return { data };
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.message) {
-      return { error: error.response.data.message };
-    }
-
-    return { error: 'Não foi possível atualizar a imagem do flash' };
+    return { error: getApiErrorMessage(error, 'Não foi possível atualizar a imagem do flash') };
   }
 }

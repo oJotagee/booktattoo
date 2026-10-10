@@ -48,7 +48,7 @@ describe('updateServiceStatus', () => {
 
   it('returns the API error message when the request fails with one', async () => {
     api.patch.mockImplementationOnce(async () => {
-      throw createAxiosError(403, { message: 'Acesso negado' });
+      throw createAxiosError(403, { error: 'ForbiddenResourceAccessError', message: 'Acesso negado' });
     });
 
     const result = await updateServiceStatus({ id: 'service-1', status: true });

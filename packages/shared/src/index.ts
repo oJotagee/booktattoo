@@ -4,3 +4,4 @@ export * from './storage';
 export * from './mail';
 export * from './events';
 export * from './cache';
+export * from './http';

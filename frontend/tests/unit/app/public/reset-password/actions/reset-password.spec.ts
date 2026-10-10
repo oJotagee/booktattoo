@@ -27,33 +27,33 @@ describe('resetPassword', () => {
     });
   });
 
-  it('throws an invalid-link error for a 401 response', async () => {
+  it('returns an invalid-link error for a 410 response', async () => {
     api.post.mockImplementationOnce(async () => {
-      throw createAxiosError(401);
+      throw createAxiosError(410);
     });
 
-    await expect(
-      resetPassword({ token: 'expired-token', newPassword: 'NewPassword123!' }),
-    ).rejects.toThrow('Link inválido ou expirado. Solicite um novo.');
+    expect(await resetPassword({ token: 'expired-token', newPassword: 'NewPassword123!' })).toEqual({
+      error: 'Link inválido ou expirado. Solicite um novo.',
+    });
   });
 
-  it('throws an invalid-link error for a 404 response', async () => {
+  it('returns an invalid-link error for a 404 response', async () => {
     api.post.mockImplementationOnce(async () => {
       throw createAxiosError(404);
     });
 
-    await expect(
-      resetPassword({ token: 'unknown-token', newPassword: 'NewPassword123!' }),
-    ).rejects.toThrow('Link inválido ou expirado. Solicite um novo.');
+    expect(await resetPassword({ token: 'unknown-token', newPassword: 'NewPassword123!' })).toEqual({
+      error: 'Link inválido ou expirado. Solicite um novo.',
+    });
   });
 
-  it('throws a generic error for any other failure', async () => {
+  it('returns a generic error for any other failure', async () => {
     api.post.mockImplementationOnce(async () => {
       throw createAxiosError(500);
     });
 
-    await expect(
-      resetPassword({ token: 'opaque-token', newPassword: 'NewPassword123!' }),
-    ).rejects.toThrow('Não foi possível redefinir sua senha. Tente novamente.');
+    expect(await resetPassword({ token: 'opaque-token', newPassword: 'NewPassword123!' })).toEqual({
+      error: 'Não foi possível redefinir sua senha. Tente novamente.',
+    });
   });
 });

@@ -1,5 +1,6 @@
-import { type ArgumentsHost, Catch, type ExceptionFilter, HttpStatus } from '@nestjs/common';
+import { type ArgumentsHost, Catch, type ExceptionFilter, HttpStatus, Logger } from '@nestjs/common';
 import { MessagingUnavailableError } from '@bookink/shared/events';
+import { INTERNAL_ERROR_MESSAGE } from '@bookink/shared/http';
 
 import {
   BillingCustomerNotFoundError,
@@ -31,9 +32,9 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [InvalidWebhookSignatureError, HttpStatus.BAD_REQUEST],
 
   [BillingCustomerNotFoundError, HttpStatus.NOT_FOUND],
-  [NoActiveSubscriptionError, HttpStatus.NOT_FOUND],
 
   [SubscriptionAlreadyActiveError, HttpStatus.CONFLICT],
+  [NoActiveSubscriptionError, HttpStatus.CONFLICT],
   [PlanAlreadyActiveError, HttpStatus.CONFLICT],
 
   [UnknownPriceError, HttpStatus.INTERNAL_SERVER_ERROR],
@@ -43,15 +44,20 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
 
 @Catch(...DOMAIN_ERRORS)
 export class DomainExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(DomainExceptionFilter.name);
+
   catch(exception: Error, host: ArgumentsHost): void {
     const status = STATUS_BY_ERROR.get(exception.constructor) ?? HttpStatus.BAD_REQUEST;
+    const isServerError = status >= HttpStatus.INTERNAL_SERVER_ERROR;
+
+    if (isServerError) this.logger.error(exception.stack ?? exception.message);
 
     const response = host.switchToHttp().getResponse<OutgoingResponse>();
 
     response.status(status).json({
       statusCode: status,
       error: exception.name,
-      message: exception.message,
+      message: isServerError ? INTERNAL_ERROR_MESSAGE : exception.message,
     });
   }
 }

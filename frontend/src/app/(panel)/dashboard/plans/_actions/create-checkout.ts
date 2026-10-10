@@ -1,8 +1,7 @@
 'use server';
 
-import { isAxiosError } from 'axios';
-
 import { getAccessToken } from '@/lib/get-access-token';
+import { getApiErrorMessage } from '@/lib/api-error';
 import type { PlanId } from '@/utils/plans';
 import { api } from '@/lib/api';
 
@@ -19,10 +18,6 @@ export async function createCheckout(plan: PlanId): Promise<{ url?: string; erro
 
     return { url: data.url };
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.message) {
-      return { error: error.response.data.message };
-    }
-
-    return { error: 'Não foi possível iniciar o checkout' };
+    return { error: getApiErrorMessage(error, 'Não foi possível iniciar o pagamento. Tente novamente em instantes.') };
   }
 }

@@ -55,7 +55,7 @@ describe('createService', () => {
 
   it('returns the API error message when the request fails with one', async () => {
     api.post.mockImplementationOnce(async () => {
-      throw createAxiosError(400, { message: 'Nome inválido' });
+      throw createAxiosError(400, { error: 'InvalidServiceError', message: 'Nome inválido' });
     });
 
     const result = await createService(input);

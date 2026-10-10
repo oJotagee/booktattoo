@@ -1,11 +1,11 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { isAxiosError } from 'axios';
 
 import type { Galery } from '../_data-access/get-all-galeries';
 import type { GaleryStyle } from '@/utils/formatGalery';
 import { getAccessToken } from '@/lib/get-access-token';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { api } from '@/lib/api';
 
 export type UpdateGaleryInput = {
@@ -33,10 +33,6 @@ export async function updateGalery({
 
     return { data };
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.message) {
-      return { error: error.response.data.message };
-    }
-
-    return { error: 'Não foi possível atualizar o flash' };
+    return { error: getApiErrorMessage(error, 'Não foi possível atualizar o flash') };
   }
 }

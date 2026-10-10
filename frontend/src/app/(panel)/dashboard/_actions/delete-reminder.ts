@@ -1,9 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { isAxiosError } from 'axios';
 
 import { getAccessToken } from '@/lib/get-access-token';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { api } from '@/lib/api';
 
 export async function deleteReminder(id: string): Promise<{ data?: string; error?: string }> {
@@ -19,10 +19,6 @@ export async function deleteReminder(id: string): Promise<{ data?: string; error
 
     return { data: id };
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.message) {
-      return { error: error.response.data.message };
-    }
-
-    return { error: 'Não foi possível excluir o lembrete' };
+    return { error: getApiErrorMessage(error, 'Não foi possível excluir o lembrete') };
   }
 }

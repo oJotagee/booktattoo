@@ -58,7 +58,7 @@ describe('createGalery', () => {
 
   it('returns the API error message when the request fails with one', async () => {
     api.post.mockImplementationOnce(async () => {
-      throw createAxiosError(400, { message: 'Estilo inválido' });
+      throw createAxiosError(400, { error: 'InvalidGaleryError', message: 'Estilo inválido' });
     });
 
     const result = await createGalery(buildFormData());
