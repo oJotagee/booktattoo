@@ -32,6 +32,7 @@ Acesse [http://localhost:3000](http://localhost:3000).
 | `AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET` | OAuth app do GitHub |
 | `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | OAuth client do Google |
 | `API_URL` | URL do API gateway (Kong). Padrão: `http://localhost:8000` |
+| `INTERNAL_API_SECRET` | Mesmo valor do user-service. Enviado no header `X-Internal-Secret` ao vincular contas OAuth |
 
 ## Scripts
 

@@ -1,5 +1,5 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { RefreshedSessionResponseDto, SessionResponseDto } from '../dtos/auth/session.response.dto';
 import { ForgotPasswordUseCase } from '@/application/use-cases/auth/forgot-password.use-case';
@@ -12,6 +12,7 @@ import { ResetPasswordRequestDto } from '../dtos/auth/reset-password.request.dto
 import { RefreshTokenRequestDto } from '../dtos/auth/refresh-token.request.dto';
 import { RegisterUserRequestDto } from '../dtos/auth/register-user.request.dto';
 import { OAuthUpsertRequestDto } from '../dtos/auth/oauth-upsert.request.dto';
+import { InternalApiSecretGuard } from '../guards/internal-api-secret.guard';
 import { LoginUseCase } from '@/application/use-cases/auth/login.use-case';
 import { UserLoginResponseDto } from '../dtos/user/user.response.dto';
 import { LoginRequestDto } from '../dtos/auth/login.request.dto';
@@ -41,6 +42,8 @@ export class AuthController {
   }
 
   @Post('oauth/upsert')
+  @UseGuards(InternalApiSecretGuard)
+  @ApiExcludeEndpoint()
   @ApiOkResponse({ type: SessionResponseDto })
   upsertOAuthAccount(@Body() body: OAuthUpsertRequestDto): Promise<SessionResponseDto> {
     return this.oauthUpsert.execute(body);

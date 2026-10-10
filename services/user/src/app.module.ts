@@ -38,6 +38,7 @@ import { ACCOUNT_REPOSITORY } from '@/application/port/account-repository.port';
 import { HealthController } from './presentation/controllers/health.controller';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { UserController } from './presentation/controllers/user.controller';
+import internalApiConfig from './infrastructure/config/internal-api.config';
 import { LoginUseCase } from '@/application/use-cases/auth/login.use-case';
 import { PASSWORD_HASHER } from '@/application/port/password-hasher.port';
 import { TOKEN_GENERATOR } from '@/application/port/token-generator.port';
@@ -47,7 +48,7 @@ import jwtConfig from './infrastructure/config/jwt.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [jwtConfig] }),
+    ConfigModule.forRoot({ isGlobal: true, load: [jwtConfig, internalApiConfig] }),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     StorageModule,
     CacheModule,

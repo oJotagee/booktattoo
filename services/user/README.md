@@ -22,7 +22,7 @@ API de usuários e autenticação (NestJS + Prisma). Emite os JWTs de sessão qu
 |---|---|---|---|
 | `POST` | `/auth/register` | — | Cadastro por email/senha |
 | `POST` | `/auth/login` | — | Login, retorna sessão (user + tokens) |
-| `POST` | `/auth/oauth/upsert` | — | Cria/vincula conta OAuth e retorna sessão |
+| `POST` | `/auth/oauth/upsert` | `X-Internal-Secret` | Cria/vincula conta OAuth e retorna sessão |
 | `POST` | `/auth/refresh-token` | — | Troca o refresh token por uma nova sessão |
 | `POST` | `/auth/forgot-password` | — | Envia email com link de redefinição |
 | `POST` | `/auth/reset-password` | — | Redefine a senha a partir do token |
@@ -90,6 +90,7 @@ bun run --cwd services/user dev    # hot reload
 | `DATABASE_URL` | Conexão com o banco `user` |
 | `RABBITMQ_URL` | Conexão AMQP, para consumir eventos do payment e publicar `user.profile.updated` |
 | `JWT_SECRET` / `JWT_EXPIRES_IN` | Assinatura e validade do access token. O mesmo `JWT_SECRET` deve estar nos outros serviços |
+| `INTERNAL_API_SECRET` | Segredo (mín. 32 caracteres) exigido no header `X-Internal-Secret` em `POST /auth/oauth/upsert`. O mesmo valor deve estar no frontend; sem ele a rota fica bloqueada |
 | `S3_*` | Bucket de avatares (`S3_ENDPOINT` / `S3_FORCE_PATH_STYLE` para MinIO em dev) |
 | `MAIL_*` | SMTP para envio dos emails de redefinição de senha |
 | `FRONTEND_RESET_PASSWORD_URL` | Base do link enviado no email de redefinição |

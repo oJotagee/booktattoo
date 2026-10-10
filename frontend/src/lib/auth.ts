@@ -69,13 +69,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user, account, profile }) {
       if (!isOAuthProvider(account?.provider)) return true;
 
-      const { data } = await api.post<UserServiceSession>('/auth/oauth/upsert', {
-        provider: account.provider,
-        providerAccountId: account.providerAccountId,
-        email: user.email,
-        name: user.name,
-        image: resolveOAuthImage(account.provider, profile, user.image),
-      });
+      const { data } = await api.post<UserServiceSession>(
+        '/auth/oauth/upsert',
+        {
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          email: user.email,
+          name: user.name,
+          image: resolveOAuthImage(account.provider, profile, user.image),
+        },
+        { headers: { 'X-Internal-Secret': process.env.INTERNAL_API_SECRET ?? '' } },
+      );
 
       (account as Record<string, unknown>).userServiceAccessToken = data.accessToken;
       (account as Record<string, unknown>).userServiceRefreshToken = data.refreshToken;
