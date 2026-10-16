@@ -52,10 +52,12 @@ enum AppointmentStatus {
 model Appointment {
   id            String            @id @default(cuid())
   clientName    String
-  clientContact String
+  clientEmail   String
+  clientPhone   String
   scheduledAt   DateTime
   duration      Int // congelado no momento da criação
   price         Int // congelado no momento da criação
+  depositAmount Int // congelado no momento da criação
   status        AppointmentStatus @default(PENDING)
 
   createdAt DateTime @default(now())
@@ -63,11 +65,19 @@ model Appointment {
 
   userId String
 
-  serviceId String?
-  galeryId  String? @unique
+  serviceId      String?
+  // Sem @unique: um flash cancelado pode ser reservado de novo. A regra de
+  // "um agendamento ativo por flash" fica no use case
+  galeryId       String?
+  galeryTitle    String? // congelado no momento da criação
+  galeryImageUrl String? // congelado no momento da criação
+
+  checkoutSessionId String?   @unique
+  paidAt            DateTime?
 
   bookingRequestId String?         @unique
   bookingRequest   BookingRequest? @relation(fields: [bookingRequestId], references: [id])
 
-  @@index([userId])
+  @@index([userId, scheduledAt])
+  @@index([galeryId])
 }

@@ -33,3 +33,17 @@ export type PaymentSubscriptionEvent =
   | PaymentSubscriptionCanceled;
 
 export type PaymentSubscriptionEventType = PaymentSubscriptionEvent['type'];
+
+export type DepositChangedPayload = {
+  appointmentId: string;
+  checkoutSessionId: string;
+  amount: number | null;
+};
+
+export type PaymentDepositPaid = EventEnvelope<'payment.deposit.paid', DepositChangedPayload>;
+
+export type PaymentDepositExpired = EventEnvelope<'payment.deposit.expired', DepositChangedPayload>;
+
+export type PaymentDepositEvent = PaymentDepositPaid | PaymentDepositExpired;
+
+export type PaymentDepositEventType = PaymentDepositEvent['type'];

@@ -2,49 +2,80 @@
 
 API de agendamentos (NestJS + Prisma).
 
-> **Status:** Reminders implementado. Booking requests e appointments têm só o schema.
+> **Status:** Reminders e agendamento de flash com sinal implementados. Booking requests têm só o schema.
 
 - **Porta:** `8082`
 - **Banco:** `appointment` (PostgreSQL)
 - **Swagger:** `http://localhost:8082/api/docs`
-- **Rotas no Kong:** `/appointments`, `/booking-requests`, `/reminders`
+- **Rotas no Kong:** `/appointments`, `/booking-requests`, `/reminders`, `/public/appointments` (GET/POST)
 
-## Responsabilidades (planejadas)
+## Responsabilidades
 
-- **Booking requests** — pedidos de agendamento feitos pelo cliente, que o tatuador aceita ou recusa
-- **Appointments** — horários marcados, criados a partir de um pedido aceito ou direto pelo tatuador
+- **Appointments** — o cliente agenda um flash pela galeria e paga o sinal no Stripe Checkout; o tatuador vê a agenda do dia no dashboard
 - **Reminders** — lembretes do tatuador
+- **Booking requests** (planejado) — pedidos de agendamento que o tatuador aceita ou recusa
 
-Serviço e flash vêm do catalog-service e o tatuador do user-service; aqui ficam só os ids (`userId`, `serviceId`, `galeryId`). Duração e preço são copiados no momento da criação, para que mudanças posteriores no catálogo não alterem agendamentos existentes.
+Serviço e flash vêm do catalog-service e o tatuador do user-service; aqui ficam só os ids (`userId`, `serviceId`, `galeryId`). Duração, preço, sinal, título e imagem do flash são copiados no momento da criação, para que mudanças posteriores no catálogo não alterem agendamentos existentes.
+
+## Agenda
+
+- A agenda trabalha em slots de 30 minutos sobre a lista `times` do tatuador (`"HH:mm"`, editada no perfil).
+- Um agendamento guarda só o início (`scheduledAt`) e ocupa `ceil(duration / 30)` slots, contados na ordem de `times`.
+- Datas e horários são do fuso do estúdio (`America/Sao_Paulo`, offset fixo `-03:00`): `?date=yyyy-MM-dd` vira o intervalo `[00:00, 24:00)` desse dia.
+- `PENDING` e `CONFIRMED` ocupam o horário e o flash. A checagem de conflito e o insert rodam na mesma transação, com um advisory lock por tatuador.
+
+### Fluxo do sinal
+
+1. `POST /public/appointments` valida tatuador, flash e horário, cria o agendamento `PENDING` e pede ao payment-service (`POST /internal/deposits/checkout`, header `X-Internal-Secret`) uma Checkout Session que expira em ~30 min.
+2. Publica `appointment.created`; o catalog-service tira o flash da galeria.
+3. O webhook do Stripe chega no payment-service, que publica `payment.deposit.paid` ou `payment.deposit.expired`.
+4. Pago: o agendamento vira `CONFIRMED` com `paidAt`. Expirado: vira `CANCELLED` e publica `appointment.cancelled`, que devolve o flash à galeria.
+
+Se o checkout não puder ser criado, o agendamento é cancelado na hora para não prender o horário.
 
 ## Modelos
 
+- `Appointment` — `clientName`, `clientEmail`, `clientPhone`, `scheduledAt`, `duration`, `price`, `depositAmount`, `status` (`PENDING` / `CONFIRMED` / `CANCELLED` / `COMPLETED`), snapshot do flash (`galeryId`, `galeryTitle`, `galeryImageUrl`), `checkoutSessionId`, `paidAt`
 - `BookingRequest` — `clientName`, `clientContact`, `message`, `status` (`PENDING` / `ACCEPTED` / `DECLINED`)
-- `Appointment` — `clientName`, `clientContact`, `scheduledAt`, `duration`, `price`, `status` (`PENDING` / `CONFIRMED` / `CANCELLED` / `COMPLETED`), vínculo opcional com um `BookingRequest`
 - `Reminder` — `description`
 
 Schema em [prisma/schema.prisma](prisma/schema.prisma).
 
 ## Endpoints
 
-Todos exigem JWT e operam sobre os dados do usuário logado.
+### Públicos (sem auth)
 
 | Método | Rota | Descrição |
 |---|---|---|
+| `GET` | `/public/appointments/blocked-times?artistId&date` | Horários ocupados do tatuador no dia (`{ blockedTimes }`) |
+| `POST` | `/public/appointments` | Cria o agendamento e devolve `{ appointmentId, checkoutUrl }` |
+| `GET` | `/health` | Health check |
+
+### Do tatuador (JWT)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/appointments?date=yyyy-MM-dd` | Agendamentos do dia (exceto cancelados) |
+| `GET` | `/appointments/stats` | Agendamentos de hoje por status, flashs reservados e sinais pagos no mês |
+| `PATCH` | `/appointments/:id/cancel` | Cancela e devolve o flash à galeria (`204`) |
 | `GET` | `/reminders` | Lista os lembretes do usuário, mais recentes primeiro (`limit`, `offset`) |
 | `GET` | `/reminders/:id` | Busca um lembrete |
 | `POST` | `/reminders` | Cria lembrete |
 | `PUT` | `/reminders/:id` | Atualiza a descrição |
 | `DELETE` | `/reminders/:id` | Remove o lembrete (`204`) |
-| `GET` | `/health` | Health check (sem auth) |
+
+### Eventos
+
+- Publica: `appointment.created`, `appointment.cancelled`
+- Consome (fila `appointment.payment-events`): `payment.deposit.paid`, `payment.deposit.expired`
 
 ## Arquitetura
 
 ```
 src/
-  domain/          # entidade Reminder e erros de domínio
-  application/     # use cases + port do repositório
-  infrastructure/  # Prisma, repositório e mapper
+  domain/          # entidades, erros de domínio e regras de agenda (schedule.ts)
+  application/     # use cases, handlers de eventos e ports (repositórios e gateways)
+  infrastructure/  # Prisma, repositórios, gateways HTTP e consumers RabbitMQ
   presentation/    # controllers, DTOs e DomainExceptionFilter
 ```
 
@@ -74,5 +105,8 @@ bun run --cwd services/appointment dev
 | `DATABASE_URL` | Conexão com o banco `appointment` |
 | `RABBITMQ_URL` | Conexão AMQP |
 | `JWT_SECRET` | Mesmo segredo do user-service, usado só para validar o token |
-| `USER_SERVICE_URL` | URL interna do user-service, para validar o usuário |
-| `CATALOG_SERVICE_URL` | URL interna do catalog-service, para validar serviço/flash |
+| `USER_SERVICE_URL` | URL interna do user-service, para ler o tatuador e seus horários |
+| `CATALOG_SERVICE_URL` | URL interna do catalog-service, para ler o flash e o serviço |
+| `PAYMENT_SERVICE_URL` | URL interna do payment-service, para abrir o checkout do sinal |
+| `INTERNAL_API_SECRET` | Mesmo segredo do payment-service, enviado em `X-Internal-Secret` |
+| `FRONTEND_URL` | Base do frontend; o Stripe devolve o cliente para `/{artistId}?booking=success\|cancelled` |

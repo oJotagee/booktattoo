@@ -33,6 +33,8 @@ import { UpdateGaleryInfoUseCase } from '@/application/use-cases/galery/update-g
 import { FindGaleryByIdUseCase } from '@/application/use-cases/galery/find-galery-by-id.use-case';
 import { DeleteGaleryUseCase } from '@/application/use-cases/galery/delete-galery.use-case';
 import { CreateGaleryUseCase } from '@/application/use-cases/galery/create-galery.use-case';
+import { GetGaleryStatsUseCase } from '@/application/use-cases/galery/get-galery-stats.use-case';
+import { GaleryStatsResponseDto } from '../dtos/galery/galery-stats.response.dto';
 import { UpdateGaleryInfoRequestDto } from '../dtos/galery/update-galery-info.request.dto';
 import { FilterGaleriesRequestDto } from '../dtos/galery/filter-galeries.request.dto';
 import { CreateGaleryRequestDto } from '../dtos/galery/create-galery.request.dto';
@@ -60,6 +62,7 @@ export class GaleryController {
     private readonly updateGaleryInfo: UpdateGaleryInfoUseCase,
     private readonly updateGaleryImage: UpdateGaleryImageUseCase,
     private readonly deleteGalery: DeleteGaleryUseCase,
+    private readonly getGaleryStats: GetGaleryStatsUseCase,
   ) {}
 
   @Get()
@@ -76,6 +79,14 @@ export class GaleryController {
       offset: filter.offset,
       ...(filter.style && { style: filter.style }),
     });
+  }
+
+  @Get('stats')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: GaleryStatsResponseDto })
+  stats(@TokenPayload() payload: SessionPayload): Promise<GaleryStatsResponseDto> {
+    return this.getGaleryStats.execute({ userId: payload.sub });
   }
 
   @Get(':id')

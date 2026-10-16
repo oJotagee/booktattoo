@@ -29,6 +29,10 @@ export function createBillingGatewayMock(): BillingGateway {
     changeSubscriptionPrice: mock(async () => undefined),
     createCheckoutSession: mock(async () => ({ url: 'https://checkout.stripe.com/session' })),
     createPortalSession: mock(async () => ({ url: 'https://billing.stripe.com/portal' })),
+    createDepositCheckoutSession: mock(async () => ({
+      id: 'cs_deposit',
+      url: 'https://checkout.stripe.com/deposit',
+    })),
     parseWebhookEvent: mock(async () => ({
       id: 'evt_1',
       type: 'customer.subscription.updated',

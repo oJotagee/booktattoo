@@ -1,3 +1,5 @@
+import { ApiExcludeController } from '@nestjs/swagger';
+import type { Request } from 'express';
 import {
   BadRequestException,
   Controller,
@@ -7,8 +9,6 @@ import {
   type RawBodyRequest,
   Req,
 } from '@nestjs/common';
-import { ApiExcludeController } from '@nestjs/swagger';
-import type { Request } from 'express';
 
 import { HandleBillingWebhookUseCase } from '@/application/use-cases/billing/handle-billing-webhook.use-case';
 import { WebhookReceivedResponseDto } from '../dtos/billing/webhook-received.response.dto';

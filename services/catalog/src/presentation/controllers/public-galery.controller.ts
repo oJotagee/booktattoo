@@ -1,14 +1,21 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
+import { FindPublicGaleryByIdUseCase } from '@/application/use-cases/galery/find-public-galery-by-id.use-case';
 import { FindPublicGaleriesUseCase } from '@/application/use-cases/galery/find-public-galeries.use-case';
 import { FilterPublicGaleriesRequestDto } from '../dtos/galery/filter-public-galeries.request.dto';
-import { PublicGaleryListResponseDto } from '../dtos/galery/public-galery.response.dto';
+import {
+  PublicGaleryDetailResponseDto,
+  PublicGaleryListResponseDto,
+} from '../dtos/galery/public-galery.response.dto';
 
 @ApiTags('public')
 @Controller('public/galeries')
 export class PublicGaleryController {
-  constructor(private readonly findPublicGaleries: FindPublicGaleriesUseCase) {}
+  constructor(
+    private readonly findPublicGaleries: FindPublicGaleriesUseCase,
+    private readonly findPublicGaleryById: FindPublicGaleryByIdUseCase,
+  ) {}
 
   @Get()
   @ApiOkResponse({ type: PublicGaleryListResponseDto })
@@ -19,5 +26,11 @@ export class PublicGaleryController {
       ...(filter.userId && { userId: filter.userId }),
       ...(filter.style && { style: filter.style }),
     });
+  }
+
+  @Get(':id')
+  @ApiOkResponse({ type: PublicGaleryDetailResponseDto })
+  findById(@Param('id') id: string): Promise<PublicGaleryDetailResponseDto> {
+    return this.findPublicGaleryById.execute({ id });
   }
 }

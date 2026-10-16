@@ -1,0 +1,24 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
+import { getAccessToken } from '@/lib/get-access-token';
+import { getApiErrorMessage } from '@/lib/api-error';
+import { api } from '@/lib/api';
+
+export async function cancelAppointment(id: string): Promise<{ data?: string; error?: string }> {
+  const accessToken = await getAccessToken();
+  if (!accessToken) return { error: 'Usuário não autenticado' };
+
+  try {
+    await api.patch(`/appointments/${encodeURIComponent(id)}/cancel`, undefined, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    revalidatePath('/dashboard');
+
+    return { data: id };
+  } catch (error) {
+    return { error: getApiErrorMessage(error, 'Não foi possível cancelar o agendamento') };
+  }
+}

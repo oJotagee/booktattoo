@@ -48,6 +48,13 @@ services:
           - /booking-requests
           - /reminders
         strip_path: false
+      - name: appointment-public-routes
+        paths:
+          - /public/appointments
+        methods:
+          - GET
+          - POST
+        strip_path: false
 
   - name: payment-service
     url: http://payment:8084

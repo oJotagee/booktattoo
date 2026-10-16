@@ -1,9 +1,13 @@
+'use client';
+
 import { ChevronRight } from 'lucide-react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { cn } from 'cn';
 
-import type { PublicGalery } from '../../_data-access/get-all-public-galeries';
 import { formatGaleryStyle, galeryStyleBadgeClass } from '@/utils/formatGalery';
+import type { PublicGalery } from '../../_data-access/get-all-public-galeries';
+import { BookingDialog } from '../../_components/booking/booking-dialog';
 import { formatCurrency } from '@/utils/formatService';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +18,8 @@ interface GaleryCardProps {
 }
 
 export function GaleryCard({ galery, artistName }: GaleryCardProps) {
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border bg-card">
       <div className="relative aspect-square w-full overflow-hidden bg-muted">
@@ -46,12 +52,17 @@ export function GaleryCard({ galery, artistName }: GaleryCardProps) {
             <p className="text-white font-semibold">{formatCurrency(galery.price)}</p>
           </div>
 
-          <Button className="bg-orange-600 text-white hover:brightness-75 duration-300 font-semibold cursor-pointer">
+          <Button
+            className="bg-orange-600 text-white hover:brightness-75 duration-300 font-semibold cursor-pointer"
+            onClick={() => setIsBookingOpen(true)}
+          >
             Agendar
             <ChevronRight />
           </Button>
         </div>
       </div>
+
+      <BookingDialog galery={galery} open={isBookingOpen} onOpenChange={setIsBookingOpen} />
     </article>
   );
 }

@@ -1,4 +1,5 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { CopyProfileLinkButton } from './copy-profile-link-button';
 import { Menu } from './menu';
 
 interface DashboardHeaderProps {
@@ -15,7 +16,10 @@ export default function DashboardHeader({ title, subtitle }: DashboardHeaderProp
         {subtitle && <h2 className="text-white/30 text-sm md:text-base">{subtitle}</h2>}
       </div>
 
-      <Menu />
+      <div className="flex items-center gap-2">
+        <CopyProfileLinkButton />
+        <Menu />
+      </div>
     </header>
   );
 }

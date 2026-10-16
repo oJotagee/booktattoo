@@ -39,3 +39,19 @@ export class PublicGaleryListResponseDto {
   @ApiProperty({ description: 'Detalhes da paginação', type: PaginationResponseDto })
   pagination!: PaginationResponseDto;
 }
+
+export class PublicGaleryServiceResponseDto {
+  @ApiProperty({ example: 60, description: 'Duração em minutos' })
+  duration!: number;
+
+  @ApiProperty({ example: 8000, description: 'Valor do sinal em centavos' })
+  depositAmount!: number;
+}
+
+export class PublicGaleryDetailResponseDto extends PublicGaleryResponseDto {
+  @ApiProperty({ example: true })
+  available!: boolean;
+
+  @ApiProperty({ type: PublicGaleryServiceResponseDto })
+  service!: PublicGaleryServiceResponseDto;
+}

@@ -73,6 +73,45 @@ describe('HandleBillingWebhookUseCase', () => {
     );
   });
 
+  it('publishes a paid deposit without looking up subscriptions', async () => {
+    gateway.parseWebhookEvent = async () => ({
+      id: 'evt_4',
+      type: 'checkout.session.completed',
+      kind: BillingWebhookEventKind.DEPOSIT_PAID,
+      subscriptionId: null,
+      deposit: { appointmentId: 'appointment-1', checkoutSessionId: 'cs_1', amount: 8000 },
+    });
+
+    await useCase.execute(input);
+
+    expect(gateway.retrieveSubscription).not.toHaveBeenCalled();
+    expect(publisher.publish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventId: 'evt_4',
+        type: 'payment.deposit.paid',
+        correlationId: 'appointment-1',
+        payload: { appointmentId: 'appointment-1', checkoutSessionId: 'cs_1', amount: 8000 },
+      }),
+    );
+    expect(processedEvents.save).toHaveBeenCalledWith('evt_4', 'checkout.session.completed');
+  });
+
+  it('publishes an expired deposit', async () => {
+    gateway.parseWebhookEvent = async () => ({
+      id: 'evt_5',
+      type: 'checkout.session.expired',
+      kind: BillingWebhookEventKind.DEPOSIT_EXPIRED,
+      subscriptionId: null,
+      deposit: { appointmentId: 'appointment-1', checkoutSessionId: 'cs_1', amount: 8000 },
+    });
+
+    await useCase.execute(input);
+
+    expect(publisher.publish).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'payment.deposit.expired' }),
+    );
+  });
+
   it('skips events already processed', async () => {
     processedEvents.exists = async () => true;
 

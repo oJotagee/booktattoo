@@ -3,6 +3,7 @@ import {
   createEventEnvelope,
   EVENT_PUBLISHER,
   type EventPublisher,
+  type PaymentDepositEventType,
   type PaymentSubscriptionEventType,
   type SubscriptionChangedPayload,
 } from '@bookink/shared/events';
@@ -28,6 +29,13 @@ const EVENT_TYPE_BY_KIND: Partial<Record<BillingWebhookEventKind, PaymentSubscri
   [BillingWebhookEventKind.SUBSCRIPTION_CREATED]: 'payment.subscription.activated',
   [BillingWebhookEventKind.SUBSCRIPTION_UPDATED]: 'payment.subscription.updated',
   [BillingWebhookEventKind.SUBSCRIPTION_DELETED]: 'payment.subscription.canceled',
+};
+
+const DEPOSIT_EVENT_TYPE_BY_KIND: Partial<
+  Record<BillingWebhookEventKind, PaymentDepositEventType>
+> = {
+  [BillingWebhookEventKind.DEPOSIT_PAID]: 'payment.deposit.paid',
+  [BillingWebhookEventKind.DEPOSIT_EXPIRED]: 'payment.deposit.expired',
 };
 
 @Injectable()
@@ -56,6 +64,17 @@ export class HandleBillingWebhookUseCase {
 
     if (eventType && webhookEvent.subscriptionId) {
       await this.publishSubscriptionChange(webhookEvent.id, eventType, webhookEvent.subscriptionId);
+    }
+
+    const depositEventType = DEPOSIT_EVENT_TYPE_BY_KIND[webhookEvent.kind];
+
+    if (depositEventType && webhookEvent.deposit) {
+      await this.publisher.publish(
+        createEventEnvelope(depositEventType, webhookEvent.deposit, {
+          eventId: webhookEvent.id,
+          correlationId: webhookEvent.deposit.appointmentId,
+        }),
+      );
     }
 
     await this.processedEvents.save(webhookEvent.id, webhookEvent.type);

@@ -4,6 +4,8 @@ export const BillingWebhookEventKind = {
   SUBSCRIPTION_CREATED: 'SUBSCRIPTION_CREATED',
   SUBSCRIPTION_UPDATED: 'SUBSCRIPTION_UPDATED',
   SUBSCRIPTION_DELETED: 'SUBSCRIPTION_DELETED',
+  DEPOSIT_PAID: 'DEPOSIT_PAID',
+  DEPOSIT_EXPIRED: 'DEPOSIT_EXPIRED',
   IGNORED: 'IGNORED',
 } as const;
 
@@ -15,6 +17,13 @@ export type BillingWebhookEvent = {
   type: string;
   kind: BillingWebhookEventKind;
   subscriptionId: string | null;
+  deposit?: DepositSnapshot | null;
+};
+
+export type DepositSnapshot = {
+  appointmentId: string;
+  checkoutSessionId: string;
+  amount: number | null;
 };
 
 export type SubscriptionSnapshot = {
@@ -44,12 +53,25 @@ export type CreateCheckoutSessionParams = {
   userId: string;
 };
 
+export type CreateDepositCheckoutSessionParams = {
+  appointmentId: string;
+  amount: number;
+  title: string;
+  imageUrl: string | null;
+  customerEmail: string;
+  successUrl: string;
+  cancelUrl: string;
+};
+
 export interface BillingGateway {
   createCustomer(params: { userId: string; email: string }): Promise<{ id: string }>;
   findActiveSubscription(customerId: string): Promise<ActiveSubscription | null>;
   changeSubscriptionPrice(params: ChangeSubscriptionPriceParams): Promise<void>;
   createCheckoutSession(params: CreateCheckoutSessionParams): Promise<{ url: string }>;
   createPortalSession(customerId: string): Promise<{ url: string }>;
+  createDepositCheckoutSession(
+    params: CreateDepositCheckoutSessionParams,
+  ): Promise<{ id: string; url: string }>;
   parseWebhookEvent(rawBody: Buffer, signature: string): Promise<BillingWebhookEvent>;
   retrieveSubscription(subscriptionId: string): Promise<SubscriptionSnapshot>;
 }

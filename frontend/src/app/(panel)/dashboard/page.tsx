@@ -1,7 +1,10 @@
 import { Suspense } from 'react';
 
+import { DayAgendaSkeleton } from './_components/day-agenda/day-agenda-list';
 import { ReminderListSkeleton } from './_components/reminder-list-skeleton';
+import { StatsCards, StatsCardsSkeleton } from './_components/stats-cards';
 import { PlanStatusBanner } from './_components/plan-status-banner';
+import { DayAgenda } from './_components/day-agenda/day-agenda';
 import { Reminders } from './_components/reminders';
 import DashboardHeader from './_components/header';
 
@@ -18,9 +21,19 @@ export default function Dashboard() {
         <PlanStatusBanner />
       </Suspense>
 
-      <Suspense fallback={<ReminderListSkeleton rows={3} />}>
-        <Reminders />
-      </Suspense>
+      <div className="flex flex-col gap-6">
+        <Suspense fallback={<StatsCardsSkeleton />}>
+          <StatsCards />
+        </Suspense>
+
+        <Suspense fallback={<DayAgendaSkeleton />}>
+          <DayAgenda />
+        </Suspense>
+
+        <Suspense fallback={<ReminderListSkeleton rows={3} />}>
+          <Reminders />
+        </Suspense>
+      </div>
     </>
   );
 }

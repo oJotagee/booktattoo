@@ -12,10 +12,14 @@ import {
   BillingWebhookEventKind,
   type ChangeSubscriptionPriceParams,
   type CreateCheckoutSessionParams,
+  type CreateDepositCheckoutSessionParams,
   type SubscriptionSnapshot,
 } from '@/application/port/billing-gateway.port';
 
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set(['active', 'trialing', 'past_due']);
+
+// O Stripe exige no mínimo 30 minutos; a folga cobre o atraso entre o cálculo e a chamada
+const DEPOSIT_CHECKOUT_TTL_SECONDS = 31 * 60;
 
 @Injectable()
 export class StripeBillingGateway implements BillingGateway {
@@ -102,6 +106,48 @@ export class StripeBillingGateway implements BillingGateway {
     return { url: session.url };
   }
 
+  async createDepositCheckoutSession({
+    appointmentId,
+    amount,
+    title,
+    imageUrl,
+    customerEmail,
+    successUrl,
+    cancelUrl,
+  }: CreateDepositCheckoutSessionParams): Promise<{ id: string; url: string }> {
+    const session = await this.stripe.checkout.sessions.create(
+      {
+        mode: 'payment',
+        payment_method_types: ['card'],
+        customer_email: customerEmail,
+        client_reference_id: appointmentId,
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: 'brl',
+              unit_amount: amount,
+              product_data: {
+                name: `Sinal — ${title}`,
+                ...(imageUrl && { images: [imageUrl] }),
+              },
+            },
+          },
+        ],
+        metadata: { appointmentId },
+        payment_intent_data: { metadata: { appointmentId } },
+        expires_at: Math.floor(Date.now() / 1000) + DEPOSIT_CHECKOUT_TTL_SECONDS,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+      },
+      { idempotencyKey: `deposit-checkout-${appointmentId}` },
+    );
+
+    if (!session.url) throw new Error('Stripe não retornou a URL da Checkout Session.');
+
+    return { id: session.id, url: session.url };
+  }
+
   async parseWebhookEvent(rawBody: Buffer, signature: string): Promise<BillingWebhookEvent> {
     let event: Stripe.Event;
 
@@ -118,6 +164,17 @@ export class StripeBillingGateway implements BillingGateway {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
+
+        if (session.mode === 'payment') {
+          return this.toDepositEvent(
+            event,
+            session,
+            session.payment_status === 'paid'
+              ? BillingWebhookEventKind.DEPOSIT_PAID
+              : BillingWebhookEventKind.IGNORED,
+          );
+        }
+
         const subscriptionId =
           session.mode === 'subscription' ? this.extractId(session.subscription) : null;
 
@@ -129,6 +186,18 @@ export class StripeBillingGateway implements BillingGateway {
             : BillingWebhookEventKind.IGNORED,
           subscriptionId,
         };
+      }
+      case 'checkout.session.expired': {
+        const session = event.data.object;
+
+        return session.mode === 'payment'
+          ? this.toDepositEvent(event, session, BillingWebhookEventKind.DEPOSIT_EXPIRED)
+          : {
+              id: event.id,
+              type: event.type,
+              kind: BillingWebhookEventKind.IGNORED,
+              subscriptionId: null,
+            };
       }
       case 'customer.subscription.created':
         return {
@@ -172,6 +241,31 @@ export class StripeBillingGateway implements BillingGateway {
       priceId: item.price.id,
       currentPeriodEnd: item.current_period_end ? new Date(item.current_period_end * 1000) : null,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    };
+  }
+
+  private toDepositEvent(
+    event: Stripe.Event,
+    session: Stripe.Checkout.Session,
+    kind: BillingWebhookEventKind,
+  ): BillingWebhookEvent {
+    const appointmentId = session.metadata?.appointmentId;
+
+    if (!appointmentId) {
+      return {
+        id: event.id,
+        type: event.type,
+        kind: BillingWebhookEventKind.IGNORED,
+        subscriptionId: null,
+      };
+    }
+
+    return {
+      id: event.id,
+      type: event.type,
+      kind,
+      subscriptionId: null,
+      deposit: { appointmentId, checkoutSessionId: session.id, amount: session.amount_total },
     };
   }
 

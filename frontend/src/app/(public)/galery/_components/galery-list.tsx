@@ -31,7 +31,11 @@ const STYLE_ITEMS = [
   ...GALERY_STYLES.map((style) => ({ value: style, label: formatGaleryStyle(style) })),
 ];
 
-export function GaleryList() {
+interface GaleryListProps {
+  artistId?: string;
+}
+
+export function GaleryList({ artistId }: GaleryListProps = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -40,12 +44,13 @@ export function GaleryList() {
   const style = isGaleryStyle(styleParam) ? styleParam : undefined;
 
   const { data, isPending, isError, isPlaceholderData } = useQuery({
-    queryKey: ['public-galeries', currentPage, style],
+    queryKey: ['public-galeries', artistId ?? 'all', currentPage, style],
     queryFn: () =>
       getAllPublicGaleries({
         limit: PAGE_SIZE,
         offset: (currentPage - 1) * PAGE_SIZE,
         style,
+        userId: artistId,
       }),
     placeholderData: keepPreviousData,
   });

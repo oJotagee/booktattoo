@@ -17,6 +17,7 @@ function buildController() {
   const updateGaleryInfo = { execute: mock(async () => ({ id: 'galery-1' })) };
   const updateGaleryImage = { execute: mock(async () => ({ id: 'galery-1' })) };
   const deleteGalery = { execute: mock(async () => undefined) };
+  const getGaleryStats = { execute: mock(async () => ({ total: 12, available: 9 })) };
 
   const controller = new GaleryController(
     createGalery as never,
@@ -25,6 +26,7 @@ function buildController() {
     updateGaleryInfo as never,
     updateGaleryImage as never,
     deleteGalery as never,
+    getGaleryStats as never,
   );
 
   return {
@@ -35,6 +37,7 @@ function buildController() {
     updateGaleryInfo,
     updateGaleryImage,
     deleteGalery,
+    getGaleryStats,
   };
 }
 
