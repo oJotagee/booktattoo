@@ -58,4 +58,4 @@ USER bun
 
 EXPOSE 8084
 
-CMD ["bun", "run", "src/main.ts"]
+CMD ["bun", "--smol", "run", "src/main.ts"]
