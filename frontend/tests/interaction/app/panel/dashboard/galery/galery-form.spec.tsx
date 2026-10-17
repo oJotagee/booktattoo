@@ -134,12 +134,30 @@ describe('GaleryForm', () => {
       await user.type(screen.getByLabelText('Tamanho *'), '8cm');
       await user.click(screen.getByLabelText('Serviço vinculado *'));
       await user.click(await screen.findByRole('option', { name: 'Flash pequeno' }));
-      await user.type(screen.getByLabelText('Preço total *'), '100');
+      await user.type(screen.getByLabelText('Preço total *'), '42000');
 
       await user.click(screen.getByRole('button', { name: 'Publicar na galeria' }));
 
       await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Serviço não encontrado'));
       expect(router.push).not.toHaveBeenCalled();
+    });
+
+    it('blocks a price below the deposit of the selected service', async () => {
+      const { user } = renderWithProviders(<GaleryForm services={services} />);
+
+      await user.upload(screen.getByLabelText(/Imagem da arte/), buildImage());
+      await user.type(screen.getByLabelText('Nome do flash *'), 'Rosa');
+      await user.type(screen.getByLabelText('Tamanho *'), '8cm');
+      await user.click(screen.getByLabelText('Serviço vinculado *'));
+      await user.click(await screen.findByRole('option', { name: 'Flash grande' }));
+      await user.type(screen.getByLabelText('Preço total *'), '100');
+
+      await user.click(screen.getByRole('button', { name: 'Publicar na galeria' }));
+
+      expect(
+        await screen.findByText(/O preço total não pode ser menor que o sinal \(R\$\s120,00\)/),
+      ).toBeInTheDocument();
+      expect(createGalery).not.toHaveBeenCalled();
     });
 
     it('asks to register a service when there are none', () => {

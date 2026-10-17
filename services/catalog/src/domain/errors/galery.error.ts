@@ -25,3 +25,10 @@ export class UnsupportedGaleryImageTypeError extends Error {
     this.name = 'UnsupportedGaleryImageTypeError';
   }
 }
+
+export class GaleryPriceBelowDepositError extends Error {
+  constructor() {
+    super('O preço total do flash não pode ser menor que o sinal do serviço vinculado.');
+    this.name = 'GaleryPriceBelowDepositError';
+  }
+}

@@ -111,4 +111,26 @@ describe('createGalerySchema', () => {
       expect(result.success).toBe(false);
     });
   });
+
+  describe('price against the service deposit', () => {
+    const schema = createGalerySchema(true, { 'service-1': 10000 });
+
+    it('rejects a price below the deposit of the selected service', () => {
+      const result = schema.safeParse({ ...validInput, price: 50 });
+
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.path).toEqual(['price']);
+      expect(result.error?.issues[0]?.message).toMatch(/não pode ser menor que o sinal/);
+    });
+
+    it('accepts a price equal to the deposit', () => {
+      expect(schema.safeParse({ ...validInput, price: 10000 }).success).toBe(true);
+    });
+
+    it('ignores services it does not know about', () => {
+      expect(schema.safeParse({ ...validInput, serviceId: 'service-2', price: 50 }).success).toBe(
+        true,
+      );
+    });
+  });
 });

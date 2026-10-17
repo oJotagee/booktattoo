@@ -4,8 +4,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PUBLIC_GALERIES_CACHE, PUBLIC_SERVICES_CACHE } from '@/application/cache/public-cache';
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import type { ServiceRepository } from '../../port/service-repository.port';
+import type { GaleryRepository } from '../../port/galery-repository.port';
 import { SERVICE_REPOSITORY } from '../../port/service-repository.port';
-import { ServiceNotFoundError } from '@/domain/errors/service.error';
+import { GALERY_REPOSITORY } from '../../port/galery-repository.port';
+import {
+  ServiceDepositAboveGaleryPriceError,
+  ServiceNotFoundError,
+} from '@/domain/errors/service.error';
 
 type UpdateServiceInfoInput = {
   serviceId: string;
@@ -31,6 +36,8 @@ export class UpdateServiceInfoUseCase {
   constructor(
     @Inject(SERVICE_REPOSITORY)
     private readonly services: ServiceRepository,
+    @Inject(GALERY_REPOSITORY)
+    private readonly galeries: GaleryRepository,
     @Inject(CACHE_PORT)
     private readonly cache: CachePort,
   ) {}
@@ -40,6 +47,14 @@ export class UpdateServiceInfoUseCase {
     if (!service) throw new ServiceNotFoundError(serviceId);
 
     if (service.userId !== input.userId) throw new ForbiddenResourceAccessError();
+
+    if (input.depositAmount !== undefined && input.depositAmount > service.depositAmount) {
+      const lowestPrice = await this.galeries.findLowestPriceByServiceId(serviceId);
+
+      if (lowestPrice !== null && lowestPrice < input.depositAmount) {
+        throw new ServiceDepositAboveGaleryPriceError();
+      }
+    }
 
     const updatedService = service.updateInfo({
       name: input.name,

@@ -10,12 +10,14 @@ import {
   InvalidServiceError,
   ServiceAlreadyInStatusError,
   ServiceNotFoundError,
+  ServiceDepositAboveGaleryPriceError,
 } from '@/domain/errors/service.error';
 import {
   GaleryAlreadyInStatusError,
   GaleryNotFoundError,
   InvalidGaleryError,
   UnsupportedGaleryImageTypeError,
+  GaleryPriceBelowDepositError,
 } from '@/domain/errors/galery.error';
 
 type OutgoingResponse = {
@@ -26,10 +28,12 @@ const DOMAIN_ERRORS = [
   InvalidServiceError,
   ServiceAlreadyInStatusError,
   ServiceNotFoundError,
+  ServiceDepositAboveGaleryPriceError,
   InvalidGaleryError,
   GaleryAlreadyInStatusError,
   GaleryNotFoundError,
   UnsupportedGaleryImageTypeError,
+  GaleryPriceBelowDepositError,
   PlanExpiredError,
   PlanLimitReachedError,
   PlanAccessUnavailableError,
@@ -42,6 +46,8 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [InvalidGaleryError, HttpStatus.BAD_REQUEST],
   [GaleryAlreadyInStatusError, HttpStatus.BAD_REQUEST],
   [UnsupportedGaleryImageTypeError, HttpStatus.BAD_REQUEST],
+  [GaleryPriceBelowDepositError, HttpStatus.BAD_REQUEST],
+  [ServiceDepositAboveGaleryPriceError, HttpStatus.BAD_REQUEST],
 
   [ForbiddenResourceAccessError, HttpStatus.FORBIDDEN],
   [PlanExpiredError, HttpStatus.FORBIDDEN],

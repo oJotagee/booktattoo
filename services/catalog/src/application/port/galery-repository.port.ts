@@ -22,6 +22,7 @@ export interface GaleryRepository {
   findPublic(params: FindPublicGaleriesParams): Promise<PaginatedResult<GaleryEntity>>;
   countByUserId(userId: string): Promise<number>;
   countAvailableByUserId(userId: string): Promise<number>;
+  findLowestPriceByServiceId(serviceId: string): Promise<number | null>;
   create(galery: GaleryEntity): Promise<void>;
   update(galery: GaleryEntity): Promise<void>;
   delete(id: string): Promise<void>;

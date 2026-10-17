@@ -80,6 +80,15 @@ export class PrismaGaleryRepository implements GaleryRepository {
     return this.prisma.galery.count({ where: { userId, available: true } });
   }
 
+  async findLowestPriceByServiceId(serviceId: string): Promise<number | null> {
+    const result = await this.prisma.galery.aggregate({
+      where: { serviceId },
+      _min: { price: true },
+    });
+
+    return result._min.price;
+  }
+
   async create(galery: GaleryEntity): Promise<void> {
     const data = GaleryMapper.toPersistence(galery);
 

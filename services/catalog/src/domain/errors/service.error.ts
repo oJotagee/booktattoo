@@ -17,3 +17,10 @@ export class ServiceAlreadyInStatusError extends Error {
     this.name = 'ServiceAlreadyInStatusError';
   }
 }
+
+export class ServiceDepositAboveGaleryPriceError extends Error {
+  constructor() {
+    super('O sinal não pode ser maior que o preço total de um flash vinculado a este serviço.');
+    this.name = 'ServiceDepositAboveGaleryPriceError';
+  }
+}

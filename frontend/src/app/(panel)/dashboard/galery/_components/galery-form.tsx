@@ -40,7 +40,7 @@ const STYLE_ITEMS = GALERY_STYLES.map((style) => ({
 
 export function GaleryForm({ galery, services }: GaleryFormProps) {
   const router = useRouter();
-  const form = useGalerySchema(galery);
+  const form = useGalerySchema(galery, services);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditing = !!galery;
 
@@ -261,7 +261,10 @@ export function GaleryForm({ galery, services }: GaleryFormProps) {
                     <Select
                       items={serviceItems}
                       value={field.value || null}
-                      onValueChange={(value) => field.onChange(value ?? '')}
+                      onValueChange={(value) => {
+                        field.onChange(value ?? '');
+                        if (form.getValues('price') > 0) void form.trigger('price');
+                      }}
                       disabled={!services.length}
                     >
                       <SelectTrigger
@@ -317,7 +320,16 @@ export function GaleryForm({ galery, services }: GaleryFormProps) {
                       onChange={(e) => field.onChange(parseCurrencyToCents(e.target.value))}
                       aria-invalid={fieldState.invalid}
                     />
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                    {fieldState.invalid ? (
+                      <FieldError errors={[fieldState.error]} />
+                    ) : (
+                      selectedService && (
+                        <FieldDescription>
+                          Mínimo de {formatCurrency(selectedService.depositAmount)}, o valor do
+                          sinal.
+                        </FieldDescription>
+                      )
+                    )}
                   </Field>
                 )}
               />

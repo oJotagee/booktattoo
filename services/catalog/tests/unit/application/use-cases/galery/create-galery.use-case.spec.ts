@@ -10,7 +10,7 @@ import {
 import { CreateGaleryUseCase } from '@/application/use-cases/galery/create-galery.use-case';
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
-import { InvalidGaleryError } from '@/domain/errors/galery.error';
+import { GaleryPriceBelowDepositError, InvalidGaleryError } from '@/domain/errors/galery.error';
 import { PlanLimitReachedError } from '@/domain/errors/plan.error';
 import { GaleryStyle } from '@/domain/entities/galery.entity';
 import { buildService } from '@tests/unit/support/builders';
@@ -98,7 +98,7 @@ describe('CreateGaleryUseCase', () => {
   });
 
   it('deletes the uploaded image when the galery is invalid', async () => {
-    await expect(useCase.execute({ ...input, price: 0 })).rejects.toThrow(InvalidGaleryError);
+    await expect(useCase.execute({ ...input, title: '   ' })).rejects.toThrow(InvalidGaleryError);
 
     expect(storage.delete).toHaveBeenCalledWith('gallery/user-1/new-image.png');
     expect(galeries.create).not.toHaveBeenCalled();
@@ -125,5 +125,25 @@ describe('CreateGaleryUseCase', () => {
     expect(planAccess.getPlanAccess).toHaveBeenCalledWith('Bearer access-token');
     expect(storage.upload).not.toHaveBeenCalled();
     expect(galeries.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects a price below the service deposit before uploading the image', async () => {
+    services.findById = async () =>
+      buildService({ id: 'service-1', userId: 'user-1', depositAmount: 10000 });
+
+    await expect(useCase.execute({ ...input, price: 50 })).rejects.toBeInstanceOf(
+      GaleryPriceBelowDepositError,
+    );
+    expect(storage.upload).not.toHaveBeenCalled();
+    expect(galeries.create).not.toHaveBeenCalled();
+  });
+
+  it('accepts a price equal to the service deposit', async () => {
+    services.findById = async () =>
+      buildService({ id: 'service-1', userId: 'user-1', depositAmount: 35000 });
+
+    const result = await useCase.execute(input);
+
+    expect(result.price).toBe(35000);
   });
 });

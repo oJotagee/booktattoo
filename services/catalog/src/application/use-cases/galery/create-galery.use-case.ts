@@ -1,19 +1,20 @@
-import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { ASSET_TYPES, STORAGE_PORT, type StoragePort } from '@bookink/shared/storage';
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
+import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import { GaleryEntity, type GaleryStyle } from '@/domain/entities/galery.entity';
+import type { PlanAccessGateway } from '../../port/plan-access-gateway.port';
 import type { ServiceRepository } from '../../port/service-repository.port';
+import { GaleryPriceBelowDepositError } from '@/domain/errors/galery.error';
 import type { GaleryRepository } from '../../port/galery-repository.port';
+import { PLAN_ACCESS_GATEWAY } from '../../port/plan-access-gateway.port';
+import { PUBLIC_GALERIES_CACHE } from '@/application/cache/public-cache';
 import { SERVICE_REPOSITORY } from '../../port/service-repository.port';
 import { GALERY_REPOSITORY } from '../../port/galery-repository.port';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
-import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
-import { extractStorageKey } from '../../utils/storage-key';
-import type { PlanAccessGateway } from '../../port/plan-access-gateway.port';
-import { PLAN_ACCESS_GATEWAY } from '../../port/plan-access-gateway.port';
 import { ensureWithinPlanLimit } from '@/domain/plan/plan-access';
-import { PUBLIC_GALERIES_CACHE } from '@/application/cache/public-cache';
+import { extractStorageKey } from '../../utils/storage-key';
 
 type CreateGaleryInput = {
   userId: string;
@@ -71,10 +72,13 @@ export class CreateGaleryUseCase {
 
     if (service.userId !== userId) throw new ForbiddenResourceAccessError();
 
+    if (input.price < service.depositAmount) throw new GaleryPriceBelowDepositError();
+
     const [access, currentCount] = await Promise.all([
       this.planAccess.getPlanAccess(authorization),
       this.galeries.countByUserId(userId),
     ]);
+
     ensureWithinPlanLimit(access, 'galeries', currentCount);
 
     const { url } = await this.storage.upload({

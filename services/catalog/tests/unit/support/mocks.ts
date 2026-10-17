@@ -26,6 +26,7 @@ export function createGaleryRepositoryMock(): GaleryRepository {
     findPublic: mock(async () => ({ items: [], total: 0 })),
     countByUserId: mock(async () => 0),
     countAvailableByUserId: mock(async () => 0),
+    findLowestPriceByServiceId: mock(async (): Promise<number | null> => null),
     create: mock(async () => undefined),
     update: mock(async () => undefined),
     delete: mock(async () => undefined),

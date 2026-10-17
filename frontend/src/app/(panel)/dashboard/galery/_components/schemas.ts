@@ -2,7 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import type { Service } from '../../services/_data-access/get-all-services';
 import type { Galery } from '../_data-access/get-all-galeries';
+import { formatCurrency } from '@/utils/formatService';
 import { GALERY_STYLES } from '@/utils/formatGalery';
 
 export const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
@@ -13,22 +15,41 @@ const imageSchema = z
   .refine((file) => ALLOWED_IMAGE_MIME_TYPES.includes(file.type), 'Use JPG, PNG ou WEBP')
   .refine((file) => file.size <= MAX_IMAGE_SIZE_BYTES, 'A imagem deve ter no máximo 5 MB');
 
-export function createGalerySchema(isEditing: boolean) {
-  return z.object({
-    image: isEditing ? imageSchema.optional() : imageSchema,
-    title: z.string().trim().min(1, 'Nome é obrigatório'),
-    style: z.enum(GALERY_STYLES, { error: 'Selecione um estilo' }),
-    size: z.string().trim().min(1, 'Tamanho é obrigatório'),
-    serviceId: z.string().min(1, 'Selecione o serviço vinculado'),
-    price: z.number().int().positive('Informe o preço do flash'),
-  });
+export function createGalerySchema(
+  isEditing: boolean,
+  depositByServiceId: Record<string, number> = {},
+) {
+  return z
+    .object({
+      image: isEditing ? imageSchema.optional() : imageSchema,
+      title: z.string().trim().min(1, 'Nome é obrigatório'),
+      style: z.enum(GALERY_STYLES, { error: 'Selecione um estilo' }),
+      size: z.string().trim().min(1, 'Tamanho é obrigatório'),
+      serviceId: z.string().min(1, 'Selecione o serviço vinculado'),
+      price: z.number().int().positive('Informe o preço do flash'),
+    })
+    .superRefine(({ price, serviceId }, ctx) => {
+      const deposit = depositByServiceId[serviceId];
+
+      if (deposit !== undefined && price > 0 && price < deposit) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['price'],
+          message: `O preço total não pode ser menor que o sinal (${formatCurrency(deposit)})`,
+        });
+      }
+    });
 }
 
 export type GalerySchemaData = z.infer<ReturnType<typeof createGalerySchema>>;
 
-export function useGalerySchema(galery?: Galery | null) {
+export function useGalerySchema(galery?: Galery | null, services: Service[] = []) {
+  const depositByServiceId = Object.fromEntries(
+    services.map((service) => [service.id, service.depositAmount]),
+  );
+
   return useForm<GalerySchemaData>({
-    resolver: zodResolver(createGalerySchema(!!galery)),
+    resolver: zodResolver(createGalerySchema(!!galery, depositByServiceId)),
     defaultValues: {
       image: undefined,
       title: galery?.title ?? '',

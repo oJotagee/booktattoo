@@ -1,15 +1,15 @@
 import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
+import { GaleryNotFoundError, GaleryPriceBelowDepositError } from '@/domain/errors/galery.error';
+import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import type { ServiceRepository } from '../../port/service-repository.port';
 import type { GaleryRepository } from '../../port/galery-repository.port';
+import { PUBLIC_GALERIES_CACHE } from '@/application/cache/public-cache';
 import { SERVICE_REPOSITORY } from '../../port/service-repository.port';
 import { GALERY_REPOSITORY } from '../../port/galery-repository.port';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
-import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import type { GaleryStyle } from '@/domain/entities/galery.entity';
-import { GaleryNotFoundError } from '@/domain/errors/galery.error';
-import { PUBLIC_GALERIES_CACHE } from '@/application/cache/public-cache';
 
 type UpdateGaleryInfoInput = {
   galeryId: string;
@@ -56,11 +56,16 @@ export class UpdateGaleryInfoUseCase {
 
     if (galery.userId !== userId) throw new ForbiddenResourceAccessError();
 
-    if (input.serviceId) {
-      const service = await this.services.findById(input.serviceId);
-      if (!service) throw new ServiceNotFoundError(input.serviceId);
+    if (input.serviceId !== undefined || input.price !== undefined) {
+      const serviceId = input.serviceId ?? galery.serviceId;
+      const service = await this.services.findById(serviceId);
+      if (!service) throw new ServiceNotFoundError(serviceId);
 
       if (service.userId !== userId) throw new ForbiddenResourceAccessError();
+
+      if ((input.price ?? galery.price) < service.depositAmount) {
+        throw new GaleryPriceBelowDepositError();
+      }
     }
 
     const updatedGalery = galery.update(input);

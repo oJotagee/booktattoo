@@ -9,7 +9,7 @@ import {
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import { buildGalery, buildService } from '@tests/unit/support/builders';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
-import { GaleryNotFoundError } from '@/domain/errors/galery.error';
+import { GaleryNotFoundError, GaleryPriceBelowDepositError } from '@/domain/errors/galery.error';
 import { GaleryStyle } from '@/domain/entities/galery.entity';
 
 describe('UpdateGaleryInfoUseCase', () => {
@@ -106,5 +106,32 @@ describe('UpdateGaleryInfoUseCase', () => {
       useCase.execute({ galeryId: 'galery-1', userId: 'user-2', title: 'Caveira' }),
     ).rejects.toThrow(ForbiddenResourceAccessError);
     expect(galeries.update).not.toHaveBeenCalled();
+  });
+
+  it('rejects a new price below the deposit of the current service', async () => {
+    galeries.findById = async () => buildGalery({ id: 'galery-1', serviceId: 'service-1' });
+    services.findById = async () => buildService({ id: 'service-1', depositAmount: 10000 });
+
+    await expect(
+      useCase.execute({ galeryId: 'galery-1', userId: 'user-1', price: 50 }),
+    ).rejects.toBeInstanceOf(GaleryPriceBelowDepositError);
+    expect(galeries.update).not.toHaveBeenCalled();
+  });
+
+  it('rejects switching to a service whose deposit is above the current price', async () => {
+    galeries.findById = async () => buildGalery({ id: 'galery-1', price: 8000 });
+    services.findById = async () => buildService({ id: 'service-2', depositAmount: 10000 });
+
+    await expect(
+      useCase.execute({ galeryId: 'galery-1', userId: 'user-1', serviceId: 'service-2' }),
+    ).rejects.toBeInstanceOf(GaleryPriceBelowDepositError);
+  });
+
+  it('skips the deposit check when neither price nor service change', async () => {
+    galeries.findById = async () => buildGalery({ id: 'galery-1' });
+
+    await useCase.execute({ galeryId: 'galery-1', userId: 'user-1', title: 'Caveira' });
+
+    expect(services.findById).not.toHaveBeenCalled();
   });
 });
