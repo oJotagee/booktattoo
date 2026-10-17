@@ -1,6 +1,6 @@
 # Payment service
 
-API de cobrança (NestJS + Stripe). Único serviço que fala com o Stripe: guarda a secret key, cria Checkout/Portal e recebe os webhooks. Os outros serviços só ficam sabendo do estado da assinatura pelos eventos que ele publica no RabbitMQ.
+API de cobrança (NestJS + Stripe). Único serviço que fala com o Stripe: guarda a secret key, cria Checkout/Portal e recebe os webhooks. Cuida da assinatura mensal da plataforma e do sinal dos agendamentos. Os outros serviços só ficam sabendo dos pagamentos pelos eventos que ele publica no RabbitMQ.
 
 - **Porta:** `8084`
 - **Banco:** `payment` (PostgreSQL)
@@ -28,6 +28,24 @@ front ──GET /users/me/subscription──────────────
 - O front nunca confia no redirect de sucesso: ele só mostra "processando" e lê o status em `GET /users/me/subscription`.
 - Upgrade/downgrade/cancelamento acontecem no Billing Portal (`POST /billing/portal`) e chegam como `customer.subscription.updated` / `deleted`.
 - O plano é derivado do `priceId` atual (`STRIPE_PRICE_*`), então troca de plano pelo portal atualiza o `plan` corretamente.
+
+## Fluxo do sinal do agendamento (Stripe Checkout)
+
+```
+appointment ──POST /internal/deposits/checkout (X-Internal-Secret)──▶ payment ──▶ Checkout Session (mode payment, BRL)
+                                                                                     │ metadata.appointmentId
+cliente paga (ou abandona) no Stripe ────────────────────────────────────────────────┘
+                                                                                     ▼
+Stripe ──POST /webhooks/billing──▶ payment ──▶ RabbitMQ  payment.deposit.paid | payment.deposit.expired
+                                                              │
+                                                              ▼
+                                         appointment (fila appointment.payment-events) ──▶ CONFIRMED | CANCELLED
+```
+
+- A sessão expira em ~31 minutos, porque o Stripe exige no mínimo 30. A expiração dispara `checkout.session.expired`, que cancela o agendamento e libera o horário.
+- O cliente volta para `/{artistId}?booking=success|cancelled`, mas quem confirma o pagamento é o webhook.
+- A criação usa `idempotencyKey` por agendamento, então repetir a chamada devolve a mesma sessão.
+- O endpoint do webhook no Stripe precisa assinar também `checkout.session.expired`.
 
 ## Endpoints
 
@@ -86,6 +104,7 @@ stripe listen --forward-to localhost:8000/webhooks/billing
 | `STRIPE_PRICE_BASIC` / `STRIPE_PRICE_PROFESSIONAL` | Price IDs dos planos |
 | `STRIPE_CHECKOUT_SUCCESS_URL` / `STRIPE_CHECKOUT_CANCEL_URL` | Retorno do Checkout |
 | `STRIPE_PORTAL_RETURN_URL` | Retorno do Billing Portal |
+| `INTERNAL_API_SECRET` | Segredo (mín. 32 caracteres) exigido no header `X-Internal-Secret` em `POST /internal/deposits/checkout`. O mesmo valor deve estar no appointment-service; sem ele a rota fica bloqueada |
 
 ## Testes
 

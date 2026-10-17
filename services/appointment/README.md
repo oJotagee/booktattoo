@@ -33,6 +33,14 @@ Serviço e flash vêm do catalog-service e o tatuador do user-service; aqui fica
 
 Se o checkout não puder ser criado, o agendamento é cancelado na hora para não prender o horário.
 
+### Cache dos horários ocupados
+
+`GET /public/appointments/blocked-times` usa o cache Redis de [`@bookink/shared/cache`](../../packages/shared/src/cache), com um namespace por tatuador (`appointment:public:blocked-times:<artistId>`) e uma chave por dia.
+
+- O cache guarda só os agendamentos ativos do dia (início e duração). Os horários de atendimento vêm do user-service a cada chamada, então mudar o perfil não deixa a agenda pública desatualizada.
+- O namespace é invalidado quando os agendamentos ativos do tatuador mudam: ao criar (inclusive quando o checkout falha e o agendamento é cancelado), ao cancelar e ao expirar. Confirmar o pagamento não muda o bloqueio, porque um agendamento `PENDING` já ocupa o horário.
+- A criação nunca lê esse cache: a checagem de conflito é feita no banco, dentro da transação com advisory lock.
+
 ## Modelos
 
 - `Appointment` — `clientName`, `clientEmail`, `clientPhone`, `scheduledAt`, `duration`, `price`, `depositAmount`, `status` (`PENDING` / `CONFIRMED` / `CANCELLED` / `COMPLETED`), snapshot do flash (`galeryId`, `galeryTitle`, `galeryImageUrl`), `checkoutSessionId`, `paidAt`
@@ -47,7 +55,7 @@ Schema em [prisma/schema.prisma](prisma/schema.prisma).
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `GET` | `/public/appointments/blocked-times?artistId&date` | Horários ocupados do tatuador no dia (`{ blockedTimes }`) |
+| `GET` | `/public/appointments/blocked-times?artistId&date` | Horários ocupados do tatuador no dia (`{ blockedTimes }`), com cache |
 | `POST` | `/public/appointments` | Cria o agendamento e devolve `{ appointmentId, checkoutUrl }` |
 | `GET` | `/health` | Health check |
 
@@ -74,7 +82,7 @@ Schema em [prisma/schema.prisma](prisma/schema.prisma).
 ```
 src/
   domain/          # entidades, erros de domínio e regras de agenda (schedule.ts)
-  application/     # use cases, handlers de eventos e ports (repositórios e gateways)
+  application/     # use cases, handlers de eventos, ports (repositórios e gateways) e namespaces de cache
   infrastructure/  # Prisma, repositórios, gateways HTTP e consumers RabbitMQ
   presentation/    # controllers, DTOs e DomainExceptionFilter
 ```

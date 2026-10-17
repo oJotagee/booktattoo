@@ -5,12 +5,21 @@ API de serviços oferecidos pelo tatuador e da galeria de flashes (NestJS + Pris
 - **Porta:** `8083`
 - **Banco:** `catalog` (PostgreSQL)
 - **Swagger:** `http://localhost:8083/api/docs`
-- **Rotas no Kong:** `/services`, `/galeries`, `GET /public/services`, `GET /public/galeries`
+- **Rotas no Kong:** `/services`, `/galeries`, `GET /public/services`, `GET /public/galeries` (inclui `/public/galeries/:id`)
 
 ## Responsabilidades
 
 - CRUD de serviços do tatuador (nome, duração, valor do sinal, ativo/inativo)
-- Galeria de flashes vinculada a um serviço (estilo, tamanho, preço) — o tatuador cria, edita e exclui; a disponibilidade não é editável, o flash fica indisponível quando um cliente agenda um horário para ele
+- Galeria de flashes vinculada a um serviço (estilo, tamanho, preço). O tatuador cria, edita e exclui os flashes.
+- A disponibilidade do flash não é editável: ela segue os eventos do appointment-service. O flash sai da galeria quando um cliente agenda e volta quando o agendamento é cancelado ou expira.
+
+## Regra de preço
+
+O preço total de um flash nunca pode ser menor que o sinal do serviço vinculado. Igual é permitido. A regra é aplicada:
+
+- ao criar um flash, antes do upload da imagem (`GaleryPriceBelowDepositError`, `400`);
+- ao editar um flash, quando muda o preço ou o serviço (`GaleryPriceBelowDepositError`, `400`);
+- ao aumentar o sinal de um serviço acima do preço do flash mais barato vinculado a ele (`ServiceDepositAboveGaleryPriceError`, `400`).
 
 O serviço não conhece a tabela de usuários: guarda só o `userId` extraído do JWT, que é **validado** aqui (nunca emitido).
 
@@ -24,16 +33,23 @@ O serviço não conhece a tabela de usuários: guarda só o `userId` extraído d
 | `PUT` | `/services/:id` | JWT | Atualiza nome, duração e sinal |
 | `PATCH` | `/services/:id/status` | JWT | Ativa/desativa o serviço |
 | `GET` | `/galeries` | JWT | Lista os flashes do usuário (`limit`, `offset`, `style`) |
+| `GET` | `/galeries/stats` | JWT | Total de flashes do usuário e quantos estão disponíveis (`{ total, available }`) |
 | `GET` | `/galeries/:id` | JWT | Busca um flash |
 | `POST` | `/galeries` | JWT | Cria flash (`multipart`, com a imagem) |
 | `PUT` | `/galeries/:id` | JWT | Atualiza título, tamanho, preço, estilo e serviço |
 | `PUT` | `/galeries/:id/image` | JWT | Troca a imagem do flash |
 | `DELETE` | `/galeries/:id` | JWT | Exclui o flash |
 | `GET` | `/public/services` | — | Lista serviços públicos (`limit`, `offset`, `userId`), com cache |
-| `GET` | `/public/galeries` | — | Lista flashes públicos (`limit`, `offset`, `userId`, `style`), com cache |
+| `GET` | `/public/galeries` | — | Lista flashes públicos disponíveis (`limit`, `offset`, `userId`, `style`), com cache |
+| `GET` | `/public/galeries/:id` | — | Um flash com `available`, `artistName` e o `service` (`duration`, `depositAmount`), com cache. Usado pelo modal de agendamento e pelo appointment-service |
 | `GET` | `/health` | — | Health check |
 
-As rotas autenticadas operam só sobre os dados do usuário logado. As rotas `/public/*` usam o cache Redis de [`@bookink/shared/cache`](../../packages/shared/src/cache): 15 minutos de TTL e uma única requisição recarregando do banco perto de vencer. Cadastrar, editar ou excluir um flash invalida `/public/galeries`, e cadastrar, editar ou ativar/desativar um serviço invalida `/public/services`.
+As rotas autenticadas operam só sobre os dados do usuário logado. As rotas `/public/*` usam o cache Redis de [`@bookink/shared/cache`](../../packages/shared/src/cache). O TTL é de 15 minutos, e quando ele vence só uma requisição recarrega do banco enquanto as outras esperam.
+
+| Namespace | Rotas | Invalidado por |
+|---|---|---|
+| `catalog:public:galeries` | `/public/galeries` e `/public/galeries/:id` | criar, editar (info ou imagem) ou excluir um flash, reservar ou liberar um flash, mudar o artista e editar ou ativar/desativar um serviço (porque a resposta por id inclui a duração e o sinal) |
+| `catalog:public:services` | `/public/services` | criar, editar ou ativar/desativar um serviço |
 
 `/public/galeries` devolve o `artistName` de cada flash e esconde os flashes de artistas inativos. Esses dados vêm da projeção local `Artist` (ver abaixo), sem chamar o user-service.
 
@@ -55,8 +71,9 @@ Serviços desativados contam no limite. Plano expirado ou limite atingido respon
 | Fila | Exchange | Routing keys | Ação |
 |---|---|---|---|
 | `catalog.user-events` | `bookink.events` | `user.profile.*` | Upsert do `Artist` (nome, avatar e status do tatuador) e invalidação do cache de `/public/galeries` |
+| `catalog.appointment-events` | `bookink.events` | `appointment.*` | `appointment.created` marca o flash como indisponível; `appointment.cancelled` devolve o flash à galeria. Os dois invalidam o cache de `/public/galeries` |
 
-O evento carrega o estado completo do perfil. Eventos com `occurredAt` igual ou mais antigo que o `lastEventAt` salvo são ignorados (reentrega ou fora de ordem). Status desconhecido ou payload inválido vão para `catalog.user-events.dlq`.
+Os eventos de perfil carregam o estado completo. Eventos com `occurredAt` igual ou mais antigo que o `lastEventAt` salvo são ignorados (reentrega ou fora de ordem). Os eventos de agendamento são idempotentes: um flash que já está no estado pedido não é alterado. Falhas vão para a `.dlq` da fila.
 
 ## Modelos
 
@@ -70,9 +87,9 @@ Schema em [prisma/schema.prisma](prisma/schema.prisma).
 
 ```
 src/
-  domain/          # entidades Service e Galery e erros de domínio
-  application/     # use cases + port do repositório
-  infrastructure/  # Prisma, repositórios, mappers e gateway HTTP do plano
+  domain/          # entidades Service, Galery e Artist e erros de domínio
+  application/     # use cases, handlers de eventos e ports
+  infrastructure/  # Prisma, repositórios, mappers, gateway HTTP do plano e consumers RabbitMQ
   presentation/    # controllers, DTOs e DomainExceptionFilter
 ```
 
@@ -93,7 +110,7 @@ bun run --cwd services/catalog dev
 |---|---|
 | `PORT` | Porta HTTP (8083) |
 | `DATABASE_URL` | Conexão com o banco `catalog` |
-| `RABBITMQ_URL` | Conexão AMQP, para consumir `user.profile.updated` |
+| `RABBITMQ_URL` | Conexão AMQP, para consumir `user.profile.updated` e `appointment.*` |
 | `JWT_SECRET` | Mesmo segredo do user-service, usado só para validar o token |
 | `USER_SERVICE_URL` | URL interna do user-service, para consultar o plano ao criar serviço ou flash |
 | `S3_*` | Bucket das imagens da galeria |

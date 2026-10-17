@@ -14,7 +14,7 @@ API de usuários e autenticação (NestJS + Prisma). Emite os JWTs de sessão qu
 - Emissão de `accessToken` (JWT) e rotação de `refreshToken`
 - Esqueci/redefinir senha com token enviado por email
 - Perfil do tatuador: contato, status (ativo/inativo/férias) e avatar (S3)
-- Listagem pública de artistas, paginada e com cache no Redis
+- Listagem pública de artistas e perfil público por id, com cache no Redis
 
 ## Endpoints
 
@@ -32,6 +32,7 @@ API de usuários e autenticação (NestJS + Prisma). Emite os JWTs de sessão qu
 | `PATCH` | `/users/me/status` | JWT | Atualiza status |
 | `PUT` | `/users/me/avatar` | JWT | Upload de avatar (`multipart`, campo `file`) |
 | `GET` | `/public/artists` | — | Lista artistas (`limit`, `offset`), com cache de 15 minutos invalidado por cadastro e alterações de perfil, status ou avatar |
+| `GET` | `/public/artists/:id` | — | Perfil público de um artista, com os horários de atendimento (`times`), no mesmo cache. Artistas inativos respondem `404`. Usado pela página do tatuador e pelo appointment-service |
 | `GET` | `/health` | — | Health check |
 
 ## Modelos
@@ -94,7 +95,7 @@ bun run --cwd services/user dev    # hot reload
 | `S3_*` | Bucket de avatares (`S3_ENDPOINT` / `S3_FORCE_PATH_STYLE` para MinIO em dev) |
 | `MAIL_*` | SMTP para envio dos emails de redefinição de senha |
 | `FRONTEND_RESET_PASSWORD_URL` | Base do link enviado no email de redefinição |
-| `REDIS_URL` | Conexão com o Redis do cache de `GET /public/artists` |
+| `REDIS_URL` | Conexão com o Redis do cache de `GET /public/artists` e `/public/artists/:id` |
 | `CACHE_TTL_SECONDS` / `CACHE_REFRESH_AHEAD_SECONDS` | Validade do cache (900) e janela antes do vencimento em que uma requisição recarrega do banco (30) |
 
 ## Testes

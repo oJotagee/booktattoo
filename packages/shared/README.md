@@ -9,3 +9,5 @@ Código compartilhado entre os serviços NestJS. Consumido via workspace (`"@boo
 | `@bookink/shared/storage` | `StorageModule` + adapter S3 (config via `S3_*`) e geração de object keys por tipo de asset |
 | `@bookink/shared/cache` | `CacheModule` + adapter Redis (config via `REDIS_URL` e `CACHE_*`). `getOrLoad(namespace, key, loader)` guarda o resultado por `CACHE_TTL_SECONDS` e, perto de vencer, deixa uma única requisição recarregar enquanto as outras esperam. `invalidate(namespace)` descarta todas as chaves do namespace. Sem Redis, chama o `loader` direto |
 | `@bookink/shared/mail` | `MailModule` + adapter nodemailer (config via `MAIL_*`) e template de email da marca |
+| `@bookink/shared/events` | `MessagingModule` + conexão RabbitMQ (config via `RABBITMQ_URL`): `publish` na exchange topic `bookink.events` e `subscribe` com uma fila por consumidor e DLQ. Também os contratos dos eventos: `payment.subscription.*`, `payment.deposit.*`, `appointment.*` e `user.profile.*` |
+| `@bookink/shared/http` | `UnhandledExceptionFilter`: repassa as `HttpException` 4xx como vieram e responde os erros 5xx com uma mensagem genérica, logando o erro sem vazar detalhes internos |

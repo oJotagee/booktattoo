@@ -24,28 +24,61 @@ O frontend fala só com o **API gateway (Kong)** em `http://localhost:8000`, que
 |---|---|
 | `/auth`, `/users`, `GET /public/artists` | user |
 | `/services`, `/galeries`, `GET /public/services`, `GET /public/galeries` | catalog |
-| `/appointments`, `/booking-requests`, `/reminders` | appointment |
+| `/appointments`, `/booking-requests`, `/reminders`, `GET`/`POST /public/appointments` | appointment |
 | `/billing`, `POST /webhooks` | payment |
 
 O Swagger de cada serviço fica direto na porta dele: `http://localhost:<porta>/api/docs`.
 
 ## Comunicação entre serviços
 
-- **Síncrona (HTTP):** o catalog consulta `GET /users/me/plan` no user antes de criar um serviço ou flash, para aplicar os limites do plano.
-- **Assíncrona (RabbitMQ):** uma exchange topic única, `bookink.events`, com routing key igual ao `type` do evento e uma fila por consumidor. Os contratos dos eventos ficam em [`@bookink/shared/events`](packages/shared/src/events).
+**Síncrona (HTTP):**
+
+| Quem chama | Rota | Para quê |
+|---|---|---|
+| catalog → user | `GET /users/me/plan` | Aplicar os limites do plano antes de criar um serviço ou flash |
+| appointment → user | `GET /public/artists/:id` | Ler o status e os horários do tatuador ao agendar |
+| appointment → catalog | `GET /public/galeries/:id` | Ler o preço, o serviço, a duração e o sinal do flash ao agendar |
+| appointment → payment | `POST /internal/deposits/checkout` | Abrir o checkout do sinal. Exige o header `X-Internal-Secret` e a rota não é exposta no Kong |
+
+**Assíncrona (RabbitMQ):** uma exchange topic única, `bookink.events`, com routing key igual ao `type` do evento e uma fila por consumidor. Os contratos dos eventos ficam em [`@bookink/shared/events`](packages/shared/src/events).
 
 | Evento | Publicado por | Consumido por |
 |---|---|---|
 | `payment.subscription.activated` / `updated` / `canceled` | payment (a partir do webhook do Stripe) | user (fila `user.payment-events`), que atualiza a `Subscription` |
+| `payment.deposit.paid` / `expired` | payment (a partir do webhook do Stripe) | appointment (fila `appointment.payment-events`), que confirma ou cancela o agendamento |
+| `appointment.created` / `cancelled` | appointment | catalog (fila `catalog.appointment-events`), que tira o flash da galeria ou o devolve |
 | `user.profile.updated` | user (cadastro e alterações de nome, avatar ou status) | catalog (fila `catalog.user-events`), que atualiza a projeção local `Artist` usada na galeria pública |
 
 Mensagens que falham no processamento vão para a fila `<fila>.dlq`, em vez de voltar em loop.
 
 ## Cache das rotas públicas
 
-As listagens públicas (`GET /public/artists`, `/public/galeries` e `/public/services`) ficam em cache no **Redis** por 15 minutos, uma chave por combinação de filtros e página. Nos últimos 30 segundos antes de vencer, só uma requisição consulta o banco e regrava o cache. As outras esperam, mesmo em outras instâncias, e depois leem os dados novos. A trava é uma chave no próprio Redis.
+Todas as leituras públicas ficam em cache no **Redis** por 15 minutos:
 
-Se o Redis estiver fora do ar, as rotas continuam funcionando direto no banco. Cadastrar, editar ou excluir um flash, serviço ou perfil invalida na hora a listagem correspondente (todas as páginas e filtros): cada listagem tem um contador de geração no Redis que faz parte da chave, e a escrita incrementa o contador. A implementação fica em [`@bookink/shared/cache`](packages/shared/src/cache).
+| Rota | Chave | Invalidada por |
+|---|---|---|
+| `GET /public/artists` e `/public/artists/:id` | filtros e página, ou id | cadastro e alterações de perfil, horários, status ou avatar |
+| `GET /public/services` | filtros e página | criar, editar ou ativar/desativar um serviço |
+| `GET /public/galeries` e `/public/galeries/:id` | filtros e página, ou id | criar, editar ou excluir um flash, reservar ou liberar um flash, mudar o artista e editar ou ativar/desativar um serviço |
+| `GET /public/appointments/blocked-times` | por tatuador e dia | criar, cancelar ou expirar um agendamento daquele tatuador |
+
+Quando o TTL vence, só uma requisição consulta o banco. As outras esperam, mesmo em outras instâncias, e depois leem os dados novos. A trava é uma chave no próprio Redis. Nos últimos 30 segundos antes de vencer, essa requisição já renova o cache.
+
+Se o Redis estiver fora do ar, as rotas continuam funcionando direto no banco. A invalidação usa um contador de geração por namespace, que faz parte da chave: a escrita incrementa o contador e todas as páginas e filtros daquele namespace deixam de valer de uma vez. A implementação fica em [`@bookink/shared/cache`](packages/shared/src/cache).
+
+O cache é só para leitura. Ao criar um agendamento, a checagem de conflito de horário e de flash é feita no banco, dentro de uma transação.
+
+## Agendamento
+
+1. O tatuador copia o link da página dele no dashboard (`/<id-do-tatuador>`) e manda para os clientes.
+2. Na página, o cliente escolhe um flash, a data e um horário livre, e preenche os dados.
+   - A agenda usa blocos de 30 minutos sobre os horários de atendimento do tatuador.
+   - Um flash ocupa tantos blocos seguidos quanto a duração do serviço vinculado.
+   - Horários que já passaram ficam desabilitados.
+3. O appointment-service cria o agendamento como `PENDING` e o cliente vai para o Stripe Checkout pagar o sinal. O flash sai da galeria.
+4. O webhook do Stripe confirma o pagamento e o agendamento vira `CONFIRMED`. Se o checkout expirar (~30 min), o agendamento é cancelado e o horário e o flash voltam a ficar livres.
+
+O preço total de um flash nunca pode ser menor que o sinal do serviço vinculado. Essa regra é validada no formulário e no catalog-service. Detalhes em [services/appointment/README.md](services/appointment/README.md).
 
 ## Assinatura e planos
 
@@ -97,7 +130,9 @@ stripe listen --forward-to localhost:8000/webhooks/billing
 
 No dev, o Kong roda no Docker e alcança os serviços na sua máquina via `extra_hosts` (`host-gateway`), então o mesmo `kong.yml` serve para os dois composes.
 
-Cada serviço tem um `.env.example`. Em dev fora do Docker, troque os hosts (`postgres`, `rabbitmq`, `redis`, `user`) por `localhost`.
+Cada serviço tem um `.env.example`. Em dev fora do Docker, troque os hosts (`postgres`, `rabbitmq`, `redis`, `user`, `catalog`, `payment`) por `localhost`.
+
+O appointment-service e o payment-service precisam do mesmo `INTERNAL_API_SECRET` (mínimo de 32 caracteres) para abrir o checkout do sinal.
 
 ### Migrations em produção
 
@@ -118,8 +153,13 @@ Projeto em desenvolvimento. Já funcionam:
 - Cadastro, login (e-mail/senha, Google e GitHub) e recuperação de senha
 - Perfil e status do artista
 - Serviços e galeria
-- Listagens públicas de artistas, galeria e serviços, com cache no Redis
+- Rotas públicas de artistas, galeria, serviços e horários, com cache no Redis
 - Assinatura mensal com trial, limites por plano e troca de plano
+- Página pública do tatuador, com link para compartilhar
+- Agendamento de flash com o sinal pago no Stripe Checkout
+- Dashboard com indicadores do dia e a agenda do dia
 
 Próximos passos:
-- Agendamento com pagamento do sinal pelo Stripe Connect, direto para o tatuador
+- Sinal pago direto para a conta do tatuador, com Stripe Connect
+- Estorno automático ao cancelar um agendamento já pago
+- Confirmação do agendamento por e-mail para o cliente
