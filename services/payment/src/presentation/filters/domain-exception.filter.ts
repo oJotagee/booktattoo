@@ -1,4 +1,10 @@
-import { type ArgumentsHost, Catch, type ExceptionFilter, HttpStatus, Logger } from '@nestjs/common';
+import {
+  type ArgumentsHost,
+  Catch,
+  type ExceptionFilter,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { MessagingUnavailableError } from '@bookink/shared/events';
 import { INTERNAL_ERROR_MESSAGE } from '@bookink/shared/http';
 

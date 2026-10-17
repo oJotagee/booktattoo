@@ -32,9 +32,11 @@ describe('resetPassword', () => {
       throw createAxiosError(410);
     });
 
-    expect(await resetPassword({ token: 'expired-token', newPassword: 'NewPassword123!' })).toEqual({
-      error: 'Link inválido ou expirado. Solicite um novo.',
-    });
+    expect(await resetPassword({ token: 'expired-token', newPassword: 'NewPassword123!' })).toEqual(
+      {
+        error: 'Link inválido ou expirado. Solicite um novo.',
+      },
+    );
   });
 
   it('returns an invalid-link error for a 404 response', async () => {
@@ -42,9 +44,11 @@ describe('resetPassword', () => {
       throw createAxiosError(404);
     });
 
-    expect(await resetPassword({ token: 'unknown-token', newPassword: 'NewPassword123!' })).toEqual({
-      error: 'Link inválido ou expirado. Solicite um novo.',
-    });
+    expect(await resetPassword({ token: 'unknown-token', newPassword: 'NewPassword123!' })).toEqual(
+      {
+        error: 'Link inválido ou expirado. Solicite um novo.',
+      },
+    );
   });
 
   it('returns a generic error for any other failure', async () => {

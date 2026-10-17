@@ -43,12 +43,16 @@ describe('ReminderItem', () => {
   });
 
   it('shows the API error when the deletion fails', async () => {
-    deleteReminder.mockImplementation(async () => ({ error: 'Você não tem permissão para acessar este recurso.' }));
+    deleteReminder.mockImplementation(async () => ({
+      error: 'Você não tem permissão para acessar este recurso.',
+    }));
     const { user } = renderWithProviders(<ReminderItem reminder={reminder} />);
 
     await user.click(screen.getByRole('button', { name: 'Excluir lembrete Comprar agulhas 3RL' }));
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Você não tem permissão para acessar este recurso.'));
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith('Você não tem permissão para acessar este recurso.'),
+    );
     expect(toast.success).not.toHaveBeenCalled();
   });
 

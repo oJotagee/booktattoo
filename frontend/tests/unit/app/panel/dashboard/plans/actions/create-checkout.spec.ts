@@ -43,7 +43,10 @@ describe('createCheckout', () => {
 
   it('returns the API error message when the user already subscribes', async () => {
     api.post.mockImplementationOnce(async () => {
-      throw createAxiosError(409, { error: 'SubscriptionAlreadyActiveError', message: 'Usuário já possui uma assinatura ativa.' });
+      throw createAxiosError(409, {
+        error: 'SubscriptionAlreadyActiveError',
+        message: 'Usuário já possui uma assinatura ativa.',
+      });
     });
 
     expect(await createCheckout('BASIC')).toEqual({

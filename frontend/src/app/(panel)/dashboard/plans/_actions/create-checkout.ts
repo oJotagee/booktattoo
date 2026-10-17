@@ -18,6 +18,11 @@ export async function createCheckout(plan: PlanId): Promise<{ url?: string; erro
 
     return { url: data.url };
   } catch (error) {
-    return { error: getApiErrorMessage(error, 'Não foi possível iniciar o pagamento. Tente novamente em instantes.') };
+    return {
+      error: getApiErrorMessage(
+        error,
+        'Não foi possível iniciar o pagamento. Tente novamente em instantes.',
+      ),
+    };
   }
 }

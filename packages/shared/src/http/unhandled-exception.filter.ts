@@ -30,7 +30,9 @@ export class UnhandledExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    this.logger.error(exception instanceof Error ? (exception.stack ?? exception.message) : exception);
+    this.logger.error(
+      exception instanceof Error ? (exception.stack ?? exception.message) : exception,
+    );
 
     const status =
       exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;

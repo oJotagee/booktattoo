@@ -14,7 +14,8 @@ describe('getApiErrorMessage', () => {
   it('returns the domain message for 4xx responses', () => {
     const error = createAxiosError(409, {
       error: 'SubscriptionAlreadyActiveError',
-      message: 'Usuário já possui uma assinatura ativa.' });
+      message: 'Usuário já possui uma assinatura ativa.',
+    });
 
     expect(getApiErrorMessage(error, FALLBACK)).toBe('Usuário já possui uma assinatura ativa.');
   });

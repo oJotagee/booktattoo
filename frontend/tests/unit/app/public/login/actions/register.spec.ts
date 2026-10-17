@@ -29,7 +29,13 @@ describe('registerUser', () => {
       throw createAxiosError(409);
     });
 
-    expect(await registerUser({ name: 'John Doe', email: 'john.doe@example.com', password: 'Secret123!' })).toEqual({
+    expect(
+      await registerUser({
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        password: 'Secret123!',
+      }),
+    ).toEqual({
       error: 'Já existe uma conta com este e-mail.',
     });
   });
@@ -39,7 +45,13 @@ describe('registerUser', () => {
       throw createAxiosError(500);
     });
 
-    expect(await registerUser({ name: 'John Doe', email: 'john.doe@example.com', password: 'Secret123!' })).toEqual({
+    expect(
+      await registerUser({
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        password: 'Secret123!',
+      }),
+    ).toEqual({
       error: 'Não foi possível criar sua conta. Tente novamente.',
     });
   });

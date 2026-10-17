@@ -6,7 +6,8 @@ const MESSAGE_BY_STATUS: Record<number, string> = {
   429: 'Muitas tentativas em pouco tempo. Aguarde um instante e tente novamente.',
 };
 
-const NETWORK_ERROR_MESSAGE = 'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.';
+const NETWORK_ERROR_MESSAGE =
+  'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.';
 
 export function getApiErrorMessage(error: unknown, fallback: string): string {
   if (!isAxiosError(error)) return fallback;

@@ -12,7 +12,9 @@ export default function DashboardError({ reset }: DashboardErrorProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-24 text-center">
       <AlertTriangle className="size-10 text-orange-600" />
-      <h2 className="text-xl font-semibold text-foreground">Não foi possível carregar esta página</h2>
+      <h2 className="text-xl font-semibold text-foreground">
+        Não foi possível carregar esta página
+      </h2>
       <p className="max-w-md text-sm text-muted-foreground">
         Ocorreu um erro inesperado ao buscar seus dados. Tente novamente em instantes.
       </p>
