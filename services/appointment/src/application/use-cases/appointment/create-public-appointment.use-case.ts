@@ -1,9 +1,11 @@
 import { createEventEnvelope, EVENT_PUBLISHER, type EventPublisher } from '@bookink/shared/events';
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 import { CATALOG_GATEWAY, type CatalogGateway } from '../../port/catalog-gateway.port';
 import { ARTIST_GATEWAY, type ArtistGateway } from '../../port/artist-gateway.port';
 import { APPOINTMENT_REPOSITORY } from '../../port/appointment-repository.port';
+import { blockedTimesCacheNamespace } from '@/application/cache/public-cache';
 import { AppointmentEntity } from '@/domain/entities/appointment.entity';
 import type {
   AppointmentRepository,
@@ -60,6 +62,8 @@ export class CreatePublicAppointmentUseCase {
     private readonly checkout: DepositCheckoutGateway,
     @Inject(EVENT_PUBLISHER)
     private readonly publisher: EventPublisher,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute(input: CreatePublicAppointmentInput): Promise<CreatePublicAppointmentOutput> {
@@ -118,6 +122,7 @@ export class CreatePublicAppointmentUseCase {
         }
       },
     });
+    await this.cache.invalidate(blockedTimesCacheNamespace(artist.id));
 
     let checkout: Awaited<ReturnType<DepositCheckoutGateway['create']>>;
     try {
@@ -132,6 +137,7 @@ export class CreatePublicAppointmentUseCase {
     } catch (error) {
       // Sem checkout o horário não pode ficar preso esperando um pagamento que nunca vem
       await this.appointments.update(appointment.cancel());
+      await this.cache.invalidate(blockedTimesCacheNamespace(artist.id));
       throw error;
     }
 

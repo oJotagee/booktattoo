@@ -29,10 +29,11 @@ export function BookingStepDetails({
 }: BookingStepDetailsProps) {
   const [date, time] = useWatch({ control: form.control, name: ['date', 'time'] });
 
-  const { data: blockedTimes = [], isFetching } = useQuery({
+  const { data: blockedTimes = [], isLoading } = useQuery({
     queryKey: ['blocked-times', artistId, date],
     queryFn: () => getBlockedTimes({ artistId, date }),
     enabled: !!date,
+    refetchOnWindowFocus: true,
     staleTime: 20_000,
   });
 
@@ -76,7 +77,7 @@ export function BookingStepDetails({
             blockedTimes={blockedTimes}
             duration={duration}
             selectedTime={time}
-            isLoading={isFetching}
+            isLoading={isLoading}
             onSelectTime={(next) => form.setValue('time', next, { shouldValidate: true })}
           />
         </div>

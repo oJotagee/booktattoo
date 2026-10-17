@@ -1,8 +1,10 @@
 import { createEventEnvelope, EVENT_PUBLISHER, type EventPublisher } from '@bookink/shared/events';
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { AppointmentRepository } from '../../port/appointment-repository.port';
 import { APPOINTMENT_REPOSITORY } from '../../port/appointment-repository.port';
+import { blockedTimesCacheNamespace } from '@/application/cache/public-cache';
 
 @Injectable()
 export class ExpirePendingAppointmentUseCase {
@@ -11,6 +13,8 @@ export class ExpirePendingAppointmentUseCase {
     private readonly appointments: AppointmentRepository,
     @Inject(EVENT_PUBLISHER)
     private readonly publisher: EventPublisher,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute({ appointmentId }: { appointmentId: string }): Promise<void> {
@@ -19,6 +23,7 @@ export class ExpirePendingAppointmentUseCase {
     if (!appointment?.isPending) return;
 
     await this.appointments.update(appointment.cancel());
+    await this.cache.invalidate(blockedTimesCacheNamespace(appointment.userId));
 
     await this.publisher.publish(
       createEventEnvelope(

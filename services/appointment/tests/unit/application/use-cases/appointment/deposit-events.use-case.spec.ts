@@ -6,6 +6,7 @@ import { AppointmentStatus } from '@/domain/entities/appointment.entity';
 import { buildAppointment } from '@tests/unit/support/builders';
 import {
   createAppointmentRepositoryMock,
+  createCacheMock,
   createEventPublisherMock,
 } from '@tests/unit/support/mocks';
 
@@ -50,12 +51,14 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
 describe('ExpirePendingAppointmentUseCase', () => {
   let appointments: ReturnType<typeof createAppointmentRepositoryMock>;
   let publisher: ReturnType<typeof createEventPublisherMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: ExpirePendingAppointmentUseCase;
 
   beforeEach(() => {
     appointments = createAppointmentRepositoryMock();
     publisher = createEventPublisherMock();
-    useCase = new ExpirePendingAppointmentUseCase(appointments, publisher);
+    cache = createCacheMock();
+    useCase = new ExpirePendingAppointmentUseCase(appointments, publisher, cache);
   });
 
   it('cancels a pending appointment and releases the flash', async () => {
@@ -69,6 +72,7 @@ describe('ExpirePendingAppointmentUseCase', () => {
     expect(publisher.publish).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'appointment.cancelled' }),
     );
+    expect(cache.invalidate).toHaveBeenCalledWith('appointment:public:blocked-times:user-1');
   });
 
   it('keeps confirmed appointments untouched', async () => {

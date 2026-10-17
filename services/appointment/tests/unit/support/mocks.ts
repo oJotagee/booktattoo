@@ -1,5 +1,6 @@
 import { mock } from 'bun:test';
 
+import type { CachePort } from '@bookink/shared/cache';
 import type { EventPublisher } from '@bookink/shared/events';
 import type {
   AppointmentRepository,
@@ -84,5 +85,14 @@ export function buildGalerySnapshot(overrides: Partial<GalerySnapshot> = {}): Ga
     serviceId: 'service-1',
     service: { duration: 60, depositAmount: 8000 },
     ...overrides,
+  };
+}
+
+export function createCacheMock(): CachePort {
+  return {
+    getOrLoad: mock((_namespace: string, _key: string, loader: () => Promise<unknown>) =>
+      loader(),
+    ) as CachePort['getOrLoad'],
+    invalidate: mock(async () => undefined),
   };
 }

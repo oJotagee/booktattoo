@@ -77,11 +77,13 @@ function BookingFlow({ galery, step, onStepChange }: BookingFlowProps) {
   const artistQuery = useQuery({
     queryKey: ['public-artist', galery.userId],
     queryFn: () => getPublicArtist(galery.userId),
+    refetchOnWindowFocus: true,
   });
 
   const galeryQuery = useQuery({
     queryKey: ['public-galery', galery.id],
     queryFn: () => getPublicGalery(galery.id),
+    refetchOnWindowFocus: true,
   });
 
   if (artistQuery.isPending || galeryQuery.isPending) return <BookingFlowSkeleton />;

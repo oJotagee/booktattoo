@@ -9,8 +9,9 @@ export const router = {
 };
 
 export const toast = {
-  success: mock((_message: string) => undefined),
+  success: mock((_message: string, _options?: { id?: string }) => undefined),
   error: mock((_message: string) => undefined),
+  info: mock((_message: string, _options?: { id?: string }) => undefined),
 };
 
 let pathname = '/';

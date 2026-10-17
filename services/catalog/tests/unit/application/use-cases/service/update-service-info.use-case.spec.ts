@@ -35,6 +35,7 @@ describe('UpdateServiceInfoUseCase', () => {
       depositAmount: service.depositAmount,
     });
     expect(cache.invalidate).toHaveBeenCalledWith('catalog:public:services');
+    expect(cache.invalidate).toHaveBeenCalledWith('catalog:public:galeries');
   });
 
   it('keeps existing fields untouched when not provided', async () => {

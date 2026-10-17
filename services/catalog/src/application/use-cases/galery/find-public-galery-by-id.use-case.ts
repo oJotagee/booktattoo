@@ -1,8 +1,10 @@
+import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { ServiceRepository } from '../../port/service-repository.port';
 import type { ArtistRepository } from '../../port/artist-repository.port';
 import type { GaleryRepository } from '../../port/galery-repository.port';
+import { PUBLIC_GALERIES_CACHE } from '@/application/cache/public-cache';
 import { SERVICE_REPOSITORY } from '../../port/service-repository.port';
 import { ARTIST_REPOSITORY } from '../../port/artist-repository.port';
 import { GALERY_REPOSITORY } from '../../port/galery-repository.port';
@@ -36,18 +38,30 @@ export class FindPublicGaleryByIdUseCase {
     private readonly services: ServiceRepository,
     @Inject(ARTIST_REPOSITORY)
     private readonly artists: ArtistRepository,
+    @Inject(CACHE_PORT)
+    private readonly cache: CachePort,
   ) {}
 
   async execute({ id }: { id: string }): Promise<FindPublicGaleryByIdOutput> {
-    const galery = await this.galeries.findById(id);
+    const galery = await this.cache.getOrLoad(PUBLIC_GALERIES_CACHE, `id=${id}`, () =>
+      this.load(id),
+    );
+
     if (!galery) throw new GaleryNotFoundError(id);
+
+    return galery;
+  }
+
+  private async load(id: string): Promise<FindPublicGaleryByIdOutput | null> {
+    const galery = await this.galeries.findById(id);
+    if (!galery) return null;
 
     const [service, artist] = await Promise.all([
       this.services.findById(galery.serviceId),
       this.artists.findById(galery.userId),
     ]);
 
-    if (!service || artist?.status === ArtistStatus.INACTIVE) throw new GaleryNotFoundError(id);
+    if (!service || artist?.status === ArtistStatus.INACTIVE) return null;
 
     return {
       id: galery.id,

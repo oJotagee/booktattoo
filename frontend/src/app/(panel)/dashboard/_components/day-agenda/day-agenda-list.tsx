@@ -1,12 +1,18 @@
 'use client';
 
+import { CalendarX, ChevronDown, Eye, History } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { CalendarX, ChevronDown, Eye, History } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from 'cn';
 
 import { type DayAppointment, getDayAppointments } from '../../_data-access/get-day-appointments';
+import { AppointmentDetailsDialog } from './appointment-details-dialog';
+import { AppointmentStatusBadge } from './appointment-status-badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { DateButton } from './date-button';
 import {
   buildOccupantMap,
   isDateParam,
@@ -14,12 +20,6 @@ import {
   SLOT_MINUTES,
   studioToday,
 } from '@/lib/schedule';
-import { AppointmentDetailsDialog } from './appointment-details-dialog';
-import { AppointmentStatusBadge } from './appointment-status-badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { DateButton } from './date-button';
 
 interface DayAgendaListProps {
   times: string[];

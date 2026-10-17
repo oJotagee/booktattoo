@@ -15,6 +15,7 @@ import {
   buildArtistSnapshot,
   buildGalerySnapshot,
   createAppointmentRepositoryMock,
+  createCacheMock,
   createArtistGatewayMock,
   createCatalogGatewayMock,
   createDepositCheckoutGatewayMock,
@@ -39,9 +40,17 @@ describe('CreatePublicAppointmentUseCase', () => {
   let catalog: ReturnType<typeof createCatalogGatewayMock>;
   let checkout: ReturnType<typeof createDepositCheckoutGatewayMock>;
   let publisher: ReturnType<typeof createEventPublisherMock>;
+  let cache: ReturnType<typeof createCacheMock>;
 
   function buildUseCase() {
-    return new CreatePublicAppointmentUseCase(appointments, artists, catalog, checkout, publisher);
+    return new CreatePublicAppointmentUseCase(
+      appointments,
+      artists,
+      catalog,
+      checkout,
+      publisher,
+      cache,
+    );
   }
 
   beforeEach(() => {
@@ -50,6 +59,7 @@ describe('CreatePublicAppointmentUseCase', () => {
     catalog = createCatalogGatewayMock();
     checkout = createDepositCheckoutGatewayMock();
     publisher = createEventPublisherMock();
+    cache = createCacheMock();
   });
 
   it('creates a pending appointment, opens the deposit checkout and publishes the event', async () => {
@@ -162,5 +172,19 @@ describe('CreatePublicAppointmentUseCase', () => {
       expect.objectContaining({ status: AppointmentStatus.CANCELLED }),
     );
     expect(publisher.publish).not.toHaveBeenCalled();
+    expect(cache.invalidate).toHaveBeenCalledTimes(2);
+  });
+
+  it('invalidates the artist blocked times once the slot is reserved', async () => {
+    await buildUseCase().execute(input);
+
+    expect(cache.invalidate).toHaveBeenCalledWith('appointment:public:blocked-times:user-1');
+  });
+
+  it('keeps the cache when the slot is not available', async () => {
+    appointments = createAppointmentRepositoryMock({ sameDay: [], galeryTaken: true });
+
+    await expect(buildUseCase().execute(input)).rejects.toBeInstanceOf(GaleryUnavailableError);
+    expect(cache.invalidate).not.toHaveBeenCalled();
   });
 });

@@ -4,6 +4,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
+const BOOKING_RETURN_TOAST_ID = 'booking-return';
+
 export function BookingReturnToast() {
   const router = useRouter();
   const pathname = usePathname();
@@ -14,9 +16,11 @@ export function BookingReturnToast() {
     if (booking !== 'success' && booking !== 'cancelled') return;
 
     if (booking === 'success') {
-      toast.success('Sinal pago! Seu horário está reservado.');
+      toast.success('Sinal pago! Seu horário está reservado.', { id: BOOKING_RETURN_TOAST_ID });
     } else {
-      toast.info('Pagamento não concluído. O horário fica reservado por até 30 minutos.');
+      toast.info('Pagamento não concluído. O horário fica reservado por até 30 minutos.', {
+        id: BOOKING_RETURN_TOAST_ID,
+      });
     }
 
     const params = new URLSearchParams(searchParams);

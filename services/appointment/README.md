@@ -104,6 +104,7 @@ bun run --cwd services/appointment dev
 | `PORT` | Porta HTTP (8082) |
 | `DATABASE_URL` | Conexão com o banco `appointment` |
 | `RABBITMQ_URL` | Conexão AMQP |
+| `REDIS_URL` | Redis do cache da rota pública de horários ocupados (`CACHE_TTL_SECONDS`, `CACHE_REFRESH_AHEAD_SECONDS`) |
 | `JWT_SECRET` | Mesmo segredo do user-service, usado só para validar o token |
 | `USER_SERVICE_URL` | URL interna do user-service, para ler o tatuador e seus horários |
 | `CATALOG_SERVICE_URL` | URL interna do catalog-service, para ler o flash e o serviço |

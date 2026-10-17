@@ -10,18 +10,21 @@ import {
 import { buildAppointment } from '@tests/unit/support/builders';
 import {
   createAppointmentRepositoryMock,
+  createCacheMock,
   createEventPublisherMock,
 } from '@tests/unit/support/mocks';
 
 describe('CancelAppointmentUseCase', () => {
   let appointments: ReturnType<typeof createAppointmentRepositoryMock>;
   let publisher: ReturnType<typeof createEventPublisherMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: CancelAppointmentUseCase;
 
   beforeEach(() => {
     appointments = createAppointmentRepositoryMock();
     publisher = createEventPublisherMock();
-    useCase = new CancelAppointmentUseCase(appointments, publisher);
+    cache = createCacheMock();
+    useCase = new CancelAppointmentUseCase(appointments, publisher, cache);
   });
 
   it('cancels the appointment and releases the flash', async () => {
@@ -38,6 +41,7 @@ describe('CancelAppointmentUseCase', () => {
         payload: { appointmentId: 'appointment-1', artistId: 'user-1', galeryId: 'galery-1' },
       }),
     );
+    expect(cache.invalidate).toHaveBeenCalledWith('appointment:public:blocked-times:user-1');
   });
 
   it('throws when the appointment does not exist', async () => {

@@ -53,6 +53,7 @@ export function GaleryList({ artistId }: GaleryListProps = {}) {
         userId: artistId,
       }),
     placeholderData: keepPreviousData,
+    refetchOnWindowFocus: true,
   });
 
   function navigate(update: (params: URLSearchParams) => void) {

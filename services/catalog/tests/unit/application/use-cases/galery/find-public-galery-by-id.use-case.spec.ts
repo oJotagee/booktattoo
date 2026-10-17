@@ -6,6 +6,7 @@ import { GaleryNotFoundError } from '@/domain/errors/galery.error';
 import { buildArtist, buildGalery, buildService } from '@tests/unit/support/builders';
 import {
   createArtistRepositoryMock,
+  createCacheMock,
   createGaleryRepositoryMock,
   createServiceRepositoryMock,
 } from '@tests/unit/support/mocks';
@@ -14,13 +15,15 @@ describe('FindPublicGaleryByIdUseCase', () => {
   let galeries: ReturnType<typeof createGaleryRepositoryMock>;
   let services: ReturnType<typeof createServiceRepositoryMock>;
   let artists: ReturnType<typeof createArtistRepositoryMock>;
+  let cache: ReturnType<typeof createCacheMock>;
   let useCase: FindPublicGaleryByIdUseCase;
 
   beforeEach(() => {
     galeries = createGaleryRepositoryMock();
     services = createServiceRepositoryMock();
     artists = createArtistRepositoryMock();
-    useCase = new FindPublicGaleryByIdUseCase(galeries, services, artists);
+    cache = createCacheMock();
+    useCase = new FindPublicGaleryByIdUseCase(galeries, services, artists, cache);
   });
 
   it('returns the galery with the service duration and deposit', async () => {
@@ -48,5 +51,28 @@ describe('FindPublicGaleryByIdUseCase', () => {
     artists.findById = async () => buildArtist({ status: ArtistStatus.INACTIVE });
 
     await expect(useCase.execute({ id: 'galery-1' })).rejects.toBeInstanceOf(GaleryNotFoundError);
+  });
+});
+
+describe('FindPublicGaleryByIdUseCase cache', () => {
+  it('caches the galery in the public galeries namespace by id', async () => {
+    const galeries = createGaleryRepositoryMock();
+    const services = createServiceRepositoryMock();
+    const cache = createCacheMock();
+    galeries.findById = async () => buildGalery();
+    services.findById = async () => buildService();
+
+    await new FindPublicGaleryByIdUseCase(
+      galeries,
+      services,
+      createArtistRepositoryMock(),
+      cache,
+    ).execute({ id: 'galery-1' });
+
+    expect(cache.getOrLoad).toHaveBeenCalledWith(
+      'catalog:public:galeries',
+      'id=galery-1',
+      expect.any(Function),
+    );
   });
 });

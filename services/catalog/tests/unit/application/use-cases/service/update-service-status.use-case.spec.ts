@@ -24,6 +24,7 @@ describe('UpdateServiceStatusUseCase', () => {
 
     expect(result.status).toBe(true);
     expect(cache.invalidate).toHaveBeenCalledWith('catalog:public:services');
+    expect(cache.invalidate).toHaveBeenCalledWith('catalog:public:galeries');
   });
 
   it('deactivates an active service', async () => {

@@ -1,11 +1,11 @@
 import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
+import { PUBLIC_GALERIES_CACHE, PUBLIC_SERVICES_CACHE } from '@/application/cache/public-cache';
+import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import type { ServiceRepository } from '../../port/service-repository.port';
 import { SERVICE_REPOSITORY } from '../../port/service-repository.port';
 import { ServiceNotFoundError } from '@/domain/errors/service.error';
-import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
-import { PUBLIC_SERVICES_CACHE } from '@/application/cache/public-cache';
 
 type UpdateServiceInfoInput = {
   serviceId: string;
@@ -48,7 +48,11 @@ export class UpdateServiceInfoUseCase {
     });
 
     await this.services.update(updatedService);
-    await this.cache.invalidate(PUBLIC_SERVICES_CACHE);
+
+    await Promise.all([
+      this.cache.invalidate(PUBLIC_SERVICES_CACHE),
+      this.cache.invalidate(PUBLIC_GALERIES_CACHE),
+    ]);
 
     return {
       id: updatedService.id,
