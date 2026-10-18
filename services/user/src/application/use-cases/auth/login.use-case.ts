@@ -1,5 +1,7 @@
+import { ATTEMPT_LIMITER, type AttemptLimiter } from '@bookink/shared/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
+import { InvalidCredentialsError, TooManyLoginAttemptsError } from '@/domain/errors/user.error';
 import type { RefreshTokenRepository } from '../../port/refresh-token-repository.port';
 import { REFRESH_TOKEN_REPOSITORY } from '../../port/refresh-token-repository.port';
 import type { SessionTokenIssuer } from '../../port/session-token-issuer.port';
@@ -8,12 +10,14 @@ import { RefreshTokenEntity } from '@/domain/entities/refresh-token.entity';
 import type { PasswordHasher } from '../../port/password-hasher.port';
 import type { TokenGenerator } from '../../port/token-generator.port';
 import type { UserRepository } from '../../port/user-repository.port';
-import { InvalidCredentialsError } from '@/domain/errors/user.error';
 import { PASSWORD_HASHER } from '../../port/password-hasher.port';
 import { TOKEN_GENERATOR } from '../../port/token-generator.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const LOGIN_ATTEMPTS_KEY_PREFIX = 'user:login-failures:';
+const MAX_FAILED_LOGINS = 5;
+const LOGIN_LOCK_SECONDS = 15 * 60;
 
 type LoginInput = {
   email: string;
@@ -45,14 +49,31 @@ export class LoginUseCase {
     @Inject(TOKEN_GENERATOR) private readonly tokenGenerator: TokenGenerator,
     @Inject(SESSION_TOKEN_ISSUER) private readonly sessionTokenIssuer: SessionTokenIssuer,
     @Inject(REFRESH_TOKEN_REPOSITORY) private readonly refreshTokens: RefreshTokenRepository,
+    @Inject(ATTEMPT_LIMITER) private readonly attempts: AttemptLimiter,
   ) {}
 
   async execute({ email, password }: LoginInput): Promise<LoginOutput> {
-    const user = await this.users.findByEmail(email);
-    if (!user || !user.passwordHash) throw new InvalidCredentialsError();
+    const attemptsKey = `${LOGIN_ATTEMPTS_KEY_PREFIX}${email.trim().toLowerCase()}`;
 
-    const passwordMatches = await this.passwordHasher.compare(password, user.passwordHash);
-    if (!passwordMatches) throw new InvalidCredentialsError();
+    const lock = await this.attempts.peek(attemptsKey, MAX_FAILED_LOGINS);
+    if (!lock.allowed) throw new TooManyLoginAttemptsError(lock.retryAfterSeconds);
+
+    const user = await this.users.findByEmail(email);
+    const passwordMatches =
+      !!user?.passwordHash && (await this.passwordHasher.compare(password, user.passwordHash));
+
+    if (!user || !passwordMatches) {
+      const attempt = await this.attempts.consume(
+        attemptsKey,
+        MAX_FAILED_LOGINS,
+        LOGIN_LOCK_SECONDS,
+      );
+      if (!attempt.allowed) throw new TooManyLoginAttemptsError(attempt.retryAfterSeconds);
+
+      throw new InvalidCredentialsError();
+    }
+
+    await this.attempts.reset(attemptsKey);
 
     const accessToken = this.sessionTokenIssuer.issueAccessToken({
       sub: user.id,

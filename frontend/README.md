@@ -102,3 +102,7 @@ Cada rota segue a convenção:
 O NextAuth usa estratégia `jwt`. No login por credenciais ele chama `POST /auth/login`; no login social chama `POST /auth/oauth/upsert` no user-service. O `accessToken` e o `refreshToken` retornados ficam no token do NextAuth e são enviados como `Bearer` nas chamadas autenticadas ao gateway (ver [src/lib/get-access-token.ts](src/lib/get-access-token.ts)).
 
 Todas as requisições passam pelo Kong ([src/lib/api.ts](src/lib/api.ts)); o front não conhece a porta de nenhum serviço.
+
+Como as chamadas saem do servidor do Next, um interceptor do axios repassa o IP do cliente (`x-forwarded-for` / `x-real-ip` da requisição recebida) no header `X-Forwarded-For`. Assim o rate limiting do Kong conta por cliente, e não pelo IP do Next.
+
+Quando o login é bloqueado por excesso de tentativas (`429` no user-service), o `authorize` do NextAuth lança um `CredentialsSignin` com o código `too_many_attempts` ([src/lib/auth-errors.ts](src/lib/auth-errors.ts)), e o formulário de login mostra uma mensagem própria.

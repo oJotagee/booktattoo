@@ -126,7 +126,7 @@ export class AppointmentEntity {
       ...input,
       clientName: input.clientName.trim(),
       clientEmail: input.clientEmail.trim().toLowerCase(),
-      clientPhone: input.clientPhone.trim(),
+      clientPhone: input.clientPhone.replace(/\D/g, ''),
       status: AppointmentStatus.PENDING,
       checkoutSessionId: null,
       paidAt: null,

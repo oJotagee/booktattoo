@@ -8,6 +8,7 @@ import {
   ExternalServiceUnavailableError,
   GaleryUnavailableError,
   InvalidAppointmentError,
+  PendingAppointmentLimitError,
   SlotInThePastError,
   SlotUnavailableError,
 } from '@/domain/errors/appointment.error';
@@ -72,6 +73,7 @@ describe('CreatePublicAppointmentUseCase', () => {
     expect(appointment.status).toBe(AppointmentStatus.PENDING);
     expect(appointment.scheduledAt).toEqual(new Date('2030-01-15T12:30:00.000Z'));
     expect(appointment.clientEmail).toBe('mariana@email.com');
+    expect(appointment.clientPhone).toBe('11999999999');
     expect(appointment.price).toBe(28000);
     expect(appointment.depositAmount).toBe(8000);
     expect(appointment.duration).toBe(60);
@@ -147,6 +149,7 @@ describe('CreatePublicAppointmentUseCase', () => {
         buildAppointment({ scheduledAt: new Date('2030-01-15T13:00:00.000Z'), duration: 30 }),
       ],
       galeryTaken: false,
+      clientHasPending: false,
     });
 
     // 09:30 + 60min precisa de 09:30 e 10:00; 10:00 já está ocupado
@@ -155,7 +158,11 @@ describe('CreatePublicAppointmentUseCase', () => {
   });
 
   it('rejects a flash that already has an active appointment', async () => {
-    appointments = createAppointmentRepositoryMock({ sameDay: [], galeryTaken: true });
+    appointments = createAppointmentRepositoryMock({
+      sameDay: [],
+      galeryTaken: true,
+      clientHasPending: false,
+    });
 
     await expect(buildUseCase().execute(input)).rejects.toBeInstanceOf(GaleryUnavailableError);
   });
@@ -182,9 +189,27 @@ describe('CreatePublicAppointmentUseCase', () => {
   });
 
   it('keeps the cache when the slot is not available', async () => {
-    appointments = createAppointmentRepositoryMock({ sameDay: [], galeryTaken: true });
+    appointments = createAppointmentRepositoryMock({
+      sameDay: [],
+      galeryTaken: true,
+      clientHasPending: false,
+    });
 
     await expect(buildUseCase().execute(input)).rejects.toBeInstanceOf(GaleryUnavailableError);
+    expect(cache.invalidate).not.toHaveBeenCalled();
+  });
+
+  it('rejects a client that already has an appointment waiting for payment', async () => {
+    appointments = createAppointmentRepositoryMock({
+      sameDay: [],
+      galeryTaken: false,
+      clientHasPending: true,
+    });
+
+    await expect(buildUseCase().execute(input)).rejects.toBeInstanceOf(
+      PendingAppointmentLimitError,
+    );
+    expect(checkout.create).not.toHaveBeenCalled();
     expect(cache.invalidate).not.toHaveBeenCalled();
   });
 });

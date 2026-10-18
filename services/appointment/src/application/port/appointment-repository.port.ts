@@ -11,12 +11,12 @@ export type FindInRangeParams = DayRange & {
 export type AvailabilityContext = {
   sameDay: AppointmentEntity[];
   galeryTaken: boolean;
+  clientHasPending: boolean;
 };
 
 export type CreateExclusiveParams = {
   appointment: AppointmentEntity;
   day: DayRange;
-  // Roda dentro da mesma transação (e lock por tatuador) do insert; lança um erro de domínio para abortar
   assertAvailable: (context: AvailabilityContext) => void;
 };
 

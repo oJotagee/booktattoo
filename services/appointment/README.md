@@ -33,6 +33,8 @@ Serviço e flash vêm do catalog-service e o tatuador do user-service; aqui fica
 
 Se o checkout não puder ser criado, o agendamento é cancelado na hora para não prender o horário.
 
+Cada cliente pode ter no máximo 1 agendamento `PENDING` por vez, identificado pelo e-mail ou pelo telefone (guardado só com dígitos). Um segundo pedido enquanto o primeiro aguarda pagamento responde `PendingAppointmentLimitError` (`409`). A checagem roda na mesma transação do insert, e impede que alguém segure vários horários em loop.
+
 ### Cache dos horários ocupados
 
 `GET /public/appointments/blocked-times` usa o cache Redis de [`@bookink/shared/cache`](../../packages/shared/src/cache), com um namespace por tatuador (`appointment:public:blocked-times:<artistId>`) e uma chave por dia.

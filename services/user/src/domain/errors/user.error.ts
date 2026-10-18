@@ -39,3 +39,11 @@ export class UnsupportedAvatarTypeError extends Error {
     this.name = 'UnsupportedAvatarTypeError';
   }
 }
+
+export class TooManyLoginAttemptsError extends Error {
+  constructor(retryAfterSeconds: number) {
+    const minutes = Math.max(1, Math.ceil(retryAfterSeconds / 60));
+    super(`Muitas tentativas de login. Tente novamente em ${minutes} min.`);
+    this.name = 'TooManyLoginAttemptsError';
+  }
+}

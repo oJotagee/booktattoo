@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 
 import { LoginUseCase } from '@/application/use-cases/auth/login.use-case';
-import { InvalidCredentialsError } from '@/domain/errors/user.error';
+import { InvalidCredentialsError, TooManyLoginAttemptsError } from '@/domain/errors/user.error';
 import { buildUser } from '@tests/unit/support/builders';
 import {
+  createAttemptLimiterMock,
   createRefreshTokenRepositoryMock,
   createSessionTokenIssuerMock,
   createTokenGeneratorMock,
@@ -17,6 +18,7 @@ describe('LoginUseCase', () => {
   let tokenGenerator: ReturnType<typeof createTokenGeneratorMock>;
   let sessionTokenIssuer: ReturnType<typeof createSessionTokenIssuerMock>;
   let refreshTokens: ReturnType<typeof createRefreshTokenRepositoryMock>;
+  let attempts: ReturnType<typeof createAttemptLimiterMock>;
   let useCase: LoginUseCase;
 
   beforeEach(() => {
@@ -25,12 +27,14 @@ describe('LoginUseCase', () => {
     tokenGenerator = createTokenGeneratorMock();
     sessionTokenIssuer = createSessionTokenIssuerMock();
     refreshTokens = createRefreshTokenRepositoryMock();
+    attempts = createAttemptLimiterMock();
     useCase = new LoginUseCase(
       users,
       passwordHasher,
       tokenGenerator,
       sessionTokenIssuer,
       refreshTokens,
+      attempts,
     );
   });
 
@@ -75,5 +79,41 @@ describe('LoginUseCase', () => {
     await expect(
       useCase.execute({ email: 'john.doe@example.com', password: 'wrong-password' }),
     ).rejects.toThrow(InvalidCredentialsError);
+  });
+
+  it('locks the account after 5 failed attempts, even with the right password', async () => {
+    users.findByEmail = async () => buildUser({ email: 'john.doe@example.com', password: 'hash' });
+    passwordHasher.compare = async () => false;
+
+    for (let i = 0; i < 5; i++) {
+      await expect(
+        useCase.execute({ email: 'john.doe@example.com', password: 'wrong' }),
+      ).rejects.toBeInstanceOf(InvalidCredentialsError);
+    }
+
+    passwordHasher.compare = async () => true;
+
+    await expect(
+      useCase.execute({ email: 'John.Doe@Example.com', password: 'right' }),
+    ).rejects.toBeInstanceOf(TooManyLoginAttemptsError);
+  });
+
+  it('counts attempts for unknown e-mails too', async () => {
+    users.findByEmail = async () => null;
+
+    await expect(
+      useCase.execute({ email: 'ghost@example.com', password: 'x' }),
+    ).rejects.toBeInstanceOf(InvalidCredentialsError);
+
+    expect(attempts.consume).toHaveBeenCalledWith('user:login-failures:ghost@example.com', 5, 900);
+  });
+
+  it('clears the failed attempts after a successful login', async () => {
+    users.findByEmail = async () => buildUser({ email: 'john.doe@example.com', password: 'hash' });
+    passwordHasher.compare = async () => true;
+
+    await useCase.execute({ email: 'john.doe@example.com', password: 'right' });
+
+    expect(attempts.reset).toHaveBeenCalledWith('user:login-failures:john.doe@example.com');
   });
 });

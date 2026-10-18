@@ -9,10 +9,10 @@ API de usuários e autenticação (NestJS + Prisma). Emite os JWTs de sessão qu
 
 ## Responsabilidades
 
-- Cadastro e login por email/senha (bcrypt)
+- Cadastro e login por email/senha (bcrypt), com bloqueio da conta por 15 min após 5 senhas erradas
 - Login social (GitHub/Google) via upsert de conta chamado pelo NextAuth
 - Emissão de `accessToken` (JWT) e rotação de `refreshToken`
-- Esqueci/redefinir senha com token enviado por email
+- Esqueci/redefinir senha com token enviado por email (no máximo 1 email por conta a cada 60s)
 - Perfil do tatuador: contato, status (ativo/inativo/férias) e avatar (S3)
 - Listagem pública de artistas e perfil público por id, com cache no Redis
 
@@ -21,10 +21,10 @@ API de usuários e autenticação (NestJS + Prisma). Emite os JWTs de sessão qu
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
 | `POST` | `/auth/register` | — | Cadastro por email/senha |
-| `POST` | `/auth/login` | — | Login, retorna sessão (user + tokens) |
+| `POST` | `/auth/login` | — | Login, retorna sessão (user + tokens). Após 5 senhas erradas para o mesmo e-mail, responde `429` por 15 minutos |
 | `POST` | `/auth/oauth/upsert` | `X-Internal-Secret` | Cria/vincula conta OAuth e retorna sessão |
 | `POST` | `/auth/refresh-token` | — | Troca o refresh token por uma nova sessão |
-| `POST` | `/auth/forgot-password` | — | Envia email com link de redefinição |
+| `POST` | `/auth/forgot-password` | — | Envia email com link de redefinição. Pedidos repetidos em menos de 60s são ignorados, com a mesma resposta |
 | `POST` | `/auth/reset-password` | — | Redefine a senha a partir do token |
 | `GET` | `/users/me` | JWT | Dados do usuário logado |
 | `GET` | `/users/me/plan` | JWT | Acesso do plano: `TRIAL` (7 dias após o cadastro), `ACTIVE` ou `EXPIRED`, com os limites e o resumo da assinatura |

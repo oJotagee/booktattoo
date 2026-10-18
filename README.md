@@ -80,6 +80,32 @@ O cache é só para leitura. Ao criar um agendamento, a checagem de conflito de 
 
 O preço total de um flash nunca pode ser menor que o sinal do serviço vinculado. Essa regra é validada no formulário e no catalog-service. Detalhes em [services/appointment/README.md](services/appointment/README.md).
 
+## Proteção contra abuso
+
+Duas camadas: o Kong segura o volume por IP, e os serviços seguram o abuso por conta, que não depende de IP.
+
+**Rate limiting no Kong** (plugin `rate-limiting`, `policy: local`, por IP do cliente):
+
+| Rota | Limite |
+|---|---|
+| `POST /auth/login`, `/auth/register`, `/auth/reset-password` | 10/min e 60/h |
+| `POST /auth/forgot-password` | 3/min e 10/h |
+| `POST /public/appointments` | 5/min e 20/h |
+| `POST /auth/refresh-token`, `/auth/oauth/upsert` | 1000/min (chamadas de sessão do próprio Next) |
+| Qualquer outra rota | 300/min |
+
+Quem passa do limite recebe `429`, e o frontend mostra "Muitas tentativas em pouco tempo…".
+
+As chamadas à API saem do servidor do Next, então o Next repassa o IP real do cliente em `X-Forwarded-For` ([frontend/src/lib/api.ts](frontend/src/lib/api.ts)), e o Kong confia nesse header (`KONG_TRUSTED_IPS`, `KONG_REAL_IP_HEADER`). Como quem chama o Kong diretamente consegue forjar esse header, os limites por conta abaixo são a proteção que não dá para contornar trocando de IP.
+
+**Limites por conta nos serviços** (contadores no Redis via `AttemptLimiter` de [`@bookink/shared/cache`](packages/shared/src/cache)):
+
+| Onde | Regra |
+|---|---|
+| Login (user) | 5 senhas erradas para o mesmo e-mail bloqueiam a conta por 15 minutos (`429`), mesmo com a senha certa durante o bloqueio |
+| Esqueci a senha (user) | No máximo 1 e-mail de redefinição por conta a cada 60s. A resposta é sempre a mesma, para não revelar se o e-mail existe |
+| Agendamento (appointment) | No máximo 1 agendamento aguardando pagamento por e-mail ou telefone (`409`) |
+
 ## Assinatura e planos
 
 | Acesso | Serviços | Flashs na galeria |

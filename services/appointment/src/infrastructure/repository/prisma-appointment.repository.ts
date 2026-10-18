@@ -6,6 +6,7 @@ import type { DayRange } from '@/domain/schedule';
 import {
   ACTIVE_APPOINTMENT_STATUSES,
   type AppointmentEntity,
+  AppointmentStatus,
 } from '@/domain/entities/appointment.entity';
 import type {
   AppointmentRepository,
@@ -72,7 +73,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
     await this.prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${appointment.userId}))`;
 
-      const [sameDay, galeryTaken] = await Promise.all([
+      const [sameDay, galeryTaken, clientPending] = await Promise.all([
         tx.appointment.findMany({
           where: {
             userId: appointment.userId,
@@ -88,11 +89,21 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
               },
             })
           : Promise.resolve(0),
+        tx.appointment.count({
+          where: {
+            status: AppointmentStatus.PENDING,
+            OR: [
+              { clientEmail: appointment.clientEmail },
+              { clientPhone: appointment.clientPhone },
+            ],
+          },
+        }),
       ]);
 
       assertAvailable({
         sameDay: sameDay.map(AppointmentMapper.toDomain),
         galeryTaken: galeryTaken > 0,
+        clientHasPending: clientPending > 0,
       });
 
       await tx.appointment.create({ data: AppointmentMapper.toPersistence(appointment) });

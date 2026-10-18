@@ -1,8 +1,8 @@
 import { type ArgumentsHost, Catch, type ExceptionFilter, HttpStatus } from '@nestjs/common';
 
 import { AccountAlreadyLinkedError, InvalidAccountError } from '@/domain/errors/account.error';
-import { InvalidEmailError } from '@/domain/errors/email.error';
 import { InvalidSubscriptionError } from '@/domain/errors/subscription.error';
+import { InvalidEmailError } from '@/domain/errors/email.error';
 import {
   InvalidPasswordResetTokenError,
   PasswordResetTokenExpiredError,
@@ -17,6 +17,7 @@ import {
 } from '@/domain/errors/refresh-token.error';
 import {
   InvalidCredentialsError,
+  TooManyLoginAttemptsError,
   InvalidUserError,
   UnsupportedAvatarTypeError,
   UserAlreadyExistsError,
@@ -35,6 +36,7 @@ const DOMAIN_ERRORS = [
   InvalidRefreshTokenError,
   UserAlreadyInStatusError,
   InvalidCredentialsError,
+  TooManyLoginAttemptsError,
   RefreshTokenExpiredError,
   RefreshTokenRevokedError,
   UserNotFoundError,
@@ -60,6 +62,7 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [InvalidSubscriptionError, HttpStatus.BAD_REQUEST],
 
   [InvalidCredentialsError, HttpStatus.UNAUTHORIZED],
+  [TooManyLoginAttemptsError, HttpStatus.TOO_MANY_REQUESTS],
   [RefreshTokenExpiredError, HttpStatus.UNAUTHORIZED],
   [RefreshTokenRevokedError, HttpStatus.UNAUTHORIZED],
   [RefreshTokenNotFoundError, HttpStatus.UNAUTHORIZED],

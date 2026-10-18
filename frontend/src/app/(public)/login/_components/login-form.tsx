@@ -10,6 +10,7 @@ import Link from 'next/link';
 
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { type LoginSchemaData, useLoginSchema } from './schemas';
+import { TOO_MANY_LOGIN_ATTEMPTS_CODE } from '@/lib/auth-errors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -30,6 +31,10 @@ export function LoginForm() {
         password: values.password,
         redirect: false,
       });
+
+      if (result?.code === TOO_MANY_LOGIN_ATTEMPTS_CODE) {
+        throw new Error('Muitas tentativas de login. Aguarde 15 minutos e tente novamente.');
+      }
 
       if (result?.error === 'CredentialsSignin') {
         throw new Error('E-mail ou senha inválidos.');

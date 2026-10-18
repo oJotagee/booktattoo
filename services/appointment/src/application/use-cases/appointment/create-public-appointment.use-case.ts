@@ -19,6 +19,7 @@ import {
   ArtistUnavailableError,
   GaleryUnavailableError,
   InvalidAppointmentError,
+  PendingAppointmentLimitError,
   SlotInThePastError,
   SlotUnavailableError,
 } from '@/domain/errors/appointment.error';
@@ -104,7 +105,8 @@ export class CreatePublicAppointmentUseCase {
     await this.appointments.createExclusive({
       appointment,
       day: dayRange(date),
-      assertAvailable: ({ sameDay, galeryTaken }: AvailabilityContext) => {
+      assertAvailable: ({ sameDay, galeryTaken, clientHasPending }: AvailabilityContext) => {
+        if (clientHasPending) throw new PendingAppointmentLimitError();
         if (galeryTaken) throw new GaleryUnavailableError();
 
         const blocked = buildBlockedTimes(

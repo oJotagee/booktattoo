@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'bun:test';
 import { ForgotPasswordUseCase } from '@/application/use-cases/auth/forgot-password.use-case';
 import { buildUser } from '@tests/unit/support/builders';
 import {
+  createAttemptLimiterMock,
   createMailPortMock,
   createPasswordResetTokenRepositoryMock,
   createTokenGeneratorMock,
@@ -21,7 +22,13 @@ describe('ForgotPasswordUseCase', () => {
     tokenGenerator = createTokenGeneratorMock();
     passwordResetTokens = createPasswordResetTokenRepositoryMock();
     mail = createMailPortMock();
-    useCase = new ForgotPasswordUseCase(users, tokenGenerator, passwordResetTokens, mail);
+    useCase = new ForgotPasswordUseCase(
+      users,
+      tokenGenerator,
+      passwordResetTokens,
+      mail,
+      createAttemptLimiterMock(),
+    );
   });
 
   it('creates a reset token and sends an email when the user exists', async () => {
@@ -42,5 +49,14 @@ describe('ForgotPasswordUseCase', () => {
 
     expect(passwordResetTokens.create).not.toHaveBeenCalled();
     expect(mail.send).not.toHaveBeenCalled();
+  });
+
+  it('sends at most one e-mail per account every 60 seconds', async () => {
+    users.findByEmail = async () => buildUser({ id: 'user-1', email: 'john.doe@example.com' });
+
+    await useCase.execute({ email: 'john.doe@example.com' });
+    await useCase.execute({ email: 'JOHN.DOE@example.com' });
+
+    expect(mail.send).toHaveBeenCalledTimes(1);
   });
 });

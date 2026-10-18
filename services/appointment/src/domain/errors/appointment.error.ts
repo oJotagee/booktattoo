@@ -53,3 +53,12 @@ export class ExternalServiceUnavailableError extends Error {
     this.name = 'ExternalServiceUnavailableError';
   }
 }
+
+export class PendingAppointmentLimitError extends Error {
+  constructor() {
+    super(
+      'Você já tem um agendamento aguardando pagamento. Conclua o pagamento ou aguarde até 30 minutos para ele expirar antes de agendar outro.',
+    );
+    this.name = 'PendingAppointmentLimitError';
+  }
+}

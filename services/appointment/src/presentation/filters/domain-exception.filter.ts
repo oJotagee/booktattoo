@@ -12,6 +12,7 @@ import {
   InvalidAppointmentError,
   SlotInThePastError,
   SlotUnavailableError,
+  PendingAppointmentLimitError,
 } from '@/domain/errors/appointment.error';
 
 type OutgoingResponse = {
@@ -28,6 +29,7 @@ const DOMAIN_ERRORS = [
   ArtistUnavailableError,
   GaleryUnavailableError,
   SlotUnavailableError,
+  PendingAppointmentLimitError,
   SlotInThePastError,
   ExternalServiceUnavailableError,
   MessagingUnavailableError,
@@ -47,6 +49,7 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [ArtistUnavailableError, HttpStatus.CONFLICT],
   [GaleryUnavailableError, HttpStatus.CONFLICT],
   [SlotUnavailableError, HttpStatus.CONFLICT],
+  [PendingAppointmentLimitError, HttpStatus.CONFLICT],
 
   [ExternalServiceUnavailableError, HttpStatus.SERVICE_UNAVAILABLE],
   [MessagingUnavailableError, HttpStatus.SERVICE_UNAVAILABLE],

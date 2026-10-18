@@ -1,4 +1,4 @@
-import type { CachePort } from '@bookink/shared/cache';
+import type { AttemptLimiter, CachePort } from '@bookink/shared/cache';
 import type { EventPublisher } from '@bookink/shared/events';
 import type { MailPort } from '@bookink/shared/mail';
 import { mock } from 'bun:test';
@@ -92,5 +92,28 @@ export function createCacheMock(): CachePort {
 export function createEventPublisherMock(): EventPublisher {
   return {
     publish: mock(async () => undefined),
+  };
+}
+
+export function createAttemptLimiterMock(): AttemptLimiter {
+  const counts = new Map<string, number>();
+
+  return {
+    consume: mock(async (key: string, limit: number, windowSeconds: number) => {
+      const count = (counts.get(key) ?? 0) + 1;
+      counts.set(key, count);
+
+      return count <= limit
+        ? { allowed: true, retryAfterSeconds: 0 }
+        : { allowed: false, retryAfterSeconds: windowSeconds };
+    }),
+    peek: mock(async (key: string, limit: number) =>
+      (counts.get(key) ?? 0) < limit
+        ? { allowed: true, retryAfterSeconds: 0 }
+        : { allowed: false, retryAfterSeconds: 900 },
+    ),
+    reset: mock(async (key: string) => {
+      counts.delete(key);
+    }),
   };
 }

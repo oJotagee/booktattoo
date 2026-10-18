@@ -24,7 +24,7 @@ export function createReminderRepositoryMock(): ReminderRepository {
 }
 
 export function createAppointmentRepositoryMock(
-  context: AvailabilityContext = { sameDay: [], galeryTaken: false },
+  context: AvailabilityContext = { sameDay: [], galeryTaken: false, clientHasPending: false },
 ): AppointmentRepository {
   return {
     findById: mock(async (): Promise<AppointmentEntity | null> => null),

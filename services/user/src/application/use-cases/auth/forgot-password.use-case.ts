@@ -1,3 +1,4 @@
+import { ATTEMPT_LIMITER, type AttemptLimiter } from '@bookink/shared/cache';
 import { MAIL_PORT, renderBrandEmail } from '@bookink/shared/mail';
 import type { MailPort } from '@bookink/shared/mail';
 import { Inject, Injectable } from '@nestjs/common';
@@ -11,6 +12,8 @@ import { TOKEN_GENERATOR } from '../../port/token-generator.port';
 import { USER_REPOSITORY } from '../../port/user-repository.port';
 
 const PASSWORD_RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
+const FORGOT_PASSWORD_KEY_PREFIX = 'user:forgot-password:';
+const FORGOT_PASSWORD_COOLDOWN_SECONDS = 60;
 
 type ForgotPasswordInput = {
   email: string;
@@ -24,9 +27,17 @@ export class ForgotPasswordUseCase {
     @Inject(PASSWORD_RESET_TOKEN_REPOSITORY)
     private readonly passwordResetTokens: PasswordResetTokenRepository,
     @Inject(MAIL_PORT) private readonly mail: MailPort,
+    @Inject(ATTEMPT_LIMITER) private readonly attempts: AttemptLimiter,
   ) {}
 
   async execute({ email }: ForgotPasswordInput): Promise<void> {
+    const cooldown = await this.attempts.consume(
+      `${FORGOT_PASSWORD_KEY_PREFIX}${email.trim().toLowerCase()}`,
+      1,
+      FORGOT_PASSWORD_COOLDOWN_SECONDS,
+    );
+    if (!cooldown.allowed) return;
+
     const user = await this.users.findByEmail(email);
     if (!user) return;
 

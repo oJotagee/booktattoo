@@ -13,6 +13,9 @@ ENV KONG_STATUS_LISTEN=0.0.0.0:8100
 ENV KONG_DNS_ORDER=LAST,AAAA,A,CNAME
 ENV KONG_PROXY_ACCESS_LOG=/dev/stdout
 ENV KONG_PROXY_ERROR_LOG=/dev/stderr
+ENV KONG_TRUSTED_IPS=0.0.0.0/0,::/0
+ENV KONG_REAL_IP_HEADER=X-Forwarded-For
+ENV KONG_REAL_IP_RECURSIVE=on
 
 COPY docker/kong/kong.yml /kong/kong.yml
 COPY --chmod=755 docker/kong/entrypoint.sh /kong/entrypoint.sh

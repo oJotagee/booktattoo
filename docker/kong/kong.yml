@@ -16,6 +16,52 @@ services:
           - /auth
           - /users
         strip_path: false
+      - name: user-auth-credentials-routes
+        paths:
+          - /auth/login
+          - /auth/register
+          - /auth/reset-password
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 10
+              hour: 60
+              policy: local
+              limit_by: ip
+              fault_tolerant: true
+              error_message: Muitas tentativas em pouco tempo. Aguarde um instante e tente novamente.
+      - name: user-auth-forgot-password-routes
+        paths:
+          - /auth/forgot-password
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 3
+              hour: 10
+              policy: local
+              limit_by: ip
+              fault_tolerant: true
+              error_message: Muitas tentativas em pouco tempo. Aguarde um instante e tente novamente.
+      - name: user-auth-session-routes
+        paths:
+          - /auth/refresh-token
+          - /auth/oauth/upsert
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 1000
+              policy: local
+              limit_by: ip
+              fault_tolerant: true
       - name: user-public-routes
         paths:
           - /public/artists
@@ -48,13 +94,27 @@ services:
           - /booking-requests
           - /reminders
         strip_path: false
-      - name: appointment-public-routes
+      - name: appointment-public-read-routes
         paths:
           - /public/appointments
         methods:
           - GET
+        strip_path: false
+      - name: appointment-public-booking-routes
+        paths:
+          - /public/appointments
+        methods:
           - POST
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 5
+              hour: 20
+              policy: local
+              limit_by: ip
+              fault_tolerant: true
+              error_message: Muitas tentativas de agendamento em pouco tempo. Aguarde um instante e tente novamente.
 
   - name: payment-service
     url: http://payment:8084
@@ -77,3 +137,10 @@ plugins:
       header_name: X-Request-ID
       generator: uuid
       echo_downstream: true
+  - name: rate-limiting
+    config:
+      minute: 300
+      policy: local
+      limit_by: ip
+      fault_tolerant: true
+      error_message: Muitas requisições em pouco tempo. Aguarde um instante e tente novamente.

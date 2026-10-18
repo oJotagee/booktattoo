@@ -1,12 +1,17 @@
 import Credentials from 'next-auth/providers/credentials';
+import NextAuth, { CredentialsSignin } from 'next-auth';
 import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
 import { isAxiosError } from 'axios';
-import NextAuth from 'next-auth';
 
 import type { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
+import { TOO_MANY_LOGIN_ATTEMPTS_CODE } from './auth-errors';
 import type { UserServiceSession } from './user-session';
 import { api } from './api';
+
+class TooManyLoginAttempts extends CredentialsSignin {
+  code = TOO_MANY_LOGIN_ATTEMPTS_CODE;
+}
 
 const OAUTH_PROVIDERS = ['github', 'google'] as const;
 type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
@@ -58,6 +63,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           };
         } catch (error) {
           if (isAxiosError(error) && error.response?.status === 401) return null;
+          if (isAxiosError(error) && error.response?.status === 429) {
+            throw new TooManyLoginAttempts();
+          }
           throw error;
         }
       },
