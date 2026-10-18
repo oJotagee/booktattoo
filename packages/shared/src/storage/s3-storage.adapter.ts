@@ -12,6 +12,8 @@ import type { StoragePort, UploadFileInput, UploadFileResult } from './storage.p
 import { buildObjectKey } from './object-key';
 import storageConfig from './storage.config';
 
+const IMMUTABLE_CACHE_CONTROL = 'public, max-age=31536000, immutable';
+
 @Injectable()
 export class S3StorageAdapter implements StoragePort {
   private readonly client: S3Client;
@@ -54,6 +56,7 @@ export class S3StorageAdapter implements StoragePort {
         Key: key,
         Body: input.body,
         ContentType: input.contentType,
+        CacheControl: IMMUTABLE_CACHE_CONTROL,
       }),
     );
 

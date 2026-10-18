@@ -93,6 +93,7 @@ bun run --cwd services/user dev    # hot reload
 | `JWT_SECRET` / `JWT_EXPIRES_IN` | Assinatura e validade do access token. O mesmo `JWT_SECRET` deve estar nos outros serviços |
 | `INTERNAL_API_SECRET` | Segredo (mín. 32 caracteres) exigido no header `X-Internal-Secret` em `POST /auth/oauth/upsert`. O mesmo valor deve estar no frontend; sem ele a rota fica bloqueada |
 | `S3_*` | Bucket de avatares (`S3_ENDPOINT` / `S3_FORCE_PATH_STYLE` para MinIO em dev) |
+| `S3_PUBLIC_BASE_URL` | Domínio do CloudFront usado nas URLs dos avatares (vazio = URL direta do bucket). Ver [docs/cloudfront.md](../../docs/cloudfront.md) |
 | `MAIL_*` | SMTP para envio dos emails de redefinição de senha |
 | `FRONTEND_RESET_PASSWORD_URL` | Base do link enviado no email de redefinição |
 | `REDIS_URL` | Conexão com o Redis do cache de `GET /public/artists` e `/public/artists/:id` |

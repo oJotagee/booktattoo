@@ -126,6 +126,7 @@ O pagamento é feito pelo Stripe Billing: Checkout para assinar, `POST /billing/
 - **Cache:** Redis
 - **API gateway:** Kong (DB-less)
 - **Pagamentos:** Stripe
+- **Imagens:** S3 privado servido pelo CloudFront (ver [docs/cloudfront.md](docs/cloudfront.md))
 - **Gerenciador de pacotes:** Bun
 - **Lint/format:** Biome
 - **Testes:** `bun test` (unitários e integração) e Playwright (E2E do front)

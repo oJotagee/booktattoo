@@ -114,6 +114,7 @@ bun run --cwd services/catalog dev
 | `JWT_SECRET` | Mesmo segredo do user-service, usado só para validar o token |
 | `USER_SERVICE_URL` | URL interna do user-service, para consultar o plano ao criar serviço ou flash |
 | `S3_*` | Bucket das imagens da galeria |
+| `S3_PUBLIC_BASE_URL` | Domínio do CloudFront usado nas URLs das imagens (vazio = URL direta do bucket). Ver [docs/cloudfront.md](../../docs/cloudfront.md) |
 | `REDIS_URL` | Conexão com o Redis do cache das rotas públicas |
 | `CACHE_TTL_SECONDS` / `CACHE_REFRESH_AHEAD_SECONDS` | Validade do cache (900) e janela antes do vencimento em que uma requisição recarrega do banco (30) |
 
