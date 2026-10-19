@@ -13,16 +13,24 @@ import { PROCESSED_WEBHOOK_EVENT_REPOSITORY } from '../../port/processed-webhook
 import type { BillingCustomerRepository } from '../../port/billing-customer-repository.port';
 import { BILLING_CUSTOMER_REPOSITORY } from '../../port/billing-customer-repository.port';
 import type { PlanCatalog } from '../../port/plan-catalog.port';
+import { SyncConnectedAccountUseCase } from '../connect/sync-connected-account.use-case';
+import {
+  CONNECTED_ACCOUNT_REPOSITORY,
+  type ConnectedAccountRepository,
+} from '../../port/connected-account-repository.port';
 import { PLAN_CATALOG } from '../../port/plan-catalog.port';
 import {
   BILLING_GATEWAY,
   type BillingGateway,
+  type BillingWebhookEvent,
   BillingWebhookEventKind,
+  type WebhookSource,
 } from '../../port/billing-gateway.port';
 
 type HandleBillingWebhookInput = {
   rawBody: Buffer;
   signature: string;
+  source: WebhookSource;
 };
 
 const EVENT_TYPE_BY_KIND: Partial<Record<BillingWebhookEventKind, PaymentSubscriptionEventType>> = {
@@ -53,10 +61,13 @@ export class HandleBillingWebhookUseCase {
     private readonly plans: PlanCatalog,
     @Inject(EVENT_PUBLISHER)
     private readonly publisher: EventPublisher,
+    @Inject(CONNECTED_ACCOUNT_REPOSITORY)
+    private readonly connectedAccounts: ConnectedAccountRepository,
+    private readonly syncConnectedAccount: SyncConnectedAccountUseCase,
   ) {}
 
-  async execute({ rawBody, signature }: HandleBillingWebhookInput): Promise<void> {
-    const webhookEvent = await this.gateway.parseWebhookEvent(rawBody, signature);
+  async execute({ rawBody, signature, source }: HandleBillingWebhookInput): Promise<void> {
+    const webhookEvent = await this.gateway.parseWebhookEvent(rawBody, signature, source);
 
     if (await this.processedEvents.exists(webhookEvent.id)) return;
 
@@ -77,7 +88,25 @@ export class HandleBillingWebhookUseCase {
       );
     }
 
+    if (webhookEvent.kind === BillingWebhookEventKind.ACCOUNT_UPDATED) {
+      await this.syncAccount(webhookEvent);
+    }
+
     await this.processedEvents.save(webhookEvent.id, webhookEvent.type);
+  }
+
+  private async syncAccount({ id, account: snapshot }: BillingWebhookEvent): Promise<void> {
+    if (!snapshot) return;
+
+    const account = await this.connectedAccounts.findByStripeAccountId(snapshot.id);
+    if (!account) {
+      this.logger.warn(`Conta conectada ${snapshot.id} não está cadastrada`);
+      return;
+    }
+
+    const { id: _stripeAccountId, ...status } = snapshot;
+
+    await this.syncConnectedAccount.execute({ account, status, eventId: id });
   }
 
   private async publishSubscriptionChange(

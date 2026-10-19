@@ -14,7 +14,9 @@ import {
   type CreateCheckoutSessionParams,
   type CreateDepositCheckoutSessionParams,
   type SubscriptionSnapshot,
+  type WebhookSource,
 } from '@/application/port/billing-gateway.port';
+import { StripeConnectGateway } from './stripe-connect.gateway';
 
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set(['active', 'trialing', 'past_due']);
 
@@ -148,20 +150,35 @@ export class StripeBillingGateway implements BillingGateway {
     return { id: session.id, url: session.url };
   }
 
-  async parseWebhookEvent(rawBody: Buffer, signature: string): Promise<BillingWebhookEvent> {
+  async parseWebhookEvent(
+    rawBody: Buffer,
+    signature: string,
+    source: WebhookSource,
+  ): Promise<BillingWebhookEvent> {
     let event: Stripe.Event;
 
     try {
       event = await this.stripe.webhooks.constructEventAsync(
         rawBody,
         signature,
-        this.config.billingWebhookSecret,
+        source === 'connect' ? this.config.connectWebhookSecret : this.config.billingWebhookSecret,
       );
     } catch {
       throw new InvalidWebhookSignatureError();
     }
 
     switch (event.type) {
+      case 'account.updated': {
+        const account = event.data.object;
+
+        return {
+          id: event.id,
+          type: event.type,
+          kind: BillingWebhookEventKind.ACCOUNT_UPDATED,
+          subscriptionId: null,
+          account: { id: account.id, ...StripeConnectGateway.toStatus(account) },
+        };
+      }
       case 'checkout.session.completed': {
         const session = event.data.object;
 
