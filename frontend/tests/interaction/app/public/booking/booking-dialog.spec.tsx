@@ -17,6 +17,7 @@ const getPublicArtist = mock(async (_id: string) => ({
   role: 'Tradicional',
   status: 'ACTIVE',
   times: ['09:00', '09:30', '10:00', '10:30'],
+  paymentsEnabled: true,
 }));
 
 const getPublicGalery = mock(async (_id: string) => ({
@@ -76,6 +77,26 @@ describe('BookingDialog', () => {
     expect(screen.getByText('Data, horário e seus dados')).toBeInTheDocument();
     expect(screen.getByText('Rosa Tradicional')).toBeInTheDocument();
     expect(await screen.findByText('Escolha uma data para ver os horários.')).toBeInTheDocument();
+  });
+
+  it('blocks booking while the artist cannot receive deposits', async () => {
+    getPublicArtist.mockImplementationOnce(async (_id: string) => ({
+      id: 'user-1',
+      name: 'Ana Lima',
+      image: null,
+      bio: null,
+      role: 'Tradicional',
+      status: 'ACTIVE',
+      times: ['09:00', '09:30', '10:00', '10:30'],
+      paymentsEnabled: false,
+    }));
+
+    renderDialog();
+
+    expect(
+      await screen.findByText('Este tatuador não está recebendo agendamentos no momento.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText('Data')).not.toBeInTheDocument();
   });
 
   it('disables taken slots and slots without room for the flash duration', async () => {

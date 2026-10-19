@@ -15,6 +15,7 @@ type FindUserByIdOutput = {
   role: string | null;
   status: string;
   times: string[];
+  paymentsEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -42,6 +43,7 @@ export class FindUserByIdUseCase {
       role: user.role,
       status: user.status,
       times: user.times,
+      paymentsEnabled: user.paymentsEnabled,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

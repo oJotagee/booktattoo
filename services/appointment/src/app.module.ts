@@ -1,5 +1,6 @@
 import { MessagingModule } from '@bookink/shared/events';
 import { CacheModule } from '@bookink/shared/cache';
+import { MailModule } from '@bookink/shared/mail';
 import { JwtAuthModule } from '@bookink/shared/auth';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
@@ -19,9 +20,9 @@ import { CreateReminderUseCase } from '@/application/use-cases/reminder/create-r
 import { UpdateReminderUseCase } from '@/application/use-cases/reminder/update-reminder.use-case';
 import { DeleteReminderUseCase } from '@/application/use-cases/reminder/delete-reminder.use-case';
 import { PrismaReminderRepository } from './infrastructure/repository/prisma-reminder.repository';
-import { HttpDepositCheckoutGateway } from './infrastructure/http/http-deposit-checkout.gateway';
+import { HttpDepositGateway } from './infrastructure/http/http-deposit.gateway';
 import { PaymentEventsConsumer } from './infrastructure/messaging/payment-events.consumer';
-import { DEPOSIT_CHECKOUT_GATEWAY } from './application/port/deposit-checkout-gateway.port';
+import { DEPOSIT_GATEWAY } from './application/port/deposit-gateway.port';
 import { AppointmentController } from './presentation/controllers/appointment.controller';
 import { APPOINTMENT_REPOSITORY } from './application/port/appointment-repository.port';
 import { PaymentEventsHandler } from '@/application/handlers/payment-events.handler';
@@ -34,6 +35,8 @@ import { CATALOG_GATEWAY } from './application/port/catalog-gateway.port';
 import { ARTIST_GATEWAY } from './application/port/artist-gateway.port';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
 import servicesConfig from './infrastructure/config/services.config';
+import { MailAppointmentNotifier } from './infrastructure/mail/mail-appointment-notifier';
+import { APPOINTMENT_NOTIFIER } from './application/port/appointment-notifier.port';
 
 @Module({
   imports: [
@@ -41,6 +44,7 @@ import servicesConfig from './infrastructure/config/services.config';
     JwtAuthModule,
     MessagingModule,
     CacheModule,
+    MailModule,
   ],
   controllers: [
     ReminderController,
@@ -81,8 +85,12 @@ import servicesConfig from './infrastructure/config/services.config';
       useClass: HttpCatalogGateway,
     },
     {
-      provide: DEPOSIT_CHECKOUT_GATEWAY,
-      useClass: HttpDepositCheckoutGateway,
+      provide: DEPOSIT_GATEWAY,
+      useClass: HttpDepositGateway,
+    },
+    {
+      provide: APPOINTMENT_NOTIFIER,
+      useClass: MailAppointmentNotifier,
     },
   ],
 })

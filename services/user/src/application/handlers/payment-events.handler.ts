@@ -1,19 +1,28 @@
-import type { PaymentSubscriptionEvent } from '@bookink/shared/events';
+import type { PaymentConnectEvent, PaymentSubscriptionEvent } from '@bookink/shared/events';
 import { Injectable } from '@nestjs/common';
 
 import { SyncSubscriptionUseCase } from '../use-cases/subscription/sync-subscription.use-case';
+import { SyncPaymentsEnabledUseCase } from '../use-cases/user/sync-payments-enabled.use-case';
 import { SubscriptionPlan } from '@/domain/entities/subscription.entity';
 
 @Injectable()
 export class PaymentEventsHandler {
-  constructor(private readonly syncSubscription: SyncSubscriptionUseCase) {}
+  constructor(
+    private readonly syncSubscription: SyncSubscriptionUseCase,
+    private readonly syncPaymentsEnabled: SyncPaymentsEnabledUseCase,
+  ) {}
 
-  async handle(event: PaymentSubscriptionEvent): Promise<void> {
+  async handle(event: PaymentSubscriptionEvent | PaymentConnectEvent): Promise<void> {
     switch (event.type) {
       case 'payment.subscription.activated':
       case 'payment.subscription.updated':
       case 'payment.subscription.canceled':
         return this.onSubscriptionChanged(event);
+      case 'payment.connect.account.updated':
+        return this.syncPaymentsEnabled.execute({
+          userId: event.payload.userId,
+          paymentsEnabled: event.payload.paymentsEnabled,
+        });
     }
   }
 

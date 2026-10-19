@@ -22,6 +22,9 @@ export class PublicArtistResponseDto {
 
   @ApiProperty({ example: ['09:00', '10:00'] })
   times!: string[];
+
+  @ApiProperty({ example: true, description: 'Conta Stripe habilitada para receber sinais' })
+  paymentsEnabled!: boolean;
 }
 
 export class PublicArtistListResponseDto {

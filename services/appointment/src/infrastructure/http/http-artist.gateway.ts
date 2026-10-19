@@ -19,6 +19,12 @@ export class HttpArtistGateway implements ArtistGateway {
     const artist = await requestJson<ArtistSnapshot>(this.logger, { method: 'GET', url });
     if (!artist) return null;
 
-    return { id: artist.id, name: artist.name, status: artist.status, times: artist.times };
+    return {
+      id: artist.id,
+      name: artist.name,
+      status: artist.status,
+      times: artist.times,
+      paymentsEnabled: artist.paymentsEnabled ?? false,
+    };
   }
 }

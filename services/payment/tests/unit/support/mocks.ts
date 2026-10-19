@@ -6,6 +6,8 @@ import type { BillingCustomerRepository } from '@/application/port/billing-custo
 import type { ActiveSubscription, BillingGateway } from '@/application/port/billing-gateway.port';
 import { BillingWebhookEventKind } from '@/application/port/billing-gateway.port';
 import type { PlanCatalog } from '@/application/port/plan-catalog.port';
+import type { ConnectedAccountRepository } from '@/application/port/connected-account-repository.port';
+import type { ConnectGateway } from '@/application/port/connect-gateway.port';
 
 export function createBillingCustomerRepositoryMock(): BillingCustomerRepository {
   return {
@@ -47,6 +49,8 @@ export function createBillingGatewayMock(): BillingGateway {
       currentPeriodEnd: new Date('2026-11-01T00:00:00.000Z'),
       cancelAtPeriodEnd: false,
     })),
+    refundDeposit: mock(async () => ({ refundId: 're_123' })),
+    expireDepositCheckout: mock(async () => undefined),
   };
 }
 
@@ -60,5 +64,26 @@ export function createPlanCatalogMock(): PlanCatalog {
 export function createEventPublisherMock(): EventPublisher {
   return {
     publish: mock(async () => undefined),
+  };
+}
+
+export function createConnectedAccountRepositoryMock(): ConnectedAccountRepository {
+  return {
+    findByUserId: mock(async () => null),
+    findByStripeAccountId: mock(async () => null),
+    save: mock(async () => undefined),
+  };
+}
+
+export function createConnectGatewayMock(): ConnectGateway {
+  return {
+    createAccount: mock(async () => ({ id: 'acct_new' })),
+    createOnboardingLink: mock(async () => ({ url: 'https://connect.stripe.com/setup/e/acct' })),
+    createLoginLink: mock(async () => ({ url: 'https://connect.stripe.com/express/acct' })),
+    retrieveAccountStatus: mock(async () => ({
+      chargesEnabled: true,
+      payoutsEnabled: true,
+      detailsSubmitted: true,
+    })),
   };
 }

@@ -42,6 +42,7 @@ describe('FindPublicArtistsUseCase', () => {
         role: 'Fineline',
         status: UserStatus.VACATION,
         times: ['09:00'],
+        paymentsEnabled: false,
       },
     ]);
   });

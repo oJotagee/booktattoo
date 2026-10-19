@@ -74,6 +74,12 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           </p>
         )}
 
+        {artist.status === 'ACTIVE' && !artist.paymentsEnabled && (
+          <p className="mt-6 rounded-xl border border-orange-600/30 bg-orange-600/5 px-4 py-3 text-sm text-white/70">
+            {artist.name} ainda não está aceitando agendamentos online.
+          </p>
+        )}
+
         <Suspense fallback={<GaleryGridSkeleton items={10} />}>
           <GaleryList artistId={artist.id} />
           <BookingReturnToast />

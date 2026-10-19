@@ -1,4 +1,8 @@
+import type { ConnectedAccountStatus } from '@/domain/entities/connected-account.entity';
+
 export const BILLING_GATEWAY = Symbol('BILLING_GATEWAY');
+
+export type WebhookSource = 'platform' | 'connect';
 
 export const BillingWebhookEventKind = {
   SUBSCRIPTION_CREATED: 'SUBSCRIPTION_CREATED',
@@ -6,6 +10,7 @@ export const BillingWebhookEventKind = {
   SUBSCRIPTION_DELETED: 'SUBSCRIPTION_DELETED',
   DEPOSIT_PAID: 'DEPOSIT_PAID',
   DEPOSIT_EXPIRED: 'DEPOSIT_EXPIRED',
+  ACCOUNT_UPDATED: 'ACCOUNT_UPDATED',
   IGNORED: 'IGNORED',
 } as const;
 
@@ -18,12 +23,17 @@ export type BillingWebhookEvent = {
   kind: BillingWebhookEventKind;
   subscriptionId: string | null;
   deposit?: DepositSnapshot | null;
+  account?: ConnectedAccountSnapshot | null;
 };
 
 export type DepositSnapshot = {
   appointmentId: string;
   checkoutSessionId: string;
   amount: number | null;
+};
+
+export type ConnectedAccountSnapshot = ConnectedAccountStatus & {
+  id: string;
 };
 
 export type SubscriptionSnapshot = {
@@ -54,6 +64,7 @@ export type CreateCheckoutSessionParams = {
 };
 
 export type CreateDepositCheckoutSessionParams = {
+  destinationAccountId: string;
   appointmentId: string;
   amount: number;
   title: string;
@@ -61,6 +72,11 @@ export type CreateDepositCheckoutSessionParams = {
   customerEmail: string;
   successUrl: string;
   cancelUrl: string;
+};
+
+export type RefundDepositParams = {
+  appointmentId: string;
+  checkoutSessionId: string;
 };
 
 export interface BillingGateway {
@@ -72,6 +88,12 @@ export interface BillingGateway {
   createDepositCheckoutSession(
     params: CreateDepositCheckoutSessionParams,
   ): Promise<{ id: string; url: string }>;
-  parseWebhookEvent(rawBody: Buffer, signature: string): Promise<BillingWebhookEvent>;
+  parseWebhookEvent(
+    rawBody: Buffer,
+    signature: string,
+    source: WebhookSource,
+  ): Promise<BillingWebhookEvent>;
   retrieveSubscription(subscriptionId: string): Promise<SubscriptionSnapshot>;
+  refundDeposit(params: RefundDepositParams): Promise<{ refundId: string }>;
+  expireDepositCheckout(checkoutSessionId: string): Promise<void>;
 }

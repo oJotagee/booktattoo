@@ -7,6 +7,11 @@ export class CreateDepositCheckoutRequestDto {
   @IsNotEmpty()
   appointmentId!: string;
 
+  @ApiProperty({ example: 'user-1', description: 'Tatuador que recebe o sinal' })
+  @IsString()
+  @IsNotEmpty()
+  artistId!: string;
+
   @ApiProperty({ example: 8000, description: 'Valor do sinal em centavos' })
   @IsInt()
   @Min(1)

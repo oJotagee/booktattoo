@@ -21,3 +21,14 @@ model ProcessedWebhookEvent {
   type        String
   processedAt DateTime @default(now())
 }
+
+model ConnectedAccount {
+  userId           String  @id
+  stripeAccountId  String  @unique
+  chargesEnabled   Boolean @default(false)
+  payoutsEnabled   Boolean @default(false)
+  detailsSubmitted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -6,6 +6,8 @@ import { Module } from '@nestjs/common';
 import { PrismaProcessedWebhookEventRepository } from './infrastructure/repository/prisma-processed-webhook-event.repository';
 import { PrismaBillingCustomerRepository } from './infrastructure/repository/prisma-billing-customer.repository';
 import { CreateDepositCheckoutUseCase } from '@/application/use-cases/deposit/create-deposit-checkout.use-case';
+import { ExpireDepositCheckoutUseCase } from '@/application/use-cases/deposit/expire-deposit-checkout.use-case';
+import { RefundDepositUseCase } from '@/application/use-cases/deposit/refund-deposit.use-case';
 import { CreateCheckoutSessionUseCase } from '@/application/use-cases/billing/create-checkout-session.use-case';
 import { PROCESSED_WEBHOOK_EVENT_REPOSITORY } from './application/port/processed-webhook-event-repository.port';
 import { HandleBillingWebhookUseCase } from '@/application/use-cases/billing/handle-billing-webhook.use-case';
@@ -24,6 +26,15 @@ import { EnvPlanCatalog } from './infrastructure/stripe/env-plan-catalog';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
 import { PLAN_CATALOG } from './application/port/plan-catalog.port';
 import stripeConfig from './infrastructure/config/stripe.config';
+import { CreateConnectLoginLinkUseCase } from '@/application/use-cases/connect/create-connect-login-link.use-case';
+import { StartConnectOnboardingUseCase } from '@/application/use-cases/connect/start-connect-onboarding.use-case';
+import { SyncConnectedAccountUseCase } from '@/application/use-cases/connect/sync-connected-account.use-case';
+import { GetConnectStatusUseCase } from '@/application/use-cases/connect/get-connect-status.use-case';
+import { PrismaConnectedAccountRepository } from './infrastructure/repository/prisma-connected-account.repository';
+import { CONNECTED_ACCOUNT_REPOSITORY } from './application/port/connected-account-repository.port';
+import { StripeConnectGateway } from './infrastructure/stripe/stripe-connect.gateway';
+import { ConnectController } from './presentation/controllers/connect.controller';
+import { CONNECT_GATEWAY } from './application/port/connect-gateway.port';
 
 @Module({
   imports: [
@@ -33,6 +44,7 @@ import stripeConfig from './infrastructure/config/stripe.config';
   ],
   controllers: [
     BillingController,
+    ConnectController,
     StripeWebhookController,
     InternalDepositController,
     HealthController,
@@ -45,6 +57,20 @@ import stripeConfig from './infrastructure/config/stripe.config';
     ChangePlanUseCase,
     HandleBillingWebhookUseCase,
     CreateDepositCheckoutUseCase,
+    RefundDepositUseCase,
+    ExpireDepositCheckoutUseCase,
+    SyncConnectedAccountUseCase,
+    StartConnectOnboardingUseCase,
+    GetConnectStatusUseCase,
+    CreateConnectLoginLinkUseCase,
+    {
+      provide: CONNECTED_ACCOUNT_REPOSITORY,
+      useClass: PrismaConnectedAccountRepository,
+    },
+    {
+      provide: CONNECT_GATEWAY,
+      useClass: StripeConnectGateway,
+    },
     {
       provide: BILLING_CUSTOMER_REPOSITORY,
       useClass: PrismaBillingCustomerRepository,

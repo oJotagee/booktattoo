@@ -50,7 +50,9 @@ export function AppointmentDetailsDialog({
       return;
     }
 
-    toast.success('Agendamento cancelado');
+    toast.success(
+      appointment.paidAt ? 'Agendamento cancelado e sinal estornado' : 'Agendamento cancelado',
+    );
     await queryClient.invalidateQueries({ queryKey: ['day-appointments'] });
     router.refresh();
     onOpenChange(false);
@@ -99,9 +101,16 @@ export function AppointmentDetailsDialog({
               <DetailItem label="Valor total" value={formatCurrency(appointment.price)} />
               <DetailItem
                 label="Sinal"
-                value={`${formatCurrency(appointment.depositAmount)} · ${appointment.paidAt ? 'pago' : 'aguardando'}`}
+                value={`${formatCurrency(appointment.depositAmount)} · ${depositLabel(appointment)}`}
               />
             </dl>
+
+            {canCancel && appointment.paidAt && (
+              <p className="text-sm text-muted-foreground">
+                Ao cancelar, o sinal de {formatCurrency(appointment.depositAmount)} será estornado
+                ao cliente automaticamente.
+              </p>
+            )}
 
             {canCancel && (
               <DialogFooter>
@@ -121,6 +130,12 @@ export function AppointmentDetailsDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+function depositLabel({ paidAt, refundedAt }: DayAppointment): string {
+  if (refundedAt) return 'estornado';
+
+  return paidAt ? 'pago' : 'aguardando';
 }
 
 function DetailItem({ label, value }: { label: string; value: string }) {

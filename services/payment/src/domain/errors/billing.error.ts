@@ -46,3 +46,31 @@ export class PlanAlreadyActiveError extends Error {
     this.name = 'PlanAlreadyActiveError';
   }
 }
+
+export class InvalidConnectedAccountError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidConnectedAccountError';
+  }
+}
+
+export class ConnectedAccountNotFoundError extends Error {
+  constructor() {
+    super('Nenhuma conta Stripe conectada para este usuário.');
+    this.name = 'ConnectedAccountNotFoundError';
+  }
+}
+
+export class ConnectedAccountNotReadyError extends Error {
+  constructor() {
+    super('A conta Stripe do tatuador ainda não está habilitada para receber pagamentos.');
+    this.name = 'ConnectedAccountNotReadyError';
+  }
+}
+
+export class DepositNotPaidError extends Error {
+  constructor() {
+    super('Não há pagamento de sinal para estornar nesta sessão.');
+    this.name = 'DepositNotPaidError';
+  }
+}

@@ -23,6 +23,7 @@ describe('getAllArtists', () => {
         role: 'Fineline',
         status: 'ACTIVE',
         times: ['09:00'],
+        paymentsEnabled: true,
       },
     ];
     const pagination = { total: 1, page: 1, perPage: 4, totalPages: 1 };

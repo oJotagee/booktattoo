@@ -5,6 +5,7 @@ export type ArtistSnapshot = {
   name: string;
   status: string;
   times: string[];
+  paymentsEnabled: boolean;
 };
 
 export interface ArtistGateway {

@@ -13,6 +13,7 @@ import { GetUserPlanAccessUseCase } from '@/application/use-cases/subscription/g
 import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/update-user-contact-info.use-case';
 import { PrismaRefreshTokenRepository } from './infrastructure/repository/prisma-refresh-token.repository';
 import { SyncSubscriptionUseCase } from '@/application/use-cases/subscription/sync-subscription.use-case';
+import { SyncPaymentsEnabledUseCase } from '@/application/use-cases/user/sync-payments-enabled.use-case';
 import { PrismaSubscriptionRepository } from './infrastructure/repository/prisma-subscription.repository';
 import { PASSWORD_RESET_TOKEN_REPOSITORY } from '@/application/port/password-reset-token-repository.port';
 import { FindPublicArtistsUseCase } from '@/application/use-cases/artist/find-public-artists.use-case';
@@ -73,6 +74,7 @@ import jwtConfig from './infrastructure/config/jwt.config';
     FindPublicArtistsUseCase,
     FindPublicArtistByIdUseCase,
     SyncSubscriptionUseCase,
+    SyncPaymentsEnabledUseCase,
     GetUserPlanAccessUseCase,
     PaymentEventsHandler,
     PaymentEventsConsumer,

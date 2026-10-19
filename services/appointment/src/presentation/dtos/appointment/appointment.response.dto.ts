@@ -57,6 +57,9 @@ export class DayAppointmentResponseDto {
 
   @ApiProperty({ nullable: true, type: Date })
   paidAt!: Date | null;
+
+  @ApiProperty({ nullable: true, type: Date })
+  refundedAt!: Date | null;
 }
 
 export class AppointmentStatsResponseDto {

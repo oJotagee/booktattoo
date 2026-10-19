@@ -22,6 +22,7 @@ export interface Artist {
   role: string | null;
   status: string;
   times: string[];
+  paymentsEnabled: boolean;
 }
 
 interface OutputArtist {

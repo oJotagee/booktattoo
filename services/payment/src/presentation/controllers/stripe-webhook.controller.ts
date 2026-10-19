@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 
 import { HandleBillingWebhookUseCase } from '@/application/use-cases/billing/handle-billing-webhook.use-case';
+import type { WebhookSource } from '@/application/port/billing-gateway.port';
 import { WebhookReceivedResponseDto } from '../dtos/billing/webhook-received.response.dto';
 
 @ApiExcludeController()
@@ -20,15 +21,32 @@ export class StripeWebhookController {
 
   @Post('billing')
   @HttpCode(200)
-  async billing(
+  billing(
     @Req() request: RawBodyRequest<Request>,
     @Headers('stripe-signature') signature: string | undefined,
+  ): Promise<WebhookReceivedResponseDto> {
+    return this.receive(request, signature, 'platform');
+  }
+
+  @Post('connect')
+  @HttpCode(200)
+  connect(
+    @Req() request: RawBodyRequest<Request>,
+    @Headers('stripe-signature') signature: string | undefined,
+  ): Promise<WebhookReceivedResponseDto> {
+    return this.receive(request, signature, 'connect');
+  }
+
+  private async receive(
+    request: RawBodyRequest<Request>,
+    signature: string | undefined,
+    source: WebhookSource,
   ): Promise<WebhookReceivedResponseDto> {
     if (!signature || !request.rawBody) {
       throw new BadRequestException('Requisição de webhook sem assinatura ou corpo.');
     }
 
-    await this.handleBillingWebhook.execute({ rawBody: request.rawBody, signature });
+    await this.handleBillingWebhook.execute({ rawBody: request.rawBody, signature, source });
 
     return { received: true };
   }

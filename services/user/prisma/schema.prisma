@@ -26,6 +26,7 @@ model User {
   role             String?
   status           UserStatus @default(ACTIVE)
   times            String[]   @default([])
+  paymentsEnabled  Boolean    @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

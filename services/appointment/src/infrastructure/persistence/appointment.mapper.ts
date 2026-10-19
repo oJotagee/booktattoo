@@ -21,6 +21,8 @@ export class AppointmentMapper {
       galeryImageUrl: appointment.galeryImageUrl,
       checkoutSessionId: appointment.checkoutSessionId,
       paidAt: appointment.paidAt,
+      refundId: appointment.refundId,
+      refundedAt: appointment.refundedAt,
       createdAt: appointment.createdAt,
       updatedAt: appointment.updatedAt,
     });
