@@ -22,6 +22,7 @@ type PublicArtistOutput = {
   role: string | null;
   status: string;
   times: string[];
+  paymentsEnabled: boolean;
 };
 
 type FindPublicArtistsOutput = {
@@ -63,6 +64,7 @@ export class FindPublicArtistsUseCase {
           role: user.role,
           status: user.status,
           times: user.times,
+          paymentsEnabled: user.paymentsEnabled,
         })),
         pagination: {
           total,

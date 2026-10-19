@@ -15,6 +15,7 @@ type PublicArtistOutput = {
   role: string | null;
   status: string;
   times: string[];
+  paymentsEnabled: boolean;
 };
 
 @Injectable()
@@ -39,6 +40,7 @@ export class FindPublicArtistByIdUseCase {
         role: user.role,
         status: user.status,
         times: user.times,
+        paymentsEnabled: user.paymentsEnabled,
       };
     });
 

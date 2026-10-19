@@ -38,6 +38,7 @@ describe('FindPublicArtistByIdUseCase', () => {
       role: 'Fineline',
       status: UserStatus.ACTIVE,
       times: ['09:00', '09:30'],
+      paymentsEnabled: false,
     });
   });
 

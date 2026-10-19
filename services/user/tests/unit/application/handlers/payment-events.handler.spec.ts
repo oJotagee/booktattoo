@@ -14,10 +14,17 @@ const payload: SubscriptionChangedPayload = {
   cancelAtPeriodEnd: false,
 };
 
+function createHandler() {
+  const syncSubscription = { execute: mock(async () => undefined) };
+  const syncPaymentsEnabled = { execute: mock(async () => undefined) };
+  const handler = new PaymentEventsHandler(syncSubscription as never, syncPaymentsEnabled as never);
+
+  return { handler, syncSubscription, syncPaymentsEnabled };
+}
+
 describe('PaymentEventsHandler', () => {
   it('syncs the subscription with the event payload and occurredAt', async () => {
-    const syncSubscription = { execute: mock(async () => undefined) };
-    const handler = new PaymentEventsHandler(syncSubscription as never);
+    const { handler, syncSubscription } = createHandler();
     const occurredAt = new Date('2026-10-03T18:00:00.000Z');
 
     await handler.handle(
@@ -34,5 +41,25 @@ describe('PaymentEventsHandler', () => {
       cancelAtPeriodEnd: false,
       occurredAt,
     });
+  });
+
+  it('syncs paymentsEnabled when the connected account changes', async () => {
+    const { handler, syncPaymentsEnabled, syncSubscription } = createHandler();
+
+    await handler.handle(
+      createEventEnvelope('payment.connect.account.updated', {
+        userId: 'user-1',
+        stripeAccountId: 'acct_123',
+        chargesEnabled: true,
+        payoutsEnabled: true,
+        paymentsEnabled: true,
+      }),
+    );
+
+    expect(syncPaymentsEnabled.execute).toHaveBeenCalledWith({
+      userId: 'user-1',
+      paymentsEnabled: true,
+    });
+    expect(syncSubscription.execute).not.toHaveBeenCalled();
   });
 });

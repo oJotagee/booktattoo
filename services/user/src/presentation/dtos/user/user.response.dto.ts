@@ -31,6 +31,9 @@ export class UserResponseDto {
   @ApiProperty({ example: ['08:00', '08:30'] })
   times!: string[];
 
+  @ApiProperty({ example: true, description: 'Conta Stripe habilitada para receber sinais' })
+  paymentsEnabled!: boolean;
+
   @ApiProperty()
   createdAt!: Date;
 

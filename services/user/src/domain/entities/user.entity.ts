@@ -20,6 +20,7 @@ type UserProps = {
   role: string | null;
   status: UserStatus;
   times: string[];
+  paymentsEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -36,6 +37,7 @@ type UserCreateInput = {
   role: string | null;
   status: UserStatus;
   times: string[];
+  paymentsEnabled?: boolean;
   password?: string | null;
 };
 
@@ -61,6 +63,7 @@ type UserRestoreInput = {
   role: string | null;
   status: UserStatus;
   times: string[];
+  paymentsEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -118,6 +121,10 @@ export class UserEntity {
     return this.userProps.times;
   }
 
+  get paymentsEnabled(): boolean {
+    return this.userProps.paymentsEnabled;
+  }
+
   get createdAt(): Date {
     return this.userProps.createdAt;
   }
@@ -142,6 +149,7 @@ export class UserEntity {
       role: input.role ?? null,
       status: input.status,
       times: input.times,
+      paymentsEnabled: input.paymentsEnabled ?? false,
       createdAt: now,
       updatedAt: now,
     });
@@ -180,6 +188,10 @@ export class UserEntity {
       passwordHash,
       updatedAt: new Date(),
     });
+  }
+
+  setPaymentsEnabled(paymentsEnabled: boolean): UserEntity {
+    return new UserEntity({ ...this.userProps, paymentsEnabled, updatedAt: new Date() });
   }
 
   activate(): UserEntity {
@@ -221,6 +233,7 @@ export class UserEntity {
       phone: this.phone,
       status: this.status,
       times: this.times,
+      paymentsEnabled: this.paymentsEnabled,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

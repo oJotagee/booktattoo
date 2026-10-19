@@ -31,6 +31,7 @@ describe('FindUserByIdUseCase', () => {
       role: user.role,
       status: user.status,
       times: user.times,
+      paymentsEnabled: false,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     });

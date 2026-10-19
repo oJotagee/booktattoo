@@ -1,5 +1,9 @@
-import { type PaymentSubscriptionEvent, RabbitMQConnection } from '@bookink/shared/events';
 import { Injectable, type OnModuleInit } from '@nestjs/common';
+import {
+  type PaymentConnectEvent,
+  type PaymentSubscriptionEvent,
+  RabbitMQConnection,
+} from '@bookink/shared/events';
 
 import { PaymentEventsHandler } from '@/application/handlers/payment-events.handler';
 
@@ -15,8 +19,9 @@ export class PaymentEventsConsumer implements OnModuleInit {
   async onModuleInit(): Promise<void> {
     await this.connection.subscribe({
       queue: QUEUE,
-      routingKeys: ['payment.subscription.*'],
-      handler: (event) => this.handler.handle(event as PaymentSubscriptionEvent),
+      routingKeys: ['payment.subscription.*', 'payment.connect.#'],
+      handler: (event) =>
+        this.handler.handle(event as PaymentSubscriptionEvent | PaymentConnectEvent),
     });
   }
 }
