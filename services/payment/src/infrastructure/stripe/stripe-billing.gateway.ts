@@ -17,12 +17,13 @@ import {
   type SubscriptionSnapshot,
   type WebhookSource,
 } from '@/application/port/billing-gateway.port';
-import { StripeConnectGateway } from './stripe-connect.gateway';
 
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set(['active', 'trialing', 'past_due']);
 
 // O Stripe exige no mínimo 30 minutos; a folga cobre o atraso entre o cálculo e a chamada
 const DEPOSIT_CHECKOUT_TTL_SECONDS = 31 * 60;
+
+const V2_ACCOUNT_EVENT_PREFIX = 'v2.core.account';
 
 @Injectable()
 export class StripeBillingGateway implements BillingGateway {
@@ -161,30 +162,21 @@ export class StripeBillingGateway implements BillingGateway {
     signature: string,
     source: WebhookSource,
   ): Promise<BillingWebhookEvent> {
+    if (source === 'connect') return this.parseConnectEvent(rawBody, signature);
+
     let event: Stripe.Event;
 
     try {
       event = await this.stripe.webhooks.constructEventAsync(
         rawBody,
         signature,
-        source === 'connect' ? this.config.connectWebhookSecret : this.config.billingWebhookSecret,
+        this.config.billingWebhookSecret,
       );
     } catch {
       throw new InvalidWebhookSignatureError();
     }
 
     switch (event.type) {
-      case 'account.updated': {
-        const account = event.data.object;
-
-        return {
-          id: event.id,
-          type: event.type,
-          kind: BillingWebhookEventKind.ACCOUNT_UPDATED,
-          subscriptionId: null,
-          account: { id: account.id, ...StripeConnectGateway.toStatus(account) },
-        };
-      }
       case 'checkout.session.completed': {
         const session = event.data.object;
 
@@ -264,6 +256,43 @@ export class StripeBillingGateway implements BillingGateway {
       priceId: item.price.id,
       currentPeriodEnd: item.current_period_end ? new Date(item.current_period_end * 1000) : null,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    };
+  }
+
+  private async parseConnectEvent(
+    rawBody: Buffer,
+    signature: string,
+  ): Promise<BillingWebhookEvent> {
+    let notification: Awaited<ReturnType<Stripe['parseEventNotificationAsync']>>;
+
+    try {
+      notification = await this.stripe.parseEventNotificationAsync(
+        rawBody,
+        signature,
+        this.config.connectWebhookSecret,
+      );
+    } catch {
+      throw new InvalidWebhookSignatureError();
+    }
+
+    const accountId =
+      'related_object' in notification ? notification.related_object?.id : undefined;
+
+    if (!notification.type.startsWith(V2_ACCOUNT_EVENT_PREFIX) || !accountId) {
+      return {
+        id: notification.id,
+        type: notification.type,
+        kind: BillingWebhookEventKind.IGNORED,
+        subscriptionId: null,
+      };
+    }
+
+    return {
+      id: notification.id,
+      type: notification.type,
+      kind: BillingWebhookEventKind.ACCOUNT_UPDATED,
+      subscriptionId: null,
+      account: { id: accountId },
     };
   }
 

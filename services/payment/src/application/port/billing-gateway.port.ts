@@ -1,5 +1,3 @@
-import type { ConnectedAccountStatus } from '@/domain/entities/connected-account.entity';
-
 export const BILLING_GATEWAY = Symbol('BILLING_GATEWAY');
 
 export type WebhookSource = 'platform' | 'connect';
@@ -32,7 +30,7 @@ export type DepositSnapshot = {
   amount: number | null;
 };
 
-export type ConnectedAccountSnapshot = ConnectedAccountStatus & {
+export type ConnectedAccountSnapshot = {
   id: string;
 };
 

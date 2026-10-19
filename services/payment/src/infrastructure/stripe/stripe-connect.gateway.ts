@@ -7,6 +7,11 @@ import type { ConnectGateway } from '@/application/port/connect-gateway.port';
 import stripeConfig from '../config/stripe.config';
 import { STRIPE_CLIENT } from './stripe.client';
 
+type V2Account = Awaited<ReturnType<Stripe['v2']['core']['accounts']['retrieve']>>;
+
+const ACTIVE = 'active';
+const BLOCKING_DEADLINES = new Set(['currently_due', 'past_due']);
+
 @Injectable()
 export class StripeConnectGateway implements ConnectGateway {
   constructor(
@@ -23,14 +28,20 @@ export class StripeConnectGateway implements ConnectGateway {
     userId: string;
     email: string;
   }): Promise<{ id: string }> {
-    const account = await this.stripe.accounts.create(
+    const account = await this.stripe.v2.core.accounts.create(
       {
-        type: 'express',
-        country: 'BR',
-        email,
-        capabilities: {
-          card_payments: { requested: true },
-          transfers: { requested: true },
+        contact_email: email,
+        dashboard: 'express',
+        identity: { country: 'br' },
+        defaults: {
+          currency: 'brl',
+          responsibilities: { fees_collector: 'application', losses_collector: 'application' },
+        },
+        configuration: {
+          merchant: { capabilities: { card_payments: { requested: true } } },
+          recipient: {
+            capabilities: { stripe_balance: { stripe_transfers: { requested: true } } },
+          },
         },
         metadata: { userId },
       },
@@ -41,11 +52,16 @@ export class StripeConnectGateway implements ConnectGateway {
   }
 
   async createOnboardingLink(accountId: string): Promise<{ url: string }> {
-    const link = await this.stripe.accountLinks.create({
+    const link = await this.stripe.v2.core.accountLinks.create({
       account: accountId,
-      type: 'account_onboarding',
-      return_url: this.config.connectReturnUrl,
-      refresh_url: this.config.connectRefreshUrl,
+      use_case: {
+        type: 'account_onboarding',
+        account_onboarding: {
+          configurations: ['merchant', 'recipient'],
+          return_url: this.config.connectReturnUrl,
+          refresh_url: this.config.connectRefreshUrl,
+        },
+      },
     });
 
     return { url: link.url };
@@ -58,16 +74,27 @@ export class StripeConnectGateway implements ConnectGateway {
   }
 
   async retrieveAccountStatus(accountId: string): Promise<ConnectedAccountStatus> {
-    const account = await this.stripe.accounts.retrieve(accountId);
+    const account = await this.stripe.v2.core.accounts.retrieve(accountId, {
+      include: ['configuration.merchant', 'configuration.recipient', 'requirements'],
+    });
 
     return StripeConnectGateway.toStatus(account);
   }
 
-  static toStatus(account: Stripe.Account): ConnectedAccountStatus {
+  static toStatus({ configuration, requirements }: V2Account): ConnectedAccountStatus {
+    const merchant = configuration?.merchant?.capabilities;
+    const recipient = configuration?.recipient?.capabilities;
+
     return {
-      chargesEnabled: account.charges_enabled ?? false,
-      payoutsEnabled: account.payouts_enabled ?? false,
-      detailsSubmitted: account.details_submitted ?? false,
+      chargesEnabled:
+        merchant?.card_payments?.status === ACTIVE &&
+        recipient?.stripe_balance?.stripe_transfers?.status === ACTIVE,
+      payoutsEnabled: merchant?.stripe_balance?.payouts?.status === ACTIVE,
+      detailsSubmitted: !(requirements?.entries ?? []).some(
+        (entry) =>
+          entry.awaiting_action_from === 'user' &&
+          BLOCKING_DEADLINES.has(entry.minimum_deadline.status),
+      ),
     };
   }
 }
