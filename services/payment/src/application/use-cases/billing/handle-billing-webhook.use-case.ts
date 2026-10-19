@@ -12,13 +12,13 @@ import type { ProcessedWebhookEventRepository } from '../../port/processed-webho
 import { PROCESSED_WEBHOOK_EVENT_REPOSITORY } from '../../port/processed-webhook-event-repository.port';
 import type { BillingCustomerRepository } from '../../port/billing-customer-repository.port';
 import { BILLING_CUSTOMER_REPOSITORY } from '../../port/billing-customer-repository.port';
-import type { PlanCatalog } from '../../port/plan-catalog.port';
 import { SyncConnectedAccountUseCase } from '../connect/sync-connected-account.use-case';
+import type { PlanCatalog } from '../../port/plan-catalog.port';
+import { PLAN_CATALOG } from '../../port/plan-catalog.port';
 import {
   CONNECTED_ACCOUNT_REPOSITORY,
   type ConnectedAccountRepository,
 } from '../../port/connected-account-repository.port';
-import { PLAN_CATALOG } from '../../port/plan-catalog.port';
 import {
   BILLING_GATEWAY,
   type BillingGateway,

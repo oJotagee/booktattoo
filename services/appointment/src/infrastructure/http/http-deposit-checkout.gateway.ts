@@ -19,7 +19,7 @@ export class HttpDepositCheckoutGateway implements DepositCheckoutGateway {
     private readonly config: ConfigType<typeof servicesConfig>,
   ) {}
 
-  async create({ artistId, ...params }: CreateDepositCheckoutParams): Promise<DepositCheckout> {
+  async create(params: CreateDepositCheckoutParams): Promise<DepositCheckout> {
     if (!this.config.internalApiSecret) {
       this.logger.error(
         'INTERNAL_API_SECRET não configurado; o payment-service vai recusar o checkout do sinal.',
@@ -28,7 +28,7 @@ export class HttpDepositCheckoutGateway implements DepositCheckoutGateway {
     }
 
     const url = `${this.config.paymentServiceUrl}/internal/deposits/checkout`;
-    const artistPage = `${this.config.frontendUrl}/${encodeURIComponent(artistId)}`;
+    const artistPage = `${this.config.frontendUrl}/${encodeURIComponent(params.artistId)}`;
 
     const checkout = await requestJson<DepositCheckout>(this.logger, {
       method: 'POST',

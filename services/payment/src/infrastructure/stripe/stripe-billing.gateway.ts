@@ -109,6 +109,7 @@ export class StripeBillingGateway implements BillingGateway {
   }
 
   async createDepositCheckoutSession({
+    destinationAccountId,
     appointmentId,
     amount,
     title,
@@ -137,7 +138,11 @@ export class StripeBillingGateway implements BillingGateway {
           },
         ],
         metadata: { appointmentId },
-        payment_intent_data: { metadata: { appointmentId } },
+        payment_intent_data: {
+          metadata: { appointmentId },
+          on_behalf_of: destinationAccountId,
+          transfer_data: { destination: destinationAccountId },
+        },
         expires_at: Math.floor(Date.now() / 1000) + DEPOSIT_CHECKOUT_TTL_SECONDS,
         success_url: successUrl,
         cancel_url: cancelUrl,

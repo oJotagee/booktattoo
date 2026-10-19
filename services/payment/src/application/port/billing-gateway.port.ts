@@ -64,6 +64,7 @@ export type CreateCheckoutSessionParams = {
 };
 
 export type CreateDepositCheckoutSessionParams = {
+  destinationAccountId: string;
   appointmentId: string;
   amount: number;
   title: string;

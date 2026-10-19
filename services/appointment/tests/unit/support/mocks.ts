@@ -70,6 +70,7 @@ export function buildArtistSnapshot(overrides: Partial<ArtistSnapshot> = {}): Ar
     name: 'Ana Lima',
     status: 'ACTIVE',
     times: ['09:00', '09:30', '10:00', '10:30', '11:00', '14:00', '14:30'],
+    paymentsEnabled: true,
     ...overrides,
   };
 }

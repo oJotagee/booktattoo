@@ -77,7 +77,9 @@ export class CreatePublicAppointmentUseCase {
       this.catalog.findGaleryById(galeryId),
     ]);
 
-    if (!artist || artist.status !== BOOKABLE_ARTIST_STATUS) throw new ArtistUnavailableError();
+    if (!artist || artist.status !== BOOKABLE_ARTIST_STATUS || !artist.paymentsEnabled) {
+      throw new ArtistUnavailableError();
+    }
     if (!galery || galery.userId !== artist.id || !galery.available) {
       throw new GaleryUnavailableError();
     }

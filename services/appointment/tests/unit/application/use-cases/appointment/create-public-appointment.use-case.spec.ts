@@ -119,6 +119,14 @@ describe('CreatePublicAppointmentUseCase', () => {
     await expect(buildUseCase().execute(input)).rejects.toBeInstanceOf(ArtistUnavailableError);
   });
 
+  it('rejects artists whose Stripe account cannot receive deposits yet', async () => {
+    artists = createArtistGatewayMock(buildArtistSnapshot({ paymentsEnabled: false }));
+
+    await expect(buildUseCase().execute(input)).rejects.toBeInstanceOf(ArtistUnavailableError);
+    expect(appointments.createExclusive).not.toHaveBeenCalled();
+    expect(checkout.create).not.toHaveBeenCalled();
+  });
+
   it('rejects a flash from another artist', async () => {
     catalog = createCatalogGatewayMock(buildGalerySnapshot({ userId: 'user-2' }));
 
