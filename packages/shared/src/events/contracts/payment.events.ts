@@ -47,3 +47,20 @@ export type PaymentDepositExpired = EventEnvelope<'payment.deposit.expired', Dep
 export type PaymentDepositEvent = PaymentDepositPaid | PaymentDepositExpired;
 
 export type PaymentDepositEventType = PaymentDepositEvent['type'];
+
+export type ConnectAccountUpdatedPayload = {
+  userId: string;
+  stripeAccountId: string;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+  paymentsEnabled: boolean;
+};
+
+export type PaymentConnectAccountUpdated = EventEnvelope<
+  'payment.connect.account.updated',
+  ConnectAccountUpdatedPayload
+>;
+
+export type PaymentConnectEvent = PaymentConnectAccountUpdated;
+
+export type PaymentConnectEventType = PaymentConnectEvent['type'];

@@ -1,3 +1,5 @@
+import { escapeHtml } from '../escape-html';
+
 export type BrandEmailInput = {
   preheader?: string;
   heading: string;
@@ -29,10 +31,10 @@ export function renderBrandEmail(input: BrandEmailInput): string {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${heading}</title>
+    <title>${escapeHtml(heading)}</title>
   </head>
   <body style="margin:0;padding:0;background-color:${COLORS.background};font-family:Helvetica,Arial,sans-serif;">
-    ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${preheader}</div>` : ''}
+    ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(preheader)}</div>` : ''}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.background};padding:32px 16px;">
       <tr>
         <td align="center">
@@ -46,7 +48,7 @@ export function renderBrandEmail(input: BrandEmailInput): string {
             </tr>
             <tr>
               <td style="padding:24px 32px 8px 32px;">
-                <h1 style="margin:0;font-size:20px;line-height:1.4;color:${COLORS.foreground};">${heading}</h1>
+                <h1 style="margin:0;font-size:20px;line-height:1.4;color:${COLORS.foreground};">${escapeHtml(heading)}</h1>
               </td>
             </tr>
             <tr>
