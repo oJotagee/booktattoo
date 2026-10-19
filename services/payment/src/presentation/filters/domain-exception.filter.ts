@@ -10,7 +10,10 @@ import { INTERNAL_ERROR_MESSAGE } from '@bookink/shared/http';
 
 import {
   BillingCustomerNotFoundError,
+  ConnectedAccountNotFoundError,
+  ConnectedAccountNotReadyError,
   InvalidBillingCustomerError,
+  InvalidConnectedAccountError,
   InvalidWebhookSignatureError,
   NoActiveSubscriptionError,
   PlanAlreadyActiveError,
@@ -30,18 +33,24 @@ const DOMAIN_ERRORS = [
   PlanAlreadyActiveError,
   SubscriptionAlreadyActiveError,
   UnknownPriceError,
+  InvalidConnectedAccountError,
+  ConnectedAccountNotFoundError,
+  ConnectedAccountNotReadyError,
   MessagingUnavailableError,
 ] as const;
 
 const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [InvalidBillingCustomerError, HttpStatus.BAD_REQUEST],
   [InvalidWebhookSignatureError, HttpStatus.BAD_REQUEST],
+  [InvalidConnectedAccountError, HttpStatus.BAD_REQUEST],
 
   [BillingCustomerNotFoundError, HttpStatus.NOT_FOUND],
+  [ConnectedAccountNotFoundError, HttpStatus.NOT_FOUND],
 
   [SubscriptionAlreadyActiveError, HttpStatus.CONFLICT],
   [NoActiveSubscriptionError, HttpStatus.CONFLICT],
   [PlanAlreadyActiveError, HttpStatus.CONFLICT],
+  [ConnectedAccountNotReadyError, HttpStatus.CONFLICT],
 
   [UnknownPriceError, HttpStatus.INTERNAL_SERVER_ERROR],
 

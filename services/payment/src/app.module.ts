@@ -24,6 +24,15 @@ import { EnvPlanCatalog } from './infrastructure/stripe/env-plan-catalog';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
 import { PLAN_CATALOG } from './application/port/plan-catalog.port';
 import stripeConfig from './infrastructure/config/stripe.config';
+import { CreateConnectLoginLinkUseCase } from '@/application/use-cases/connect/create-connect-login-link.use-case';
+import { StartConnectOnboardingUseCase } from '@/application/use-cases/connect/start-connect-onboarding.use-case';
+import { SyncConnectedAccountUseCase } from '@/application/use-cases/connect/sync-connected-account.use-case';
+import { GetConnectStatusUseCase } from '@/application/use-cases/connect/get-connect-status.use-case';
+import { PrismaConnectedAccountRepository } from './infrastructure/repository/prisma-connected-account.repository';
+import { CONNECTED_ACCOUNT_REPOSITORY } from './application/port/connected-account-repository.port';
+import { StripeConnectGateway } from './infrastructure/stripe/stripe-connect.gateway';
+import { ConnectController } from './presentation/controllers/connect.controller';
+import { CONNECT_GATEWAY } from './application/port/connect-gateway.port';
 
 @Module({
   imports: [
@@ -33,6 +42,7 @@ import stripeConfig from './infrastructure/config/stripe.config';
   ],
   controllers: [
     BillingController,
+    ConnectController,
     StripeWebhookController,
     InternalDepositController,
     HealthController,
@@ -45,6 +55,18 @@ import stripeConfig from './infrastructure/config/stripe.config';
     ChangePlanUseCase,
     HandleBillingWebhookUseCase,
     CreateDepositCheckoutUseCase,
+    SyncConnectedAccountUseCase,
+    StartConnectOnboardingUseCase,
+    GetConnectStatusUseCase,
+    CreateConnectLoginLinkUseCase,
+    {
+      provide: CONNECTED_ACCOUNT_REPOSITORY,
+      useClass: PrismaConnectedAccountRepository,
+    },
+    {
+      provide: CONNECT_GATEWAY,
+      useClass: StripeConnectGateway,
+    },
     {
       provide: BILLING_CUSTOMER_REPOSITORY,
       useClass: PrismaBillingCustomerRepository,
