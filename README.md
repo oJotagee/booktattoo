@@ -46,7 +46,7 @@ O Swagger de cada serviço fica direto na porta dele: `http://localhost:<porta>/
 |---|---|---|
 | `payment.subscription.activated` / `updated` / `canceled` | payment (a partir do webhook do Stripe) | user (fila `user.payment-events`), que atualiza a `Subscription` |
 | `payment.deposit.paid` / `expired` | payment (a partir do webhook do Stripe) | appointment (fila `appointment.payment-events`), que confirma ou cancela o agendamento |
-| `payment.connect.account.updated` | payment (webhook Connect `account.updated` ou consulta em `GET /billing/connect`) | user (fila `user.payment-events`), que atualiza `paymentsEnabled` do tatuador |
+| `payment.connect.account.updated` | payment (eventos thin `v2.core.account*` do Accounts v2 ou consulta em `GET /billing/connect`) | user (fila `user.payment-events`), que atualiza `paymentsEnabled` do tatuador |
 | `appointment.created` / `cancelled` | appointment | catalog (fila `catalog.appointment-events`), que tira o flash da galeria ou o devolve |
 | `user.profile.updated` | user (cadastro e alterações de nome, avatar ou status) | catalog (fila `catalog.user-events`), que atualiza a projeção local `Artist` usada na galeria pública |
 
@@ -159,7 +159,8 @@ bun run --cwd services/payment dev
 
 # webhooks do Stripe em dev, passando pelo Kong
 # (o mesmo whsec_ impresso vale para STRIPE_BILLING_WEBHOOK_SECRET e STRIPE_CONNECT_WEBHOOK_SECRET no .env do payment)
-stripe listen --forward-to localhost:8000/webhooks/billing --forward-connect-to localhost:8000/webhooks/connect
+bun run stripe:listen          # assinaturas e sinal → /webhooks/billing
+bun run stripe:listen:connect  # contas conectadas (eventos v2) → /webhooks/connect
 ```
 
 No dev, o Kong roda no Docker e alcança os serviços na sua máquina via `extra_hosts` (`host-gateway`), então o mesmo `kong.yml` serve para os dois composes.
@@ -191,7 +192,7 @@ Projeto em desenvolvimento. Já funcionam:
 - Assinatura mensal com trial, limites por plano e troca de plano
 - Página pública do tatuador, com link para compartilhar
 - Agendamento de flash com o sinal pago no Stripe Checkout
-- Sinal pago direto para a conta do tatuador, com Stripe Connect (Express)
+- Sinal pago direto para a conta do tatuador, com Stripe Connect (Accounts v2, painel Express)
 - Estorno automático ao cancelar um agendamento já pago e em pagamentos tardios
 - E-mails de confirmação e de estorno para o cliente
 - Dashboard com indicadores do dia e a agenda do dia

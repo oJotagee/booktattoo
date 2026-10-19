@@ -13,6 +13,7 @@ import { PROCESSED_WEBHOOK_EVENT_REPOSITORY } from '../../port/processed-webhook
 import type { BillingCustomerRepository } from '../../port/billing-customer-repository.port';
 import { BILLING_CUSTOMER_REPOSITORY } from '../../port/billing-customer-repository.port';
 import { SyncConnectedAccountUseCase } from '../connect/sync-connected-account.use-case';
+import { CONNECT_GATEWAY, type ConnectGateway } from '../../port/connect-gateway.port';
 import type { PlanCatalog } from '../../port/plan-catalog.port';
 import { PLAN_CATALOG } from '../../port/plan-catalog.port';
 import {
@@ -64,6 +65,8 @@ export class HandleBillingWebhookUseCase {
     @Inject(CONNECTED_ACCOUNT_REPOSITORY)
     private readonly connectedAccounts: ConnectedAccountRepository,
     private readonly syncConnectedAccount: SyncConnectedAccountUseCase,
+    @Inject(CONNECT_GATEWAY)
+    private readonly connectGateway: ConnectGateway,
   ) {}
 
   async execute({ rawBody, signature, source }: HandleBillingWebhookInput): Promise<void> {
@@ -104,7 +107,7 @@ export class HandleBillingWebhookUseCase {
       return;
     }
 
-    const { id: _stripeAccountId, ...status } = snapshot;
+    const status = await this.connectGateway.retrieveAccountStatus(snapshot.id);
 
     await this.syncConnectedAccount.execute({ account, status, eventId: id });
   }

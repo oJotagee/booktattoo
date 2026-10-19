@@ -44,7 +44,8 @@
     "prisma:studio:payment": "bunx prisma studio --config services/payment/prisma.config.ts",
     "prisma:status:prod:payment": "PRISMA_TARGET=production bunx prisma migrate status --config services/payment/prisma.config.ts",
     "prisma:migrate:deploy:prod:payment": "PRISMA_TARGET=production bunx prisma migrate deploy --config services/payment/prisma.config.ts",
-    "stripe:listen": "stripe listen --all-snapshot --forward-to localhost:8000/webhooks/billing"
+    "stripe:listen": "stripe listen --all-snapshot --forward-to localhost:8000/webhooks/billing",
+    "stripe:listen:connect": "stripe listen --events \"v2.core.account[configuration.merchant].capability_status_updated,v2.core.account[configuration.recipient].capability_status_updated,v2.core.account[requirements].updated\" --forward-to localhost:8000/webhooks/connect"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.2",

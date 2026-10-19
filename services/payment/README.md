@@ -58,7 +58,7 @@ Stripe ──POST /webhooks/billing──▶ payment ──▶ RabbitMQ  payment
 | `GET` | `/billing/connect` | JWT | Status da conta Stripe Connect do tatuador (`connected`, `chargesEnabled`, `payoutsEnabled`, `detailsSubmitted`, `paymentsEnabled`), consultado no Stripe a cada chamada |
 | `POST` | `/billing/connect/onboarding` | JWT | Cria a conta Express (na primeira vez) e devolve `{ url }` do onboarding |
 | `POST` | `/billing/connect/dashboard` | JWT | Devolve `{ url }` do painel Express. 404 sem conta, 409 antes de enviar o cadastro |
-| `POST` | `/webhooks/connect` | assinatura Stripe (Connect) | Webhook de `account.updated` das contas conectadas |
+| `POST` | `/webhooks/connect` | assinatura Stripe (eventos thin) | Eventos thin `v2.core.account*` das contas conectadas (Accounts v2). O payload só traz o id da conta; o status é consultado no Stripe |
 | `POST` | `/internal/deposits/checkout` | `X-Internal-Secret` | Só para o appointment-service (fora do Kong). Recebe `artistId` e cria a Checkout Session do sinal como destination charge para a conta do tatuador (modo payment, expira em ~30 min). Devolve `{ checkoutSessionId, url }`. 409 se a conta não estiver habilitada |
 | `POST` | `/internal/deposits/refund` | `X-Internal-Secret` | Estorna o sinal pago numa Checkout Session (`{ appointmentId, checkoutSessionId }`, com `reverse_transfer`). Idempotente por agendamento. Devolve `{ refundId }` |
 | `POST` | `/internal/deposits/expire` | `X-Internal-Secret` | Expira a Checkout Session se ainda estiver aberta (204) |
@@ -93,7 +93,8 @@ bun run prisma:migrate:dev:payment     # (na raiz)
 bun run --cwd services/payment dev
 
 # webhooks em dev (Stripe CLI), passando pelo Kong:
-stripe listen --forward-to localhost:8000/webhooks/billing --forward-connect-to localhost:8000/webhooks/connect
+bun run stripe:listen          # na raiz → /webhooks/billing
+bun run stripe:listen:connect  # na raiz → /webhooks/connect (eventos thin v2.core.account)
 # copie o whsec_ impresso para STRIPE_BILLING_WEBHOOK_SECRET e STRIPE_CONNECT_WEBHOOK_SECRET
 ```
 
@@ -110,7 +111,7 @@ stripe listen --forward-to localhost:8000/webhooks/billing --forward-connect-to 
 | `STRIPE_PRICE_BASIC` / `STRIPE_PRICE_PROFESSIONAL` | Price IDs dos planos |
 | `STRIPE_CHECKOUT_SUCCESS_URL` / `STRIPE_CHECKOUT_CANCEL_URL` | Retorno do Checkout |
 | `STRIPE_PORTAL_RETURN_URL` | Retorno do Billing Portal |
-| `STRIPE_CONNECT_WEBHOOK_SECRET` | Segredo de assinatura do webhook Connect (`/webhooks/connect`) |
+| `STRIPE_CONNECT_WEBHOOK_SECRET` | Segredo do destino de eventos thin (`v2.core.account*`) que aponta para `/webhooks/connect` |
 | `STRIPE_CONNECT_RETURN_URL` / `STRIPE_CONNECT_REFRESH_URL` | Retorno do onboarding Connect e rota que gera um novo link quando o anterior expira |
 | `INTERNAL_API_SECRET` | Segredo (mín. 32 caracteres) exigido no header `X-Internal-Secret` em `POST /internal/deposits/checkout`. O mesmo valor deve estar no appointment-service; sem ele a rota fica bloqueada |
 

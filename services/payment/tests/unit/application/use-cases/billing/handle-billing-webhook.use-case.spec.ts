@@ -8,6 +8,7 @@ import {
   createBillingCustomerRepositoryMock,
   createBillingGatewayMock,
   createConnectedAccountRepositoryMock,
+  createConnectGatewayMock,
   createEventPublisherMock,
   createPlanCatalogMock,
   createProcessedWebhookEventRepositoryMock,
@@ -15,17 +16,14 @@ import {
 
 const input = { rawBody: Buffer.from('{}'), signature: 't=1,v1=abc', source: 'platform' as const };
 
+const ACCOUNT_EVENT_TYPE = 'v2.core.account[configuration.merchant].capability_status_updated';
+
 const accountUpdatedEvent = {
   id: 'evt_acct',
-  type: 'account.updated',
+  type: ACCOUNT_EVENT_TYPE,
   kind: BillingWebhookEventKind.ACCOUNT_UPDATED,
   subscriptionId: null,
-  account: {
-    id: 'acct_123',
-    chargesEnabled: true,
-    payoutsEnabled: true,
-    detailsSubmitted: true,
-  },
+  account: { id: 'acct_123' },
 };
 
 describe('HandleBillingWebhookUseCase', () => {
@@ -34,6 +32,7 @@ describe('HandleBillingWebhookUseCase', () => {
   let processedEvents: ReturnType<typeof createProcessedWebhookEventRepositoryMock>;
   let publisher: ReturnType<typeof createEventPublisherMock>;
   let connectedAccounts: ReturnType<typeof createConnectedAccountRepositoryMock>;
+  let connectGateway: ReturnType<typeof createConnectGatewayMock>;
   let useCase: HandleBillingWebhookUseCase;
 
   beforeEach(() => {
@@ -42,6 +41,7 @@ describe('HandleBillingWebhookUseCase', () => {
     processedEvents = createProcessedWebhookEventRepositoryMock();
     publisher = createEventPublisherMock();
     connectedAccounts = createConnectedAccountRepositoryMock();
+    connectGateway = createConnectGatewayMock();
     customers.findByStripeCustomerId = async () => buildBillingCustomer();
     useCase = new HandleBillingWebhookUseCase(
       gateway,
@@ -51,6 +51,7 @@ describe('HandleBillingWebhookUseCase', () => {
       publisher,
       connectedAccounts,
       new SyncConnectedAccountUseCase(connectedAccounts, publisher),
+      connectGateway,
     );
   });
 
@@ -64,13 +65,14 @@ describe('HandleBillingWebhookUseCase', () => {
     );
   });
 
-  it('syncs the connected account on account.updated', async () => {
+  it('fetches the current account status from Stripe and syncs it', async () => {
     gateway.parseWebhookEvent = async () => accountUpdatedEvent;
     connectedAccounts.findByStripeAccountId = async () =>
       buildConnectedAccount({ chargesEnabled: false, payoutsEnabled: false });
 
     await useCase.execute({ ...input, source: 'connect' });
 
+    expect(connectGateway.retrieveAccountStatus).toHaveBeenCalledWith('acct_123');
     expect(connectedAccounts.save).toHaveBeenCalledWith(
       expect.objectContaining({ paymentsEnabled: true }),
     );
@@ -81,16 +83,16 @@ describe('HandleBillingWebhookUseCase', () => {
         payload: expect.objectContaining({ userId: 'user-1', paymentsEnabled: true }),
       }),
     );
-    expect(processedEvents.save).toHaveBeenCalledWith('evt_acct', 'account.updated');
+    expect(processedEvents.save).toHaveBeenCalledWith('evt_acct', ACCOUNT_EVENT_TYPE);
   });
 
-  it('records account.updated for unknown accounts without publishing', async () => {
+  it('records account events for unknown accounts without publishing', async () => {
     gateway.parseWebhookEvent = async () => accountUpdatedEvent;
 
     await useCase.execute({ ...input, source: 'connect' });
 
     expect(publisher.publish).not.toHaveBeenCalled();
-    expect(processedEvents.save).toHaveBeenCalledWith('evt_acct', 'account.updated');
+    expect(processedEvents.save).toHaveBeenCalledWith('evt_acct', ACCOUNT_EVENT_TYPE);
   });
 
   it('publishes the subscription state and marks the event as processed', async () => {
