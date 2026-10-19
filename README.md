@@ -46,6 +46,7 @@ O Swagger de cada serviço fica direto na porta dele: `http://localhost:<porta>/
 |---|---|---|
 | `payment.subscription.activated` / `updated` / `canceled` | payment (a partir do webhook do Stripe) | user (fila `user.payment-events`), que atualiza a `Subscription` |
 | `payment.deposit.paid` / `expired` | payment (a partir do webhook do Stripe) | appointment (fila `appointment.payment-events`), que confirma ou cancela o agendamento |
+| `payment.connect.account.updated` | payment (webhook Connect `account.updated` ou consulta em `GET /billing/connect`) | user (fila `user.payment-events`), que atualiza `paymentsEnabled` do tatuador |
 | `appointment.created` / `cancelled` | appointment | catalog (fila `catalog.appointment-events`), que tira o flash da galeria ou o devolve |
 | `user.profile.updated` | user (cadastro e alterações de nome, avatar ou status) | catalog (fila `catalog.user-events`), que atualiza a projeção local `Artist` usada na galeria pública |
 
@@ -76,7 +77,13 @@ O cache é só para leitura. Ao criar um agendamento, a checagem de conflito de 
    - Um flash ocupa tantos blocos seguidos quanto a duração do serviço vinculado.
    - Horários que já passaram ficam desabilitados.
 3. O appointment-service cria o agendamento como `PENDING` e o cliente vai para o Stripe Checkout pagar o sinal. O flash sai da galeria.
-4. O webhook do Stripe confirma o pagamento e o agendamento vira `CONFIRMED`. Se o checkout expirar (~30 min), o agendamento é cancelado e o horário e o flash voltam a ficar livres.
+4. O webhook do Stripe confirma o pagamento e o agendamento vira `CONFIRMED`. O cliente recebe um e-mail de confirmação. Se o checkout expirar (~30 min), o agendamento é cancelado e o horário e o flash voltam a ficar livres.
+
+**Sinal direto para o tatuador (Stripe Connect).** Cada tatuador conecta uma conta Express em **Recebimentos** no dashboard. O checkout do sinal é uma destination charge (`transfer_data` + `on_behalf_of`), sem taxa da plataforma. O tatuador só aceita agendamentos depois que o Stripe libera cobranças e saques na conta (`paymentsEnabled`). Antes disso, o perfil público avisa que ele ainda não aceita agendamentos online.
+
+**Cancelamento e estorno.** Quando o tatuador cancela um agendamento já pago, o appointment-service pede o estorno ao payment-service (`POST /internal/deposits/refund`, com `reverse_transfer`) antes de gravar o cancelamento. Se o estorno falhar, nada muda e o tatuador pode tentar de novo. O cliente recebe um e-mail avisando do estorno. Cancelar um agendamento pendente expira o checkout aberto. Se um pagamento chegar depois que o agendamento foi cancelado ou expirou, ele é estornado automaticamente. Sinais estornados não entram nos indicadores do dashboard.
+
+Os e-mails ao cliente usam o mesmo SMTP do user-service (variáveis `MAIL_*` no `.env` do appointment).
 
 O preço total de um flash nunca pode ser menor que o sinal do serviço vinculado. Essa regra é validada no formulário e no catalog-service. Detalhes em [services/appointment/README.md](services/appointment/README.md).
 
@@ -151,8 +158,8 @@ bun run --cwd services/appointment dev
 bun run --cwd services/payment dev
 
 # webhooks do Stripe em dev, passando pelo Kong
-# (copie o whsec_ impresso para STRIPE_BILLING_WEBHOOK_SECRET no .env do payment)
-stripe listen --forward-to localhost:8000/webhooks/billing
+# (o mesmo whsec_ impresso vale para STRIPE_BILLING_WEBHOOK_SECRET e STRIPE_CONNECT_WEBHOOK_SECRET no .env do payment)
+stripe listen --forward-to localhost:8000/webhooks/billing --forward-connect-to localhost:8000/webhooks/connect
 ```
 
 No dev, o Kong roda no Docker e alcança os serviços na sua máquina via `extra_hosts` (`host-gateway`), então o mesmo `kong.yml` serve para os dois composes.
@@ -184,9 +191,7 @@ Projeto em desenvolvimento. Já funcionam:
 - Assinatura mensal com trial, limites por plano e troca de plano
 - Página pública do tatuador, com link para compartilhar
 - Agendamento de flash com o sinal pago no Stripe Checkout
+- Sinal pago direto para a conta do tatuador, com Stripe Connect (Express)
+- Estorno automático ao cancelar um agendamento já pago e em pagamentos tardios
+- E-mails de confirmação e de estorno para o cliente
 - Dashboard com indicadores do dia e a agenda do dia
-
-Próximos passos:
-- Sinal pago direto para a conta do tatuador, com Stripe Connect
-- Estorno automático ao cancelar um agendamento já pago
-- Confirmação do agendamento por e-mail para o cliente
