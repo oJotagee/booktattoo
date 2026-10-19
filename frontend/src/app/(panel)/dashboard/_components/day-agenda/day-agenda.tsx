@@ -1,8 +1,15 @@
+import { getCurrentUser } from '../../_data-access/get-current-user';
 import getSession from '@/lib/get-session';
 import { DayAgendaList } from './day-agenda-list';
 
-export async function DayAgenda() {
-  const session = await getSession();
+async function getWorkingTimes(): Promise<string[]> {
+  try {
+    return (await getCurrentUser()).times;
+  } catch {
+    return (await getSession())?.user.times ?? [];
+  }
+}
 
-  return <DayAgendaList times={session?.user.times ?? []} />;
+export async function DayAgenda() {
+  return <DayAgendaList times={await getWorkingTimes()} />;
 }

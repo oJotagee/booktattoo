@@ -1,21 +1,30 @@
+import { type CurrentUser, getCurrentUser } from '../_data-access/get-current-user';
 import type { UserStatus } from '../_actions/update-status';
 import DashboardHeader from '../_components/header';
 import { ProfileForm } from './_components/form';
 import getSession from '@/lib/get-session';
 
-export default async function Profile() {
-  const session = await getSession();
+async function loadUser(): Promise<Omit<CurrentUser, 'id'>> {
+  try {
+    return await getCurrentUser();
+  } catch {
+    const session = await getSession();
 
-  const user = {
-    name: session?.user?.name ?? '',
-    image: session?.user?.image ?? null,
-    address: session?.user?.address ?? null,
-    phone: session?.user?.phone ?? null,
-    bio: session?.user?.bio ?? null,
-    role: session?.user?.role ?? null,
-    times: session?.user?.times ?? null,
-    status: session?.user?.status as UserStatus,
-  };
+    return {
+      name: session?.user?.name ?? '',
+      image: session?.user?.image ?? null,
+      address: session?.user?.address ?? null,
+      phone: session?.user?.phone ?? null,
+      bio: session?.user?.bio ?? null,
+      role: session?.user?.role ?? null,
+      times: session?.user?.times ?? [],
+      status: session?.user?.status as UserStatus,
+    };
+  }
+}
+
+export default async function Profile() {
+  const user = await loadUser();
 
   return (
     <>

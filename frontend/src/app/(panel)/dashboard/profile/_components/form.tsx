@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Controller } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { cn } from 'cn';
@@ -46,18 +47,9 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ user }: ProfileFormProps) {
-  const { data: session, update } = useSession();
-
-  const currentUser = {
-    name: session?.user?.name ?? user.name,
-    image: session?.user?.image ?? user.image,
-    address: session?.user?.address ?? user.address,
-    phone: session?.user?.phone ?? user.phone,
-    bio: session?.user?.bio ?? user.bio,
-    role: session?.user?.role ?? user.role,
-    times: session?.user?.times ?? user.times,
-    status: (session?.user?.status as UserStatus) ?? user.status,
-  };
+  const { update } = useSession();
+  const router = useRouter();
+  const currentUser = user;
 
   const profileSchema = useProfileSchema({
     name: currentUser.name,
@@ -120,11 +112,14 @@ export function ProfileForm({ user }: ProfileFormProps) {
       return;
     }
 
-    toast.promise(update({ image: response.data?.image }), {
-      loading: 'Atualizando foto de perfil...',
-      success: 'Foto de perfil atualizada com sucesso',
-      error: 'Não foi possível atualizar a foto de perfil',
-    });
+    toast.promise(
+      update({ image: response.data?.image }).then(() => router.refresh()),
+      {
+        loading: 'Atualizando foto de perfil...',
+        success: 'Foto de perfil atualizada com sucesso',
+        error: 'Não foi possível atualizar a foto de perfil',
+      },
+    );
   }
 
   function generateTimeSlots(): string[] {
@@ -179,7 +174,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         bio: response.data?.bio,
         role: response.data?.role,
         times: response.data?.times,
-      }),
+      }).then(() => router.refresh()),
       {
         loading: 'Atualizando perfil...',
         success: 'Perfil atualizado com sucesso',
