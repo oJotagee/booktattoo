@@ -19,6 +19,7 @@ async function loadUser(): Promise<Omit<CurrentUser, 'id'>> {
       role: session?.user?.role ?? null,
       times: session?.user?.times ?? [],
       status: session?.user?.status as UserStatus,
+      paymentsEnabled: false,
     };
   }
 }

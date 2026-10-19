@@ -96,7 +96,7 @@ function BookingFlow({ galery, step, onStepChange }: BookingFlowProps) {
     );
   }
 
-  if (artistQuery.data.status !== BOOKABLE_ARTIST_STATUS) {
+  if (artistQuery.data.status !== BOOKABLE_ARTIST_STATUS || !artistQuery.data.paymentsEnabled) {
     return (
       <p className="px-6 py-10 text-center text-sm text-white/60">
         Este tatuador não está recebendo agendamentos no momento.

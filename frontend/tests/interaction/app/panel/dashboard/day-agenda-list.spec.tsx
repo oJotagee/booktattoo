@@ -21,6 +21,7 @@ function buildAppointment(overrides: Partial<DayAppointment> = {}): DayAppointme
     galeryTitle: 'Rosa Tradicional',
     galeryImageUrl: null,
     paidAt: '2026-10-15T12:00:00.000Z',
+    refundedAt: null,
     ...overrides,
   };
 }

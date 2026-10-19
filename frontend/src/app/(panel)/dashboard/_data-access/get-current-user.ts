@@ -14,6 +14,7 @@ export interface CurrentUser {
   role: string | null;
   status: UserStatus;
   times: string[];
+  paymentsEnabled: boolean;
 }
 
 export const getCurrentUser = cache(async (): Promise<CurrentUser> => {
