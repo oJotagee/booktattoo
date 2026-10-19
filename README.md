@@ -159,7 +159,8 @@ bun run --cwd services/payment dev
 
 # webhooks do Stripe em dev, passando pelo Kong
 # (o mesmo whsec_ impresso vale para STRIPE_BILLING_WEBHOOK_SECRET e STRIPE_CONNECT_WEBHOOK_SECRET no .env do payment)
-stripe listen --forward-to localhost:8000/webhooks/billing --thin-events 'v2.core.account*' --forward-thin-to localhost:8000/webhooks/connect
+bun run stripe:listen          # assinaturas e sinal → /webhooks/billing
+bun run stripe:listen:connect  # contas conectadas (eventos v2) → /webhooks/connect
 ```
 
 No dev, o Kong roda no Docker e alcança os serviços na sua máquina via `extra_hosts` (`host-gateway`), então o mesmo `kong.yml` serve para os dois composes.

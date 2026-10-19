@@ -93,7 +93,8 @@ bun run prisma:migrate:dev:payment     # (na raiz)
 bun run --cwd services/payment dev
 
 # webhooks em dev (Stripe CLI), passando pelo Kong:
-stripe listen --forward-to localhost:8000/webhooks/billing --thin-events 'v2.core.account*' --forward-thin-to localhost:8000/webhooks/connect
+bun run stripe:listen          # na raiz → /webhooks/billing
+bun run stripe:listen:connect  # na raiz → /webhooks/connect (eventos thin v2.core.account)
 # copie o whsec_ impresso para STRIPE_BILLING_WEBHOOK_SECRET e STRIPE_CONNECT_WEBHOOK_SECRET
 ```
 
