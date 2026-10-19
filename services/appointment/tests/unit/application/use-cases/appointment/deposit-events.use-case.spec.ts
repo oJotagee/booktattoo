@@ -9,6 +9,7 @@ import {
   createCacheMock,
   createDepositGatewayMock,
   createEventPublisherMock,
+  createNotifierMock,
 } from '@tests/unit/support/mocks';
 
 const paidAt = new Date('2026-10-16T15:00:00.000Z');
@@ -18,12 +19,14 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
 
   let appointments: ReturnType<typeof createAppointmentRepositoryMock>;
   let deposits: ReturnType<typeof createDepositGatewayMock>;
+  let notifier: ReturnType<typeof createNotifierMock>;
   let useCase: ConfirmAppointmentPaymentUseCase;
 
   beforeEach(() => {
     appointments = createAppointmentRepositoryMock();
     deposits = createDepositGatewayMock();
-    useCase = new ConfirmAppointmentPaymentUseCase(appointments, deposits);
+    notifier = createNotifierMock();
+    useCase = new ConfirmAppointmentPaymentUseCase(appointments, deposits, notifier);
   });
 
   it('confirms a pending appointment', async () => {
@@ -35,6 +38,9 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
       expect.objectContaining({ status: AppointmentStatus.CONFIRMED, paidAt }),
     );
     expect(deposits.refund).not.toHaveBeenCalled();
+    expect(notifier.confirmed).toHaveBeenCalledWith(
+      expect.objectContaining({ status: AppointmentStatus.CONFIRMED }),
+    );
   });
 
   it('ignores a redelivered event', async () => {
@@ -62,6 +68,10 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
         refundedAt: expect.any(Date),
       }),
     );
+    expect(notifier.latePaymentRefunded).toHaveBeenCalledWith(
+      expect.objectContaining({ refundId: 're_1' }),
+    );
+    expect(notifier.confirmed).not.toHaveBeenCalled();
   });
 
   it('does not refund a late payment twice on redelivery', async () => {

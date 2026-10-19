@@ -1,5 +1,6 @@
 import { MessagingModule } from '@bookink/shared/events';
 import { CacheModule } from '@bookink/shared/cache';
+import { MailModule } from '@bookink/shared/mail';
 import { JwtAuthModule } from '@bookink/shared/auth';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
@@ -34,6 +35,8 @@ import { CATALOG_GATEWAY } from './application/port/catalog-gateway.port';
 import { ARTIST_GATEWAY } from './application/port/artist-gateway.port';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
 import servicesConfig from './infrastructure/config/services.config';
+import { MailAppointmentNotifier } from './infrastructure/mail/mail-appointment-notifier';
+import { APPOINTMENT_NOTIFIER } from './application/port/appointment-notifier.port';
 
 @Module({
   imports: [
@@ -41,6 +44,7 @@ import servicesConfig from './infrastructure/config/services.config';
     JwtAuthModule,
     MessagingModule,
     CacheModule,
+    MailModule,
   ],
   controllers: [
     ReminderController,
@@ -83,6 +87,10 @@ import servicesConfig from './infrastructure/config/services.config';
     {
       provide: DEPOSIT_GATEWAY,
       useClass: HttpDepositGateway,
+    },
+    {
+      provide: APPOINTMENT_NOTIFIER,
+      useClass: MailAppointmentNotifier,
     },
   ],
 })

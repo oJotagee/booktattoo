@@ -24,11 +24,12 @@ export function buildAppointment(
     price: number;
     depositAmount: number;
     galeryId: string | null;
+    clientName: string;
   }> = {},
 ): AppointmentEntity {
   return AppointmentEntity.create({
     id: overrides.id ?? 'appointment-1',
-    clientName: 'Mariana Costa',
+    clientName: overrides.clientName ?? 'Mariana Costa',
     clientEmail: 'mariana@email.com',
     clientPhone: '(11) 99999-9999',
     scheduledAt: overrides.scheduledAt ?? new Date('2026-10-20T13:00:00.000Z'),

@@ -1,5 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
+import {
+  APPOINTMENT_NOTIFIER,
+  type AppointmentNotifier,
+} from '../../port/appointment-notifier.port';
 import type { AppointmentRepository } from '../../port/appointment-repository.port';
 import { DEPOSIT_GATEWAY, type DepositGateway } from '../../port/deposit-gateway.port';
 import { APPOINTMENT_REPOSITORY } from '../../port/appointment-repository.port';
@@ -19,6 +23,8 @@ export class ConfirmAppointmentPaymentUseCase {
     private readonly appointments: AppointmentRepository,
     @Inject(DEPOSIT_GATEWAY)
     private readonly deposits: DepositGateway,
+    @Inject(APPOINTMENT_NOTIFIER)
+    private readonly notifier: AppointmentNotifier,
   ) {}
 
   async execute({
@@ -38,16 +44,19 @@ export class ConfirmAppointmentPaymentUseCase {
 
     if (!appointment.isPending) {
       const { refundId } = await this.deposits.refund({ appointmentId, checkoutSessionId });
+      const refunded = appointment.recordLatePayment(paidAt).recordRefund(refundId, new Date());
 
-      await this.appointments.update(
-        appointment.recordLatePayment(paidAt).recordRefund(refundId, new Date()),
-      );
+      await this.appointments.update(refunded);
       this.logger.warn(
         `Sinal pago para o agendamento ${appointmentId} com status ${appointment.status}; estornado (${refundId})`,
       );
+      await this.notifier.latePaymentRefunded(refunded);
       return;
     }
 
-    await this.appointments.update(appointment.confirmPayment(paidAt));
+    const confirmed = appointment.confirmPayment(paidAt);
+
+    await this.appointments.update(confirmed);
+    await this.notifier.confirmed(confirmed);
   }
 }

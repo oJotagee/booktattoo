@@ -10,6 +10,7 @@ import type {
 import type { ArtistGateway, ArtistSnapshot } from '@/application/port/artist-gateway.port';
 import type { CatalogGateway, GalerySnapshot } from '@/application/port/catalog-gateway.port';
 import type { DepositGateway } from '@/application/port/deposit-gateway.port';
+import type { AppointmentNotifier } from '@/application/port/appointment-notifier.port';
 import type { AppointmentEntity } from '@/domain/entities/appointment.entity';
 import type { ReminderRepository } from '@/application/port/reminder-repository.port';
 
@@ -97,5 +98,13 @@ export function createCacheMock(): CachePort {
       loader(),
     ) as CachePort['getOrLoad'],
     invalidate: mock(async () => undefined),
+  };
+}
+
+export function createNotifierMock(): AppointmentNotifier {
+  return {
+    confirmed: mock(async () => undefined),
+    cancelledWithRefund: mock(async () => undefined),
+    latePaymentRefunded: mock(async () => undefined),
   };
 }

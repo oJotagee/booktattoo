@@ -2,6 +2,10 @@ import { createEventEnvelope, EVENT_PUBLISHER, type EventPublisher } from '@book
 import { CACHE_PORT, type CachePort } from '@bookink/shared/cache';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
+import {
+  APPOINTMENT_NOTIFIER,
+  type AppointmentNotifier,
+} from '../../port/appointment-notifier.port';
 import { DEPOSIT_GATEWAY, type DepositGateway } from '../../port/deposit-gateway.port';
 import type { AppointmentRepository } from '../../port/appointment-repository.port';
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
@@ -22,6 +26,8 @@ export class CancelAppointmentUseCase {
     private readonly cache: CachePort,
     @Inject(DEPOSIT_GATEWAY)
     private readonly deposits: DepositGateway,
+    @Inject(APPOINTMENT_NOTIFIER)
+    private readonly notifier: AppointmentNotifier,
   ) {}
 
   async execute({ id, userId }: { id: string; userId: string }): Promise<void> {
@@ -57,6 +63,8 @@ export class CancelAppointmentUseCase {
         { correlationId: appointment.id },
       ),
     );
+
+    if (cancelled.refundedAt) await this.notifier.cancelledWithRefund(cancelled);
   }
 
   private async expireCheckout(appointmentId: string, checkoutSessionId: string): Promise<void> {

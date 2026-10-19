@@ -14,6 +14,7 @@ import {
   createCacheMock,
   createDepositGatewayMock,
   createEventPublisherMock,
+  createNotifierMock,
 } from '@tests/unit/support/mocks';
 
 const paidAt = new Date('2026-10-16T15:00:00.000Z');
@@ -23,6 +24,7 @@ describe('CancelAppointmentUseCase', () => {
   let publisher: ReturnType<typeof createEventPublisherMock>;
   let cache: ReturnType<typeof createCacheMock>;
   let deposits: ReturnType<typeof createDepositGatewayMock>;
+  let notifier: ReturnType<typeof createNotifierMock>;
   let useCase: CancelAppointmentUseCase;
 
   beforeEach(() => {
@@ -30,7 +32,8 @@ describe('CancelAppointmentUseCase', () => {
     publisher = createEventPublisherMock();
     cache = createCacheMock();
     deposits = createDepositGatewayMock();
-    useCase = new CancelAppointmentUseCase(appointments, publisher, cache, deposits);
+    notifier = createNotifierMock();
+    useCase = new CancelAppointmentUseCase(appointments, publisher, cache, deposits, notifier);
   });
 
   it('cancels the appointment and releases the flash', async () => {
@@ -68,6 +71,9 @@ describe('CancelAppointmentUseCase', () => {
       }),
     );
     expect(deposits.expireCheckout).not.toHaveBeenCalled();
+    expect(notifier.cancelledWithRefund).toHaveBeenCalledWith(
+      expect.objectContaining({ refundId: 're_1' }),
+    );
   });
 
   it('keeps the appointment untouched when the refund fails', async () => {
@@ -82,6 +88,7 @@ describe('CancelAppointmentUseCase', () => {
     );
     expect(appointments.update).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
+    expect(notifier.cancelledWithRefund).not.toHaveBeenCalled();
   });
 
   it('expires the open checkout of a pending appointment', async () => {
@@ -92,6 +99,7 @@ describe('CancelAppointmentUseCase', () => {
     expect(deposits.expireCheckout).toHaveBeenCalledWith('cs_1');
     expect(deposits.refund).not.toHaveBeenCalled();
     expect(appointments.update).toHaveBeenCalled();
+    expect(notifier.cancelledWithRefund).not.toHaveBeenCalled();
   });
 
   it('still cancels when expiring the checkout fails', async () => {
@@ -135,5 +143,6 @@ describe('CancelAppointmentUseCase', () => {
     );
     expect(deposits.refund).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
+    expect(notifier.cancelledWithRefund).not.toHaveBeenCalled();
   });
 });
