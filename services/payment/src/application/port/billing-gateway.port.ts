@@ -74,6 +74,11 @@ export type CreateDepositCheckoutSessionParams = {
   cancelUrl: string;
 };
 
+export type RefundDepositParams = {
+  appointmentId: string;
+  checkoutSessionId: string;
+};
+
 export interface BillingGateway {
   createCustomer(params: { userId: string; email: string }): Promise<{ id: string }>;
   findActiveSubscription(customerId: string): Promise<ActiveSubscription | null>;
@@ -89,4 +94,6 @@ export interface BillingGateway {
     source: WebhookSource,
   ): Promise<BillingWebhookEvent>;
   retrieveSubscription(subscriptionId: string): Promise<SubscriptionSnapshot>;
+  refundDeposit(params: RefundDepositParams): Promise<{ refundId: string }>;
+  expireDepositCheckout(checkoutSessionId: string): Promise<void>;
 }

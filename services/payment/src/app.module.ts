@@ -6,6 +6,8 @@ import { Module } from '@nestjs/common';
 import { PrismaProcessedWebhookEventRepository } from './infrastructure/repository/prisma-processed-webhook-event.repository';
 import { PrismaBillingCustomerRepository } from './infrastructure/repository/prisma-billing-customer.repository';
 import { CreateDepositCheckoutUseCase } from '@/application/use-cases/deposit/create-deposit-checkout.use-case';
+import { ExpireDepositCheckoutUseCase } from '@/application/use-cases/deposit/expire-deposit-checkout.use-case';
+import { RefundDepositUseCase } from '@/application/use-cases/deposit/refund-deposit.use-case';
 import { CreateCheckoutSessionUseCase } from '@/application/use-cases/billing/create-checkout-session.use-case';
 import { PROCESSED_WEBHOOK_EVENT_REPOSITORY } from './application/port/processed-webhook-event-repository.port';
 import { HandleBillingWebhookUseCase } from '@/application/use-cases/billing/handle-billing-webhook.use-case';
@@ -55,6 +57,8 @@ import { CONNECT_GATEWAY } from './application/port/connect-gateway.port';
     ChangePlanUseCase,
     HandleBillingWebhookUseCase,
     CreateDepositCheckoutUseCase,
+    RefundDepositUseCase,
+    ExpireDepositCheckoutUseCase,
     SyncConnectedAccountUseCase,
     StartConnectOnboardingUseCase,
     GetConnectStatusUseCase,

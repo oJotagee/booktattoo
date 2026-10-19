@@ -49,6 +49,8 @@ export function createBillingGatewayMock(): BillingGateway {
       currentPeriodEnd: new Date('2026-11-01T00:00:00.000Z'),
       cancelAtPeriodEnd: false,
     })),
+    refundDeposit: mock(async () => ({ refundId: 're_123' })),
+    expireDepositCheckout: mock(async () => undefined),
   };
 }
 

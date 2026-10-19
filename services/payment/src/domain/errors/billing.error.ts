@@ -67,3 +67,10 @@ export class ConnectedAccountNotReadyError extends Error {
     this.name = 'ConnectedAccountNotReadyError';
   }
 }
+
+export class DepositNotPaidError extends Error {
+  constructor() {
+    super('Não há pagamento de sinal para estornar nesta sessão.');
+    this.name = 'DepositNotPaidError';
+  }
+}

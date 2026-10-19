@@ -1,8 +1,8 @@
-import type { ConfigType } from '@nestjs/config';
 import { Inject, Injectable } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import Stripe from 'stripe';
 
-import { InvalidWebhookSignatureError } from '@/domain/errors/billing.error';
+import { DepositNotPaidError, InvalidWebhookSignatureError } from '@/domain/errors/billing.error';
 import stripeConfig from '../config/stripe.config';
 import { STRIPE_CLIENT } from './stripe.client';
 import {
@@ -13,6 +13,7 @@ import {
   type ChangeSubscriptionPriceParams,
   type CreateCheckoutSessionParams,
   type CreateDepositCheckoutSessionParams,
+  type RefundDepositParams,
   type SubscriptionSnapshot,
   type WebhookSource,
 } from '@/application/port/billing-gateway.port';
@@ -264,6 +265,52 @@ export class StripeBillingGateway implements BillingGateway {
       currentPeriodEnd: item.current_period_end ? new Date(item.current_period_end * 1000) : null,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
     };
+  }
+
+  async refundDeposit({
+    appointmentId,
+    checkoutSessionId,
+  }: RefundDepositParams): Promise<{ refundId: string }> {
+    const session = await this.stripe.checkout.sessions.retrieve(checkoutSessionId, {
+      expand: ['payment_intent'],
+    });
+    const paymentIntent = session.payment_intent;
+    if (!paymentIntent || typeof paymentIntent === 'string') throw new DepositNotPaidError();
+
+    try {
+      const refund = await this.stripe.refunds.create(
+        {
+          payment_intent: paymentIntent.id,
+          reverse_transfer: Boolean(paymentIntent.transfer_data),
+          metadata: { appointmentId },
+        },
+        { idempotencyKey: `deposit-refund-${appointmentId}` },
+      );
+
+      return { refundId: refund.id };
+    } catch (error) {
+      if (
+        !(error instanceof Stripe.errors.StripeError) ||
+        error.code !== 'charge_already_refunded'
+      ) {
+        throw error;
+      }
+
+      const existing = await this.stripe.refunds.list({
+        payment_intent: paymentIntent.id,
+        limit: 1,
+      });
+      if (!existing.data[0]) throw error;
+
+      return { refundId: existing.data[0].id };
+    }
+  }
+
+  async expireDepositCheckout(checkoutSessionId: string): Promise<void> {
+    const session = await this.stripe.checkout.sessions.retrieve(checkoutSessionId);
+    if (session.status !== 'open') return;
+
+    await this.stripe.checkout.sessions.expire(checkoutSessionId);
   }
 
   private toDepositEvent(

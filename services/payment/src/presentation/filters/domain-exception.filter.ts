@@ -12,6 +12,7 @@ import {
   BillingCustomerNotFoundError,
   ConnectedAccountNotFoundError,
   ConnectedAccountNotReadyError,
+  DepositNotPaidError,
   InvalidBillingCustomerError,
   InvalidConnectedAccountError,
   InvalidWebhookSignatureError,
@@ -36,6 +37,7 @@ const DOMAIN_ERRORS = [
   InvalidConnectedAccountError,
   ConnectedAccountNotFoundError,
   ConnectedAccountNotReadyError,
+  DepositNotPaidError,
   MessagingUnavailableError,
 ] as const;
 
@@ -51,6 +53,7 @@ const STATUS_BY_ERROR = new Map<Function, HttpStatus>([
   [NoActiveSubscriptionError, HttpStatus.CONFLICT],
   [PlanAlreadyActiveError, HttpStatus.CONFLICT],
   [ConnectedAccountNotReadyError, HttpStatus.CONFLICT],
+  [DepositNotPaidError, HttpStatus.CONFLICT],
 
   [UnknownPriceError, HttpStatus.INTERNAL_SERVER_ERROR],
 
