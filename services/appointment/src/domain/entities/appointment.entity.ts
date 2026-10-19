@@ -29,13 +29,15 @@ type AppointmentProps = {
   galeryImageUrl: string | null;
   checkoutSessionId: string | null;
   paidAt: Date | null;
+  refundId: string | null;
+  refundedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
 
 type AppointmentCreateInput = Omit<
   AppointmentProps,
-  'status' | 'checkoutSessionId' | 'paidAt' | 'createdAt' | 'updatedAt'
+  'status' | 'checkoutSessionId' | 'paidAt' | 'refundId' | 'refundedAt' | 'createdAt' | 'updatedAt'
 >;
 
 export class AppointmentEntity {
@@ -107,6 +109,18 @@ export class AppointmentEntity {
     return this.props.paidAt;
   }
 
+  get refundId(): string | null {
+    return this.props.refundId;
+  }
+
+  get refundedAt(): Date | null {
+    return this.props.refundedAt;
+  }
+
+  get isRefundable(): boolean {
+    return this.props.paidAt !== null && this.props.refundedAt === null;
+  }
+
   get createdAt(): Date {
     return this.props.createdAt;
   }
@@ -130,6 +144,8 @@ export class AppointmentEntity {
       status: AppointmentStatus.PENDING,
       checkoutSessionId: null,
       paidAt: null,
+      refundId: null,
+      refundedAt: null,
       createdAt: now,
       updatedAt: now,
     });
@@ -162,6 +178,14 @@ export class AppointmentEntity {
       status: AppointmentStatus.CANCELLED,
       updatedAt: new Date(),
     });
+  }
+
+  recordRefund(refundId: string, refundedAt: Date): AppointmentEntity {
+    return new AppointmentEntity({ ...this.props, refundId, refundedAt, updatedAt: new Date() });
+  }
+
+  recordLatePayment(paidAt: Date): AppointmentEntity {
+    return new AppointmentEntity({ ...this.props, paidAt, updatedAt: new Date() });
   }
 
   toSafeJSON(): AppointmentProps {

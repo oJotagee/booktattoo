@@ -11,10 +11,7 @@ import type {
   AppointmentRepository,
   AvailabilityContext,
 } from '../../port/appointment-repository.port';
-import {
-  DEPOSIT_CHECKOUT_GATEWAY,
-  type DepositCheckoutGateway,
-} from '../../port/deposit-checkout-gateway.port';
+import { DEPOSIT_GATEWAY, type DepositGateway } from '../../port/deposit-gateway.port';
 import {
   ArtistUnavailableError,
   GaleryUnavailableError,
@@ -59,8 +56,8 @@ export class CreatePublicAppointmentUseCase {
     private readonly artists: ArtistGateway,
     @Inject(CATALOG_GATEWAY)
     private readonly catalog: CatalogGateway,
-    @Inject(DEPOSIT_CHECKOUT_GATEWAY)
-    private readonly checkout: DepositCheckoutGateway,
+    @Inject(DEPOSIT_GATEWAY)
+    private readonly checkout: DepositGateway,
     @Inject(EVENT_PUBLISHER)
     private readonly publisher: EventPublisher,
     @Inject(CACHE_PORT)
@@ -128,7 +125,7 @@ export class CreatePublicAppointmentUseCase {
     });
     await this.cache.invalidate(blockedTimesCacheNamespace(artist.id));
 
-    let checkout: Awaited<ReturnType<DepositCheckoutGateway['create']>>;
+    let checkout: Awaited<ReturnType<DepositGateway['create']>>;
     try {
       checkout = await this.checkout.create({
         appointmentId: appointment.id,

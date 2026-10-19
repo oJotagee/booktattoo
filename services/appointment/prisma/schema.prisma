@@ -74,6 +74,8 @@ model Appointment {
 
   checkoutSessionId String?   @unique
   paidAt            DateTime?
+  refundId          String?   @unique
+  refundedAt        DateTime?
 
   bookingRequestId String?         @unique
   bookingRequest   BookingRequest? @relation(fields: [bookingRequestId], references: [id])

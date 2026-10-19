@@ -6,25 +6,31 @@ import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.erro
 import {
   AppointmentAlreadyCancelledError,
   AppointmentNotFoundError,
+  ExternalServiceUnavailableError,
 } from '@/domain/errors/appointment.error';
 import { buildAppointment } from '@tests/unit/support/builders';
 import {
   createAppointmentRepositoryMock,
   createCacheMock,
+  createDepositGatewayMock,
   createEventPublisherMock,
 } from '@tests/unit/support/mocks';
+
+const paidAt = new Date('2026-10-16T15:00:00.000Z');
 
 describe('CancelAppointmentUseCase', () => {
   let appointments: ReturnType<typeof createAppointmentRepositoryMock>;
   let publisher: ReturnType<typeof createEventPublisherMock>;
   let cache: ReturnType<typeof createCacheMock>;
+  let deposits: ReturnType<typeof createDepositGatewayMock>;
   let useCase: CancelAppointmentUseCase;
 
   beforeEach(() => {
     appointments = createAppointmentRepositoryMock();
     publisher = createEventPublisherMock();
     cache = createCacheMock();
-    useCase = new CancelAppointmentUseCase(appointments, publisher, cache);
+    deposits = createDepositGatewayMock();
+    useCase = new CancelAppointmentUseCase(appointments, publisher, cache, deposits);
   });
 
   it('cancels the appointment and releases the flash', async () => {
@@ -44,6 +50,64 @@ describe('CancelAppointmentUseCase', () => {
     expect(cache.invalidate).toHaveBeenCalledWith('appointment:public:blocked-times:user-1');
   });
 
+  it('refunds the deposit of a paid appointment before cancelling', async () => {
+    appointments.findById = async () =>
+      buildAppointment().attachCheckout('cs_1').confirmPayment(paidAt);
+
+    await useCase.execute({ id: 'appointment-1', userId: 'user-1' });
+
+    expect(deposits.refund).toHaveBeenCalledWith({
+      appointmentId: 'appointment-1',
+      checkoutSessionId: 'cs_1',
+    });
+    expect(appointments.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: AppointmentStatus.CANCELLED,
+        refundId: 're_1',
+        refundedAt: expect.any(Date),
+      }),
+    );
+    expect(deposits.expireCheckout).not.toHaveBeenCalled();
+  });
+
+  it('keeps the appointment untouched when the refund fails', async () => {
+    appointments.findById = async () =>
+      buildAppointment().attachCheckout('cs_1').confirmPayment(paidAt);
+    deposits.refund = async () => {
+      throw new ExternalServiceUnavailableError();
+    };
+
+    await expect(useCase.execute({ id: 'appointment-1', userId: 'user-1' })).rejects.toBeInstanceOf(
+      ExternalServiceUnavailableError,
+    );
+    expect(appointments.update).not.toHaveBeenCalled();
+    expect(publisher.publish).not.toHaveBeenCalled();
+  });
+
+  it('expires the open checkout of a pending appointment', async () => {
+    appointments.findById = async () => buildAppointment().attachCheckout('cs_1');
+
+    await useCase.execute({ id: 'appointment-1', userId: 'user-1' });
+
+    expect(deposits.expireCheckout).toHaveBeenCalledWith('cs_1');
+    expect(deposits.refund).not.toHaveBeenCalled();
+    expect(appointments.update).toHaveBeenCalled();
+  });
+
+  it('still cancels when expiring the checkout fails', async () => {
+    appointments.findById = async () => buildAppointment().attachCheckout('cs_1');
+    deposits.expireCheckout = async () => {
+      throw new ExternalServiceUnavailableError();
+    };
+
+    await useCase.execute({ id: 'appointment-1', userId: 'user-1' });
+
+    expect(appointments.update).toHaveBeenCalledWith(
+      expect.objectContaining({ status: AppointmentStatus.CANCELLED }),
+    );
+    expect(publisher.publish).toHaveBeenCalled();
+  });
+
   it('throws when the appointment does not exist', async () => {
     await expect(useCase.execute({ id: 'missing', userId: 'user-1' })).rejects.toBeInstanceOf(
       AppointmentNotFoundError,
@@ -58,12 +122,18 @@ describe('CancelAppointmentUseCase', () => {
     );
   });
 
-  it('rejects an appointment that is already cancelled', async () => {
-    appointments.findById = async () => buildAppointment().cancel();
+  it('rejects an appointment that is already cancelled without refunding again', async () => {
+    appointments.findById = async () =>
+      buildAppointment()
+        .attachCheckout('cs_1')
+        .confirmPayment(paidAt)
+        .cancel()
+        .recordRefund('re_1', paidAt);
 
     await expect(useCase.execute({ id: 'appointment-1', userId: 'user-1' })).rejects.toBeInstanceOf(
       AppointmentAlreadyCancelledError,
     );
+    expect(deposits.refund).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
   });
 });

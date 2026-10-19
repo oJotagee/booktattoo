@@ -9,7 +9,7 @@ import type {
 } from '@/application/port/appointment-repository.port';
 import type { ArtistGateway, ArtistSnapshot } from '@/application/port/artist-gateway.port';
 import type { CatalogGateway, GalerySnapshot } from '@/application/port/catalog-gateway.port';
-import type { DepositCheckoutGateway } from '@/application/port/deposit-checkout-gateway.port';
+import type { DepositGateway } from '@/application/port/deposit-gateway.port';
 import type { AppointmentEntity } from '@/domain/entities/appointment.entity';
 import type { ReminderRepository } from '@/application/port/reminder-repository.port';
 
@@ -51,12 +51,14 @@ export function createCatalogGatewayMock(
   return { findGaleryById: mock(async () => galery) };
 }
 
-export function createDepositCheckoutGatewayMock(): DepositCheckoutGateway {
+export function createDepositGatewayMock(): DepositGateway {
   return {
     create: mock(async () => ({
       checkoutSessionId: 'cs_1',
       url: 'https://checkout.stripe.com/deposit',
     })),
+    refund: mock(async () => ({ refundId: 're_1' })),
+    expireCheckout: mock(async () => undefined),
   };
 }
 

@@ -56,7 +56,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
     end,
   }: DayRange & { userId: string }): Promise<number> {
     const result = await this.prisma.appointment.aggregate({
-      where: { userId, paidAt: { gte: start, lt: end } },
+      where: { userId, paidAt: { gte: start, lt: end }, refundedAt: null },
       _sum: { depositAmount: true },
     });
 

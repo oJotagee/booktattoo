@@ -19,9 +19,9 @@ import { CreateReminderUseCase } from '@/application/use-cases/reminder/create-r
 import { UpdateReminderUseCase } from '@/application/use-cases/reminder/update-reminder.use-case';
 import { DeleteReminderUseCase } from '@/application/use-cases/reminder/delete-reminder.use-case';
 import { PrismaReminderRepository } from './infrastructure/repository/prisma-reminder.repository';
-import { HttpDepositCheckoutGateway } from './infrastructure/http/http-deposit-checkout.gateway';
+import { HttpDepositGateway } from './infrastructure/http/http-deposit.gateway';
 import { PaymentEventsConsumer } from './infrastructure/messaging/payment-events.consumer';
-import { DEPOSIT_CHECKOUT_GATEWAY } from './application/port/deposit-checkout-gateway.port';
+import { DEPOSIT_GATEWAY } from './application/port/deposit-gateway.port';
 import { AppointmentController } from './presentation/controllers/appointment.controller';
 import { APPOINTMENT_REPOSITORY } from './application/port/appointment-repository.port';
 import { PaymentEventsHandler } from '@/application/handlers/payment-events.handler';
@@ -81,8 +81,8 @@ import servicesConfig from './infrastructure/config/services.config';
       useClass: HttpCatalogGateway,
     },
     {
-      provide: DEPOSIT_CHECKOUT_GATEWAY,
-      useClass: HttpDepositCheckoutGateway,
+      provide: DEPOSIT_GATEWAY,
+      useClass: HttpDepositGateway,
     },
   ],
 })

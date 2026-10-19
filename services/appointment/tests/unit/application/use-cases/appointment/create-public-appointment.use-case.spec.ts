@@ -19,7 +19,7 @@ import {
   createCacheMock,
   createArtistGatewayMock,
   createCatalogGatewayMock,
-  createDepositCheckoutGatewayMock,
+  createDepositGatewayMock,
   createEventPublisherMock,
 } from '@tests/unit/support/mocks';
 
@@ -39,7 +39,7 @@ describe('CreatePublicAppointmentUseCase', () => {
   let appointments: ReturnType<typeof createAppointmentRepositoryMock>;
   let artists: ReturnType<typeof createArtistGatewayMock>;
   let catalog: ReturnType<typeof createCatalogGatewayMock>;
-  let checkout: ReturnType<typeof createDepositCheckoutGatewayMock>;
+  let checkout: ReturnType<typeof createDepositGatewayMock>;
   let publisher: ReturnType<typeof createEventPublisherMock>;
   let cache: ReturnType<typeof createCacheMock>;
 
@@ -58,7 +58,7 @@ describe('CreatePublicAppointmentUseCase', () => {
     appointments = createAppointmentRepositoryMock();
     artists = createArtistGatewayMock();
     catalog = createCatalogGatewayMock();
-    checkout = createDepositCheckoutGatewayMock();
+    checkout = createDepositGatewayMock();
     publisher = createEventPublisherMock();
     cache = createCacheMock();
   });

@@ -16,6 +16,7 @@ export class PaymentEventsHandler {
       case 'payment.deposit.paid':
         return this.confirmPayment.execute({
           appointmentId: payload.appointmentId,
+          checkoutSessionId: payload.checkoutSessionId,
           paidAt: new Date(occurredAt),
         });
       case 'payment.deposit.expired':
