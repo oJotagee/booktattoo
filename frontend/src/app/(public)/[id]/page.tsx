@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import { MapPin } from 'lucide-react';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import Image from 'next/image';
@@ -9,7 +8,6 @@ import { BookingReturnToast } from '../_components/booking/booking-return-toast'
 import { GaleryListLoader } from '../galery/_components/galery-list-loader';
 import { getPublicArtist } from '../_data-access/get-public-artist';
 import { JsonLd } from '@/components/json-ld';
-import { Footer } from '../_components/footer';
 import { Header } from '../_components/header';
 import { getInitials } from '@/lib/utils';
 import { BASE_OPEN_GRAPH, SITE_NAME, SITE_URL } from '@/lib/site';
@@ -108,26 +106,7 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
             </div>
           </div>
 
-          <div className="max-w-md space-y-4">
-            <p className="text-white/50 text-sm md:text-base">{artist.bio ?? DEFAULT_BIO}</p>
-
-            {artist.address && (
-              <address className="not-italic">
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(artist.address)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-start gap-2 text-sm text-white/70 hover:text-white duration-300"
-                >
-                  <MapPin aria-hidden="true" className="size-4 shrink-0 mt-0.5 text-orange-500" />
-                  <span>
-                    <span className="sr-only">Endereço do estúdio: </span>
-                    {artist.address}
-                  </span>
-                </a>
-              </address>
-            )}
-          </div>
+          <p className="text-white/50 text-sm md:text-base max-w-md">{artist.bio ?? DEFAULT_BIO}</p>
         </div>
 
         {artist.status === 'VACATION' && (
@@ -146,9 +125,22 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
           <GaleryListLoader artistId={artist.id} searchParams={searchParams} />
           <BookingReturnToast />
         </Suspense>
-      </main>
 
-      <Footer />
+        {artist.address && (
+          <section aria-labelledby="studio-location" className="mt-14">
+            <h2 id="studio-location" className="text-white text-lg font-semibold mb-4">
+              Onde fica o estúdio
+            </h2>
+            <iframe
+              title={`Mapa do estúdio de ${artist.name}: ${artist.address}`}
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(artist.address)}&z=15&output=embed`}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="h-72 w-full rounded-xl border border-white/10 md:h-80"
+            />
+          </section>
+        )}
+      </main>
     </div>
   );
 }

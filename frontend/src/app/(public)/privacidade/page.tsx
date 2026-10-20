@@ -56,7 +56,7 @@ const sections = [
     content: [
       'Com o tatuador responsável pelo flash agendado, que recebe os dados do cliente para realizar o atendimento.',
       'Com o público em geral, inclusive buscadores, apenas o que o tatuador escolhe exibir no perfil: nome, foto, biografia, função, flashes e, se ele ativar a opção, o endereço do estúdio. O celular do tatuador nunca é exibido publicamente.',
-      'Com prestadores de serviço que operam dados em nosso nome: Stripe (pagamentos), Google (login social), Amazon Web Services (armazenamento de imagens) e Vercel (hospedagem do site). Alguns desses fornecedores podem tratar dados fora do Brasil, com as salvaguardas previstas na LGPD.',
+      'Com prestadores de serviço que operam dados em nosso nome: Stripe (pagamentos), Google (login social e mapas), Amazon Web Services (armazenamento de imagens) e Vercel (hospedagem do site). Alguns desses fornecedores podem tratar dados fora do Brasil, com as salvaguardas previstas na LGPD.',
       'Com autoridades públicas, quando houver obrigação legal ou ordem judicial.',
       'Não vendemos dados pessoais.',
     ],
@@ -77,7 +77,8 @@ const sections = [
   {
     title: '7. Cookies',
     content: [
-      'Usamos apenas cookies essenciais para autenticação no painel do tatuador. Não usamos cookies de publicidade nem de rastreamento de terceiros.',
+      'Usamos apenas cookies essenciais para autenticação no painel do tatuador. Não usamos cookies de publicidade nem de rastreamento próprios.',
+      'Quando o tatuador escolhe exibir o endereço do estúdio, o perfil dele mostra um mapa do Google Maps incorporado. Ao carregar esse mapa, o Google pode receber dados técnicos do seu navegador, como endereço IP, e definir cookies próprios, conforme a política de privacidade do Google. As demais páginas do site não carregam o mapa.',
     ],
   },
   {
