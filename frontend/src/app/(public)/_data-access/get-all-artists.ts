@@ -25,7 +25,7 @@ export interface Artist {
   paymentsEnabled: boolean;
 }
 
-interface OutputArtist {
+export interface OutputArtist {
   list: Artist[];
   pagination: PaginationArtist;
 }

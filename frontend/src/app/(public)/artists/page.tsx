@@ -1,16 +1,16 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
-import { BASE_OPEN_GRAPH, SITE_NAME } from '@/lib/site';
 import { ArtistGridSkeleton } from './_components/artist-grid-skeleton';
-import { ArtistList } from './_components/artist-list';
+import { ArtistListLoader } from './_components/artist-list-loader';
+import { BASE_OPEN_GRAPH, SITE_NAME } from '@/lib/site';
 import { Footer } from '../_components/footer';
 import { Header } from '../_components/header';
 
 const title = 'Tatuadores';
 
 const description =
-  'Conheça os tatuadores do BookTattoo, seus estilos e os flashes que cada um tem disponíveis para agendamento.';
+  'Conheça os tatuadores independentes que agendam pelo BookTattoo, seus estilos e os flashes que cada um tem disponíveis.';
 
 export const metadata: Metadata = {
   title,
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: { ...BASE_OPEN_GRAPH, url: '/artists', title: `${title} | ${SITE_NAME}`, description },
 };
 
-export default function ArtistsPage() {
+export default function ArtistsPage({ searchParams }: PageProps<'/artists'>) {
   return (
     <div className="flex flex-col min-h-screen bg-black">
       <Header />
@@ -37,13 +37,13 @@ export default function ArtistsPage() {
           </div>
 
           <p className="text-white/50 text-sm md:text-base max-w-md">
-            Conheça os profissionais do estúdio, seus estilos e trabalhos disponíveis. Escolha com
-            quem você quer transformar sua ideia em pele.
+            Tatuadores independentes que publicam flashes e recebem agendamentos pelo BookTattoo.
+            Veja o estilo de cada um e escolha com quem você quer tatuar.
           </p>
         </div>
 
         <Suspense fallback={<ArtistGridSkeleton items={12} />}>
-          <ArtistList />
+          <ArtistListLoader searchParams={searchParams} />
         </Suspense>
       </main>
 

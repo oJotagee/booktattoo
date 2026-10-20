@@ -5,8 +5,8 @@ import Image from 'next/image';
 
 import { GaleryGridSkeleton } from '../galery/_components/galery-grid-skeleton';
 import { BookingReturnToast } from '../_components/booking/booking-return-toast';
+import { GaleryListLoader } from '../galery/_components/galery-list-loader';
 import { getPublicArtist } from '../_data-access/get-public-artist';
-import { GaleryList } from '../galery/_components/galery-list';
 import { JsonLd } from '@/components/json-ld';
 import { Footer } from '../_components/footer';
 import { Header } from '../_components/header';
@@ -15,6 +15,7 @@ import { BASE_OPEN_GRAPH, SITE_NAME, SITE_URL } from '@/lib/site';
 
 interface ArtistPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 const DEFAULT_BIO =
@@ -46,7 +47,8 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
     },
   };
 }
-export default async function ArtistPage({ params }: ArtistPageProps) {
+
+export default async function ArtistPage({ params, searchParams }: ArtistPageProps) {
   const { id } = await params;
   const artist = await getPublicArtist(id);
 
@@ -62,7 +64,6 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     jobTitle: artist.role ?? 'Tatuador',
     description: artist.bio ?? undefined,
     image: artist.image ?? undefined,
-    worksFor: { '@id': `${SITE_URL}/#studio` },
   };
 
   return (
@@ -119,7 +120,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         )}
 
         <Suspense fallback={<GaleryGridSkeleton items={10} />}>
-          <GaleryList artistId={artist.id} />
+          <GaleryListLoader artistId={artist.id} searchParams={searchParams} />
           <BookingReturnToast />
         </Suspense>
       </main>

@@ -1,5 +1,7 @@
 import { Skeleton } from '@/components/ui/skeleton';
 
+export const ARTISTS_PAGE_SIZE = 12;
+
 export const ARTIST_GRID_CLASS = 'mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6';
 
 interface ArtistGridSkeletonProps {

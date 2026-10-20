@@ -1,0 +1,1 @@
+export const FEATURED_GALERY_LIMIT = 10;

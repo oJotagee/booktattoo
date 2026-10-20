@@ -11,8 +11,10 @@ const ARTISTS_LIMIT = 4;
 export function Team() {
   return (
     <section className="relative w-full py-14 px-6 md:px-28 md:py-22 bg-mist-800/20">
-      <p className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Equipe</p>
-      <h2 className="text-white text-3xl md:text-4xl font-bold md:w-sm">Nossos artistas</h2>
+      <p className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Tatuadores</p>
+      <h2 className="text-white text-3xl md:text-4xl font-bold md:w-sm">
+        Quem agenda pelo BookTattoo
+      </h2>
 
       <Suspense fallback={<TeamSkeleton items={ARTISTS_LIMIT} />}>
         <TeamList />

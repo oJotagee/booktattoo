@@ -14,7 +14,7 @@ export const steps = [
     number: '03',
     title: 'Venha tatuar',
     description:
-      'Apareça no estúdio no dia marcado. O restante é pago na hora, e a arte fica para sempre.',
+      'Vá ao estúdio do tatuador no dia marcado. O restante é pago direto a ele, e a arte fica para sempre.',
   },
 ];
 

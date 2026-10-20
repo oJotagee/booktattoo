@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 
 import { BASE_OPEN_GRAPH, SITE_NAME } from '@/lib/site';
 import { GaleryGridSkeleton } from './_components/galery-grid-skeleton';
-import { GaleryList } from './_components/galery-list';
+import { GaleryListLoader } from './_components/galery-list-loader';
 import { Footer } from '../_components/footer';
 import { Header } from '../_components/header';
 
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: { ...BASE_OPEN_GRAPH, url: '/galery', title: `${title} | ${SITE_NAME}`, description },
 };
 
-export default function GaleryPage() {
+export default function GaleryPage({ searchParams }: PageProps<'/galery'>) {
   return (
     <div className="flex flex-col min-h-screen bg-black">
       <Header />
@@ -35,13 +35,13 @@ export default function GaleryPage() {
           </div>
 
           <p className="text-white/50 text-sm md:text-base max-w-md">
-            Explore os designs exclusivos dos nossos artistas, filtre pelo estilo que combina com
-            você e garanta o seu horário.
+            Cada flash é um design exclusivo de um tatuador cadastrado. Filtre pelo estilo, veja o
+            preço e reserve o horário direto com quem vai tatuar.
           </p>
         </div>
 
         <Suspense fallback={<GaleryGridSkeleton items={10} />}>
-          <GaleryList />
+          <GaleryListLoader searchParams={searchParams} />
         </Suspense>
       </main>
 

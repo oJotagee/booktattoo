@@ -8,8 +8,10 @@ export const SITE_URL = (
 
 export const SITE_NAME = 'BookTattoo';
 
+export const CONTACT_EMAIL = 'booktattoo4@gmail.com';
+
 export const SITE_DESCRIPTION =
-  'Escolha um flash tattoo exclusivo, reserve data e horário online e pague o sinal com segurança. O restante é pago no estúdio, no dia da sessão.';
+  'Escolha um flash tattoo exclusivo de tatuadores independentes, reserve data e horário online e pague o sinal com segurança. O restante é pago no estúdio, no dia da sessão.';
 
 export const SITE_TITLE = `${SITE_NAME} — Flash tattoo com agendamento online`;
 

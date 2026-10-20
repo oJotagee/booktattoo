@@ -6,8 +6,10 @@ import { ImageOff } from 'lucide-react';
 import { cn } from 'cn';
 
 import { GALERY_GRID_CLASS, GaleryCardSkeletons, GaleryGridSkeleton } from './galery-grid-skeleton';
+import { GALERY_PAGE_SIZE, type GaleryListInitialData, parseGaleryStyle } from './galery-query';
 import { getAllPublicGaleries } from '../../_data-access/get-all-public-galeries';
 import { ListPagination } from '../../_components/list-pagination';
+import { parsePageParam } from '@/lib/search-params';
 import { GaleryCard } from './galery-card';
 import {
   formatGaleryStyle,
@@ -23,7 +25,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const PAGE_SIZE = 10;
 const ALL_STYLES = 'ALL';
 
 const STYLE_ITEMS = [
@@ -33,25 +34,28 @@ const STYLE_ITEMS = [
 
 interface GaleryListProps {
   artistId?: string;
+  initialData?: GaleryListInitialData;
 }
 
-export function GaleryList({ artistId }: GaleryListProps = {}) {
+export function GaleryList({ artistId, initialData }: GaleryListProps = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const currentPage = Math.max(Number(searchParams.get('page')) || 1, 1);
-  const styleParam = searchParams.get('style');
-  const style = isGaleryStyle(styleParam) ? styleParam : undefined;
+  const currentPage = parsePageParam(searchParams.get('page'));
+  const style = parseGaleryStyle(searchParams.get('style'));
+  const matchesInitial = initialData?.page === currentPage && initialData.style === style;
 
   const { data, isPending, isError, isPlaceholderData } = useQuery({
     queryKey: ['public-galeries', artistId ?? 'all', currentPage, style],
     queryFn: () =>
       getAllPublicGaleries({
-        limit: PAGE_SIZE,
-        offset: (currentPage - 1) * PAGE_SIZE,
+        limit: GALERY_PAGE_SIZE,
+        offset: (currentPage - 1) * GALERY_PAGE_SIZE,
         style,
         userId: artistId,
       }),
+    initialData: matchesInitial ? initialData.data : undefined,
+    staleTime: 30_000,
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: true,
   });
@@ -74,7 +78,7 @@ export function GaleryList({ artistId }: GaleryListProps = {}) {
     navigate((params) => params.set('page', String(page)));
   }
 
-  if (isPending) return <GaleryGridSkeleton items={PAGE_SIZE} />;
+  if (isPending) return <GaleryGridSkeleton items={GALERY_PAGE_SIZE} />;
 
   return (
     <div className="mt-10 flex flex-col gap-8">
