@@ -20,12 +20,13 @@ export interface Artist {
   image: string | null;
   bio: string | null;
   role: string | null;
+  address: string | null;
   status: string;
   times: string[];
   paymentsEnabled: boolean;
 }
 
-interface OutputArtist {
+export interface OutputArtist {
   list: Artist[];
   pagination: PaginationArtist;
 }

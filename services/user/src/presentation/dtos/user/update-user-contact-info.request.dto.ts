@@ -1,5 +1,5 @@
+import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserContactInfoRequestDto {
   @ApiProperty({ example: 'Maria Silva', required: false })
@@ -11,6 +11,15 @@ export class UpdateUserContactInfoRequestDto {
   @IsOptional()
   @IsString()
   address?: string | null;
+
+  @ApiProperty({
+    example: true,
+    required: false,
+    description: 'Exibe o endereço do estúdio no perfil público',
+  })
+  @IsOptional()
+  @IsBoolean()
+  showAddress?: boolean;
 
   @ApiProperty({ example: '+55 11 90000-0000', required: false, nullable: true })
   @IsOptional()

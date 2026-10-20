@@ -29,7 +29,7 @@ export interface PublicGalery {
   serviceId: string;
 }
 
-interface OutputPublicGalery {
+export interface OutputPublicGalery {
   list: PublicGalery[];
   pagination: PaginationPublicGalery;
 }

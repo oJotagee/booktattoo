@@ -9,6 +9,7 @@ export interface CurrentUser {
   name: string;
   image: string | null;
   address: string | null;
+  showAddress: boolean;
   phone: string | null;
   bio: string | null;
   role: string | null;

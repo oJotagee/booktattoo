@@ -40,11 +40,26 @@ describe('FindPublicArtistsUseCase', () => {
         image: null,
         bio: 'Fineline',
         role: 'Fineline',
+        address: null,
         status: UserStatus.VACATION,
         times: ['09:00'],
         paymentsEnabled: false,
       },
     ]);
+  });
+
+  it('returns the studio address only for artists who opted in', async () => {
+    users.findPublicArtists = async () => ({
+      items: [
+        buildUser({ id: 'user-1', address: 'Rua Pública, 1', showAddress: true }),
+        buildUser({ id: 'user-2', address: 'Rua Privada, 2' }),
+      ],
+      total: 2,
+    });
+
+    const result = await useCase.execute({});
+
+    expect(result.list.map((artist) => artist.address)).toEqual(['Rua Pública, 1', null]);
   });
 
   it('returns an empty page when there are no artists', async () => {

@@ -26,6 +26,7 @@ describe('FindUserByIdUseCase', () => {
       email: user.email.toString(),
       image: user.image,
       address: user.address,
+      showAddress: false,
       phone: user.phone,
       bio: user.bio,
       role: user.role,

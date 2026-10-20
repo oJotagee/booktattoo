@@ -14,6 +14,7 @@ async function loadUser(): Promise<Omit<CurrentUser, 'id'>> {
       name: session?.user?.name ?? '',
       image: session?.user?.image ?? null,
       address: session?.user?.address ?? null,
+      showAddress: false,
       phone: session?.user?.phone ?? null,
       bio: session?.user?.bio ?? null,
       role: session?.user?.role ?? null,

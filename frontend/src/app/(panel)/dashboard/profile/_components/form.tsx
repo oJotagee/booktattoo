@@ -10,7 +10,14 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import { cn } from 'cn';
 
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field';
 import type { UserStatus } from '@/app/(panel)/dashboard/_actions/update-status';
 import { type ProfileSchemaData, useProfileSchema } from './schemas';
 import { updateProfile } from '../_actions/update-profile';
@@ -21,6 +28,7 @@ import { formatPhone } from '@/utils/formatPhone';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -38,6 +46,7 @@ interface ProfileFormProps {
     name: string;
     image: string | null;
     address: string | null;
+    showAddress: boolean;
     phone: string | null;
     bio: string | null;
     role: string | null;
@@ -54,6 +63,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const profileSchema = useProfileSchema({
     name: currentUser.name,
     address: currentUser.address,
+    showAddress: currentUser.showAddress,
     phone: currentUser.phone,
     bio: currentUser.bio,
     role: currentUser.role,
@@ -154,6 +164,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     const response = await updateProfileMutation({
       name: values.name,
       address: values.address,
+      showAddress: values.showAddress,
       phone: values.phone,
       bio: values.bio,
       role: values.role,
@@ -257,6 +268,30 @@ export function ProfileForm({ user }: ProfileFormProps) {
                   <FieldLabel htmlFor={field.name}>Endereço do estúdio</FieldLabel>
                   <Input {...field} id={field.name} aria-invalid={fieldState.invalid} />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="showAddress"
+              control={profileSchema.control}
+              render={({ field }) => (
+                <Field orientation="horizontal">
+                  <Switch
+                    id={field.name}
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    className="data-checked:bg-orange-600"
+                  />
+                  <FieldContent>
+                    <FieldLabel htmlFor={field.name}>
+                      Mostrar o endereço do estúdio no meu perfil público
+                    </FieldLabel>
+                    <FieldDescription>
+                      Clientes e buscadores passam a ver onde você atende. Desligado, o endereço
+                      fica visível só para você.
+                    </FieldDescription>
+                  </FieldContent>
                 </Field>
               )}
             />

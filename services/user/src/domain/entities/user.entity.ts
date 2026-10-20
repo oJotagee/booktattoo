@@ -15,6 +15,7 @@ type UserProps = {
   image: string | null;
   passwordHash: string | null;
   address: string | null;
+  showAddress: boolean;
   phone: string | null;
   bio: string | null;
   role: string | null;
@@ -32,6 +33,7 @@ type UserCreateInput = {
   emailVerified?: Date | null;
   image: string | null;
   address: string | null;
+  showAddress?: boolean;
   phone: string | null;
   bio: string | null;
   role: string | null;
@@ -44,6 +46,7 @@ type UserCreateInput = {
 type UpdateContactInfoInput = {
   name?: string;
   address?: string | null;
+  showAddress?: boolean;
   phone?: string | null;
   bio?: string | null;
   role?: string | null;
@@ -58,6 +61,7 @@ type UserRestoreInput = {
   image: string | null;
   passwordHash: string | null;
   address: string | null;
+  showAddress: boolean;
   phone: string | null;
   bio: string | null;
   role: string | null;
@@ -99,6 +103,10 @@ export class UserEntity {
 
   get address(): string | null {
     return this.userProps.address;
+  }
+
+  get showAddress(): boolean {
+    return this.userProps.showAddress;
   }
 
   get role(): string | null {
@@ -144,6 +152,7 @@ export class UserEntity {
       image: input.image ?? null,
       passwordHash: input.password ?? null,
       address: input.address ?? null,
+      showAddress: input.showAddress ?? false,
       phone: input.phone ?? null,
       bio: input.bio ?? null,
       role: input.role ?? null,
@@ -166,6 +175,7 @@ export class UserEntity {
       ...this.userProps,
       name: input.name ?? this.name,
       address: input.address ?? this.address,
+      showAddress: input.showAddress ?? this.showAddress,
       phone: input.phone ?? this.phone,
       bio: input.bio ?? this.bio,
       role: input.role ?? this.role,
@@ -230,6 +240,7 @@ export class UserEntity {
       bio: this.bio,
       role: this.role,
       address: this.address,
+      showAddress: this.showAddress,
       phone: this.phone,
       status: this.status,
       times: this.times,

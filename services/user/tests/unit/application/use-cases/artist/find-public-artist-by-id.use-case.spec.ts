@@ -36,10 +36,28 @@ describe('FindPublicArtistByIdUseCase', () => {
       image: null,
       bio: 'Fineline',
       role: 'Fineline',
+      address: null,
       status: UserStatus.ACTIVE,
       times: ['09:00', '09:30'],
       paymentsEnabled: false,
     });
+  });
+
+  it('keeps the studio address private unless the artist opts in', async () => {
+    users.findById = async () => buildUser({ id: 'user-1', address: 'Rua Exemplo, 123' });
+
+    const result = await useCase.execute({ id: 'user-1' });
+
+    expect(result.address).toBeNull();
+  });
+
+  it('returns the studio address when the artist opts in', async () => {
+    users.findById = async () =>
+      buildUser({ id: 'user-1', address: 'Rua Exemplo, 123', showAddress: true });
+
+    const result = await useCase.execute({ id: 'user-1' });
+
+    expect(result.address).toBe('Rua Exemplo, 123');
   });
 
   it('throws when the artist does not exist', async () => {

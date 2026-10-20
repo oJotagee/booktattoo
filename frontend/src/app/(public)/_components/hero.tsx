@@ -24,7 +24,7 @@ export function Hero() {
 
       <div className="container relative flex flex-col items-start justify-center h-full max-w-2xl py-4 px-6 md:px-28">
         <p className="text-orange-600 text-sm font-semibold tracking-widest uppercase">
-          Flash Tattoo Studio
+          Flash tattoo com agendamento online
         </p>
 
         <h1 className="mt-4 text-5xl md:text-7xl font-semibold text-white leading-tight">
@@ -32,8 +32,8 @@ export function Hero() {
         </h1>
 
         <p className="mt-6 text-base text-white/50 max-w-lg">
-          Escolha entre dezenas de designs flash exclusivos criados pelos nossos artistas. Reserve
-          online, pague o sinal e venha tatuar.
+          Escolha um design flash exclusivo de um tatuador independente, reserve data e horário
+          online e pague só o sinal para garantir a vaga.
         </p>
 
         <div className="mt-8 flex items-center gap-3 flex-wrap">

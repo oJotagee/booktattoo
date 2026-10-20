@@ -9,6 +9,7 @@ import { api } from '@/lib/api';
 export type UpdateProfileInput = {
   name?: string;
   address?: string | null;
+  showAddress?: boolean;
   phone?: string | null;
   bio?: string | null;
   role?: string | null;
@@ -20,6 +21,7 @@ export type UpdateProfileOutput = {
   name: string;
   image: string | null;
   address: string | null;
+  showAddress: boolean;
   phone: string | null;
   bio: string | null;
   role: string | null;

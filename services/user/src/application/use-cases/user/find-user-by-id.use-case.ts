@@ -10,6 +10,7 @@ type FindUserByIdOutput = {
   email: string;
   image: string | null;
   address: string | null;
+  showAddress: boolean;
   phone: string | null;
   bio: string | null;
   role: string | null;
@@ -38,6 +39,7 @@ export class FindUserByIdUseCase {
       email: user.email.toString(),
       image: user.image,
       address: user.address,
+      showAddress: user.showAddress,
       phone: user.phone,
       bio: user.bio,
       role: user.role,

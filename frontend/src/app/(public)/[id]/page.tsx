@@ -5,16 +5,16 @@ import Image from 'next/image';
 
 import { GaleryGridSkeleton } from '../galery/_components/galery-grid-skeleton';
 import { BookingReturnToast } from '../_components/booking/booking-return-toast';
+import { GaleryListLoader } from '../galery/_components/galery-list-loader';
 import { getPublicArtist } from '../_data-access/get-public-artist';
-import { GaleryList } from '../galery/_components/galery-list';
 import { JsonLd } from '@/components/json-ld';
-import { Footer } from '../_components/footer';
 import { Header } from '../_components/header';
 import { getInitials } from '@/lib/utils';
 import { BASE_OPEN_GRAPH, SITE_NAME, SITE_URL } from '@/lib/site';
 
 interface ArtistPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 const DEFAULT_BIO =
@@ -46,7 +46,8 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
     },
   };
 }
-export default async function ArtistPage({ params }: ArtistPageProps) {
+
+export default async function ArtistPage({ params, searchParams }: ArtistPageProps) {
   const { id } = await params;
   const artist = await getPublicArtist(id);
 
@@ -62,7 +63,9 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     jobTitle: artist.role ?? 'Tatuador',
     description: artist.bio ?? undefined,
     image: artist.image ?? undefined,
-    worksFor: { '@id': `${SITE_URL}/#studio` },
+    ...(artist.address && {
+      workLocation: { '@type': 'Place', address: artist.address },
+    }),
   };
 
   return (
@@ -119,12 +122,25 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         )}
 
         <Suspense fallback={<GaleryGridSkeleton items={10} />}>
-          <GaleryList artistId={artist.id} />
+          <GaleryListLoader artistId={artist.id} searchParams={searchParams} />
           <BookingReturnToast />
         </Suspense>
-      </main>
 
-      <Footer />
+        {artist.address && (
+          <section aria-labelledby="studio-location" className="mt-14">
+            <h2 id="studio-location" className="text-white text-lg font-semibold mb-4">
+              Onde fica o estúdio
+            </h2>
+            <iframe
+              title={`Mapa do estúdio de ${artist.name}: ${artist.address}`}
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(artist.address)}&z=15&output=embed`}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="h-72 w-full rounded-xl border border-white/10 md:h-80"
+            />
+          </section>
+        )}
+      </main>
     </div>
   );
 }

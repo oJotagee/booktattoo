@@ -21,6 +21,7 @@ describe('getAllArtists', () => {
         image: null,
         bio: null,
         role: 'Fineline',
+        address: null,
         status: 'ACTIVE',
         times: ['09:00'],
         paymentsEnabled: true,

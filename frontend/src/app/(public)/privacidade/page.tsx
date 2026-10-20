@@ -35,7 +35,7 @@ const sections = [
     title: '2. Quais dados coletamos',
     content: [
       'Cadastro de tatuadores: nome, e-mail e senha (armazenada apenas como hash). Se você entrar com Google, recebemos nome, e-mail e foto de perfil da sua conta nesse serviço.',
-      'Perfil do tatuador: foto, biografia, função, horários de atendimento e as imagens e informações dos flashes publicados.',
+      'Perfil do tatuador: foto, biografia, função, endereço do estúdio, celular, horários de atendimento e as imagens e informações dos flashes publicados.',
       'Agendamento de clientes: nome completo, e-mail, telefone, data e horário escolhidos e o flash reservado.',
       'Pagamento: o sinal é pago no checkout do Stripe. Os dados do cartão são digitados e processados diretamente pelo Stripe; o BookTattoo não recebe nem armazena o número do cartão.',
       'Dados técnicos: cookies de sessão necessários para manter o tatuador conectado ao painel.',
@@ -45,6 +45,7 @@ const sections = [
     title: '3. Para que usamos os dados',
     content: [
       'Criar e manter a conta do tatuador e exibir o seu perfil público e os seus flashes (execução de contrato).',
+      'Exibir o endereço do estúdio no perfil público do tatuador, somente quando ele ativa essa opção no painel (consentimento, que pode ser retirado a qualquer momento desligando a opção).',
       'Registrar o agendamento, reservar o horário, cobrar o sinal e enviar e-mails de confirmação, cancelamento e reembolso ao cliente e ao tatuador (execução de contrato).',
       'Permitir que o tatuador entre em contato com o cliente sobre a sessão agendada (execução de contrato).',
       'Prevenir fraudes, manter a segurança da plataforma e cumprir obrigações legais e fiscais (legítimo interesse e obrigação legal).',
@@ -54,7 +55,8 @@ const sections = [
     title: '4. Com quem compartilhamos',
     content: [
       'Com o tatuador responsável pelo flash agendado, que recebe os dados do cliente para realizar o atendimento.',
-      'Com prestadores de serviço que operam dados em nosso nome: Stripe (pagamentos), Google (login social), Amazon Web Services (armazenamento de imagens) e Vercel (hospedagem do site). Alguns desses fornecedores podem tratar dados fora do Brasil, com as salvaguardas previstas na LGPD.',
+      'Com o público em geral, inclusive buscadores, apenas o que o tatuador escolhe exibir no perfil: nome, foto, biografia, função, flashes e, se ele ativar a opção, o endereço do estúdio. O celular do tatuador nunca é exibido publicamente.',
+      'Com prestadores de serviço que operam dados em nosso nome: Stripe (pagamentos), Google (login social e mapas), Amazon Web Services (armazenamento de imagens) e Vercel (hospedagem do site). Alguns desses fornecedores podem tratar dados fora do Brasil, com as salvaguardas previstas na LGPD.',
       'Com autoridades públicas, quando houver obrigação legal ou ordem judicial.',
       'Não vendemos dados pessoais.',
     ],
@@ -75,7 +77,8 @@ const sections = [
   {
     title: '7. Cookies',
     content: [
-      'Usamos apenas cookies essenciais para autenticação no painel do tatuador. Não usamos cookies de publicidade nem de rastreamento de terceiros.',
+      'Usamos apenas cookies essenciais para autenticação no painel do tatuador. Não usamos cookies de publicidade nem de rastreamento próprios.',
+      'Quando o tatuador escolhe exibir o endereço do estúdio, o perfil dele mostra um mapa do Google Maps incorporado. Ao carregar esse mapa, o Google pode receber dados técnicos do seu navegador, como endereço IP, e definir cookies próprios, conforme a política de privacidade do Google. As demais páginas do site não carregam o mapa.',
     ],
   },
   {

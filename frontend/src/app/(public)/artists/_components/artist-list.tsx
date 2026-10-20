@@ -4,23 +4,28 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { UserX } from 'lucide-react';
 
-import { ARTIST_GRID_CLASS, ArtistGridSkeleton } from './artist-grid-skeleton';
-import { getAllArtists } from '../../_data-access/get-all-artists';
+import { ARTIST_GRID_CLASS, ARTISTS_PAGE_SIZE, ArtistGridSkeleton } from './artist-grid-skeleton';
+import { getAllArtists, type OutputArtist } from '../../_data-access/get-all-artists';
 import { ListPagination } from '../../_components/list-pagination';
+import { parsePageParam } from '@/lib/search-params';
 import { ArtistCard } from './artist-card';
 
-const PAGE_SIZE = 12;
+interface ArtistListProps {
+  initialData?: { page: number; data: OutputArtist };
+}
 
-export function ArtistList() {
+export function ArtistList({ initialData }: ArtistListProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const currentPage = Math.max(Number(searchParams.get('page')) || 1, 1);
-  const offset = (currentPage - 1) * PAGE_SIZE;
+  const currentPage = parsePageParam(searchParams.get('page'));
+  const offset = (currentPage - 1) * ARTISTS_PAGE_SIZE;
 
   const { data, isPending, isError, isPlaceholderData } = useQuery({
     queryKey: ['public-artists', currentPage],
-    queryFn: () => getAllArtists({ limit: PAGE_SIZE, offset }),
+    queryFn: () => getAllArtists({ limit: ARTISTS_PAGE_SIZE, offset }),
+    initialData: initialData?.page === currentPage ? initialData.data : undefined,
+    staleTime: 30_000,
     placeholderData: keepPreviousData,
   });
 
@@ -30,7 +35,7 @@ export function ArtistList() {
     router.push(`${pathname}?${params.toString()}`);
   }
 
-  if (isPending) return <ArtistGridSkeleton items={PAGE_SIZE} />;
+  if (isPending) return <ArtistGridSkeleton items={ARTISTS_PAGE_SIZE} />;
 
   if (isError) {
     return (

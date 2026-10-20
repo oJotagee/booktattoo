@@ -16,6 +16,9 @@ export class UserResponseDto {
   @ApiProperty({ example: 'Rua Exemplo, 123', nullable: true })
   address!: string | null;
 
+  @ApiProperty({ example: true, description: 'Exibe o endereço do estúdio no perfil público' })
+  showAddress!: boolean;
+
   @ApiProperty({ example: '+55 11 90000-0000', nullable: true })
   phone!: string | null;
 
@@ -67,6 +70,9 @@ export class UserInfoResponse {
 
   @ApiProperty({ example: 'Rua Exemplo, 123', nullable: true })
   address!: string | null;
+
+  @ApiProperty({ example: true, description: 'Exibe o endereço do estúdio no perfil público' })
+  showAddress!: boolean;
 
   @ApiProperty({ example: '+55 11 90000-0000', nullable: true })
   phone!: string | null;
