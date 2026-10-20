@@ -1,10 +1,16 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
 import { AuthCard } from './_components/auth-card';
-import HeroImg from '../../../../public/hero.jpg';
+import HeroImg from '../../../../public/hero.webp';
 import { auth } from '@/lib/auth';
+
+export const metadata: Metadata = {
+  title: 'Entrar ou criar conta',
+  robots: { index: false, follow: true },
+};
 
 export default async function Login() {
   const session = await auth();
@@ -16,7 +22,15 @@ export default async function Login() {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <div className="relative hidden w-1/2 lg:block">
-        <Image src={HeroImg.src} alt="" quality={75} priority fill className="object-cover" />
+        <Image
+          src={HeroImg}
+          alt=""
+          quality={75}
+          priority
+          placeholder="blur"
+          fill
+          className="object-cover"
+        />
         <div className="absolute inset-0 bg-black/60" />
 
         <div className="relative flex h-full flex-col justify-between p-10">

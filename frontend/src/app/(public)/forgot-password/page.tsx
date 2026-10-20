@@ -1,9 +1,15 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import HeroImg from '../../../../public/hero.jpg';
+import HeroImg from '../../../../public/hero.webp';
 import { ForgotPasswordForm } from './_components/forgot-password-form';
+
+export const metadata: Metadata = {
+  title: 'Recuperar senha',
+  robots: { index: false, follow: true },
+};
 
 export default async function ForgotPassword() {
   const session = await auth();
@@ -15,7 +21,15 @@ export default async function ForgotPassword() {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <div className="relative hidden w-1/2 lg:block">
-        <Image src={HeroImg.src} alt="" quality={75} priority fill className="object-cover" />
+        <Image
+          src={HeroImg}
+          alt=""
+          quality={75}
+          priority
+          placeholder="blur"
+          fill
+          className="object-cover"
+        />
         <div className="absolute inset-0 bg-black/60" />
 
         <div className="relative flex h-full flex-col justify-between p-10">

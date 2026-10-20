@@ -1,5 +1,6 @@
 import { Controller, type UseFormReturn, useWatch } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { getBlockedTimes } from '../../_data-access/get-blocked-times';
@@ -150,6 +151,15 @@ export function BookingStepDetails({
           />
         </FieldGroup>
       </div>
+
+      <p className="text-xs text-white/50">
+        Seus dados são usados apenas para registrar o agendamento e são compartilhados com o
+        tatuador responsável. Saiba mais na{' '}
+        <Link href="/privacidade" target="_blank" className="text-white underline">
+          Política de privacidade
+        </Link>
+        .
+      </p>
 
       <Button
         type="submit"

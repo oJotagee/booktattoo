@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 
 import './globals.css';
 
+import { BASE_OPEN_GRAPH, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/site';
 import { SessionAuthProvider } from '@/components/session-auth';
 import { Providers } from './providers';
 import { cn } from '@/lib/utils';
@@ -18,8 +19,21 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'BookTatto',
-  description: 'BookTatto - Your favorite tattoo booking platform',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    ...BASE_OPEN_GRAPH,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -28,7 +42,6 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
-  manifest: '/site.webmanifest',
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

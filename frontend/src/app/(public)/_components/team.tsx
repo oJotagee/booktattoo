@@ -11,8 +11,8 @@ const ARTISTS_LIMIT = 4;
 export function Team() {
   return (
     <section className="relative w-full py-14 px-6 md:px-28 md:py-22 bg-mist-800/20">
-      <h2 className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Equipe</h2>
-      <h1 className="text-white text-3xl md:text-4xl font-bold md:w-sm">Nossos artistas</h1>
+      <p className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Equipe</p>
+      <h2 className="text-white text-3xl md:text-4xl font-bold md:w-sm">Nossos artistas</h2>
 
       <Suspense fallback={<TeamSkeleton items={ARTISTS_LIMIT} />}>
         <TeamList />
@@ -50,7 +50,13 @@ async function TeamList() {
         <div key={artist.id}>
           <div className="relative aspect-square w-full rounded-2xl overflow-hidden">
             {artist.image ? (
-              <Image src={artist.image} alt={artist.name} fill className="object-cover" />
+              <Image
+                src={artist.image}
+                alt={`Foto de ${artist.name}`}
+                fill
+                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+                className="object-cover"
+              />
             ) : (
               <div className="flex w-full h-full items-center justify-center bg-mist-800 text-white/60 text-4xl font-bold">
                 {getInitials(artist.name)}

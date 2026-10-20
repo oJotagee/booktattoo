@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import HeroImg from '../../../../public/hero.jpg';
+import HeroImg from '../../../../public/hero.webp';
 import { Button } from '@/components/ui/button';
 
 export function Hero() {
@@ -10,11 +10,13 @@ export function Hero() {
     <section className="relative w-full h-screen">
       <div className="absolute inset-0">
         <Image
-          src={HeroImg.src}
-          alt="Hero"
+          src={HeroImg}
+          alt="Tatuador fazendo uma tatuagem no antebraço de um cliente"
           quality={75}
           priority={true}
+          placeholder="blur"
           fill
+          sizes="100vw"
           className="object-cover"
         />
         <div className="absolute inset-0 bg-black/80" />
@@ -35,24 +37,24 @@ export function Hero() {
         </p>
 
         <div className="mt-8 flex items-center gap-3 flex-wrap">
-          <Link href={'/galery'}>
-            <Button
-              size="lg"
-              className="bg-orange-600 text-white hover:brightness-75 duration-300 h-11 px-6 font-semibold cursor-pointer"
-            >
-              Ver Galeria
-              <ArrowRight />
-            </Button>
-          </Link>
-          <Link href={'#how-it-works'}>
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-11 px-6 border-white/30 bg-transparent text-white hover:bg-white/10 cursor-pointer"
-            >
-              Como Funciona
-            </Button>
-          </Link>
+          <Button
+            size="lg"
+            className="bg-orange-600 text-white hover:brightness-75 duration-300 h-11 px-6 font-semibold cursor-pointer"
+            render={<Link href="/galery" />}
+            nativeButton={false}
+          >
+            Ver Galeria
+            <ArrowRight />
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-11 px-6 border-white/30 bg-transparent text-white hover:bg-white/10 cursor-pointer"
+            render={<Link href="#how-it-works" />}
+            nativeButton={false}
+          >
+            Como Funciona
+          </Button>
         </div>
       </div>
     </section>

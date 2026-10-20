@@ -3,6 +3,7 @@
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { GitHubIcon, GmailIcon } from './icons';
@@ -120,6 +121,14 @@ export function AuthCard() {
             </button>
           </>
         )}
+      </p>
+
+      <p className="text-center text-xs text-muted-foreground">
+        Ao entrar ou criar uma conta, você declara estar ciente da nossa{' '}
+        <Link href="/privacidade" className="font-medium text-foreground underline">
+          Política de privacidade
+        </Link>
+        .
       </p>
     </div>
   );

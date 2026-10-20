@@ -40,8 +40,13 @@ export function Header() {
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <SheetTrigger
             className="md:hidden"
+            aria-label="Abrir menu"
             render={
-              <Button className="text-white hover:bg-transparent" variant={'ghost'} size={'icon'} />
+              <Button
+                className="size-11 text-white hover:bg-transparent"
+                variant={'ghost'}
+                size={'icon'}
+              />
             }
           >
             <Menu className="w-8 h-8" />

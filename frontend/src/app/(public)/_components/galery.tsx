@@ -20,8 +20,8 @@ export function Galery() {
     <section className="relative w-full py-14 px-6 md:px-28 md:py-22">
       <div className="flex flex-row items-end justify-between">
         <div>
-          <h2 className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Galeria</h2>
-          <h1 className="text-white text-3xl md:text-4xl font-bold md:w-sm">Itens em destaque</h1>
+          <p className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Galeria</p>
+          <h2 className="text-white text-3xl md:text-4xl font-bold md:w-sm">Itens em destaque</h2>
         </div>
 
         <Link

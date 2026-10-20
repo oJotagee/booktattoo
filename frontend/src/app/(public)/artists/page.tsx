@@ -1,20 +1,35 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
+import { BASE_OPEN_GRAPH, SITE_NAME } from '@/lib/site';
 import { ArtistGridSkeleton } from './_components/artist-grid-skeleton';
 import { ArtistList } from './_components/artist-list';
+import { Footer } from '../_components/footer';
 import { Header } from '../_components/header';
+
+const title = 'Tatuadores';
+
+const description =
+  'Conheça os tatuadores do BookTattoo, seus estilos e os flashes que cada um tem disponíveis para agendamento.';
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: { canonical: '/artists' },
+  openGraph: { ...BASE_OPEN_GRAPH, url: '/artists', title: `${title} | ${SITE_NAME}`, description },
+};
 
 export default function ArtistsPage() {
   return (
     <div className="flex flex-col min-h-screen bg-black">
       <Header />
 
-      <section className="w-full pt-32 pb-14 px-6 md:px-28 md:pb-22">
+      <main className="w-full pt-32 pb-14 px-6 md:px-28 md:pb-22">
         <div className="flex flex-col gap-6 border-b border-white/10 pb-10 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">
+            <p className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">
               Quem faz acontecer
-            </h2>
+            </p>
             <h1 className="text-white text-4xl md:text-6xl font-semibold leading-tight">
               Artistas com <br />
               <span className="text-orange-600 italic">assinatura própria.</span>
@@ -30,7 +45,9 @@ export default function ArtistsPage() {
         <Suspense fallback={<ArtistGridSkeleton items={12} />}>
           <ArtistList />
         </Suspense>
-      </section>
+      </main>
+
+      <Footer />
     </div>
   );
 }
