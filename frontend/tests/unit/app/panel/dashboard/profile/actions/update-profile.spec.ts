@@ -38,6 +38,7 @@ describe('updateProfile', () => {
       name: 'John Doe',
       image: null,
       address: null,
+      showAddress: false,
       phone: null,
       bio: null,
       role: null,

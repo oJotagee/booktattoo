@@ -9,6 +9,7 @@ export function buildUser(
     email: string;
     image: string | null;
     address: string | null;
+    showAddress: boolean;
     phone: string | null;
     bio: string | null;
     role: string | null;
@@ -23,6 +24,7 @@ export function buildUser(
     email: Email.create({ value: overrides.email ?? 'john.doe@example.com' }),
     image: overrides.image ?? null,
     address: overrides.address ?? null,
+    showAddress: overrides.showAddress ?? false,
     phone: overrides.phone ?? null,
     bio: overrides.bio ?? null,
     role: overrides.role ?? null,

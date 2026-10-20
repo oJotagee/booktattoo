@@ -12,6 +12,7 @@ type UpdateUserContactInfoInput = {
   userId: string;
   name?: string;
   address?: string | null;
+  showAddress?: boolean;
   phone?: string | null;
   bio?: string | null;
   role?: string | null;
@@ -23,6 +24,7 @@ type UpdateUserContactInfoOutput = {
   name: string;
   image: string | null;
   address: string | null;
+  showAddress: boolean;
   phone: string | null;
   bio: string | null;
   role: string | null;
@@ -53,6 +55,7 @@ export class UpdateUserContactInfoUseCase {
     const updatedUser = user.updateContactInfo({
       name: input.name,
       address: input.address,
+      showAddress: input.showAddress,
       phone: input.phone,
       bio: input.bio,
       role: input.role,
@@ -74,6 +77,7 @@ export class UpdateUserContactInfoUseCase {
       name: updatedUser.name,
       image: updatedUser.image,
       address: updatedUser.address,
+      showAddress: updatedUser.showAddress,
       phone: updatedUser.phone,
       bio: updatedUser.bio,
       role: updatedUser.role,

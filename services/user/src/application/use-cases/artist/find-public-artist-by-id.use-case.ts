@@ -13,6 +13,7 @@ type PublicArtistOutput = {
   image: string | null;
   bio: string | null;
   role: string | null;
+  address: string | null;
   status: string;
   times: string[];
   paymentsEnabled: boolean;
@@ -38,6 +39,7 @@ export class FindPublicArtistByIdUseCase {
         image: user.image,
         bio: user.bio,
         role: user.role,
+        address: user.showAddress ? user.address : null,
         status: user.status,
         times: user.times,
         paymentsEnabled: user.paymentsEnabled,

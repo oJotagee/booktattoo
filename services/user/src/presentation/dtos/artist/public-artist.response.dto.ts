@@ -17,6 +17,13 @@ export class PublicArtistResponseDto {
   @ApiProperty({ example: 'Fineline', nullable: true, description: 'Estilo do artista' })
   role!: string | null;
 
+  @ApiProperty({
+    example: 'Rua Exemplo, 123 - São Paulo/SP',
+    nullable: true,
+    description: 'Endereço do estúdio, quando o artista opta por exibi-lo',
+  })
+  address!: string | null;
+
   @ApiProperty({ example: 'ACTIVE', enum: ['ACTIVE', 'VACATION'] })
   status!: string;
 

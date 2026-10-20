@@ -55,6 +55,27 @@ describe('UpdateUserContactInfoUseCase', () => {
     expect(result.bio).toBe('Just a bio update');
   });
 
+  it('lets the artist opt in and out of showing the studio address', async () => {
+    users.findById = async () => buildUser({ id: 'user-1', address: 'Rua Exemplo, 123' });
+
+    const optedIn = await useCase.execute({ userId: 'user-1', showAddress: true });
+    expect(optedIn.showAddress).toBe(true);
+
+    users.findById = async () =>
+      buildUser({ id: 'user-1', address: 'Rua Exemplo, 123', showAddress: true });
+
+    const optedOut = await useCase.execute({ userId: 'user-1', showAddress: false });
+    expect(optedOut.showAddress).toBe(false);
+  });
+
+  it('keeps the address visibility when not provided', async () => {
+    users.findById = async () => buildUser({ id: 'user-1', showAddress: true });
+
+    const result = await useCase.execute({ userId: 'user-1', bio: 'Just a bio update' });
+
+    expect(result.showAddress).toBe(true);
+  });
+
   it('updates the role as free text supplied by the user', async () => {
     const user = buildUser({ id: 'user-1' });
     users.findById = async () => user;

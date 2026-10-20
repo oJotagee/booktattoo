@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { MapPin } from 'lucide-react';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import Image from 'next/image';
@@ -64,6 +65,9 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
     jobTitle: artist.role ?? 'Tatuador',
     description: artist.bio ?? undefined,
     image: artist.image ?? undefined,
+    ...(artist.address && {
+      workLocation: { '@type': 'Place', address: artist.address },
+    }),
   };
 
   return (
@@ -104,7 +108,26 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
             </div>
           </div>
 
-          <p className="text-white/50 text-sm md:text-base max-w-md">{artist.bio ?? DEFAULT_BIO}</p>
+          <div className="max-w-md space-y-4">
+            <p className="text-white/50 text-sm md:text-base">{artist.bio ?? DEFAULT_BIO}</p>
+
+            {artist.address && (
+              <address className="not-italic">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(artist.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-start gap-2 text-sm text-white/70 hover:text-white duration-300"
+                >
+                  <MapPin aria-hidden="true" className="size-4 shrink-0 mt-0.5 text-orange-500" />
+                  <span>
+                    <span className="sr-only">Endereço do estúdio: </span>
+                    {artist.address}
+                  </span>
+                </a>
+              </address>
+            )}
+          </div>
         </div>
 
         {artist.status === 'VACATION' && (

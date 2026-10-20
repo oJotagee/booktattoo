@@ -21,6 +21,7 @@ model User {
   image            String?
   passwordHash     String? // null se só login social
   address          String?
+  showAddress      Boolean    @default(false)
   phone            String?
   bio              String?
   role             String?
