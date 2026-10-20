@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { cn } from 'cn';
 
 import { type ConnectStatus, getConnectStatus } from './_data-access/get-connect-status';
+import { PendingRequirements } from './_components/pending-requirements';
 import { ConnectReturnToast } from './_components/connect-return-toast';
 import { ConnectActions } from './_components/connect-actions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -25,7 +26,12 @@ export default function PaymentsPage() {
   );
 }
 
-function describeStatus({ connected, detailsSubmitted, paymentsEnabled }: ConnectStatus) {
+function describeStatus({
+  connected,
+  detailsSubmitted,
+  paymentsEnabled,
+  pendingRequirements,
+}: ConnectStatus) {
   if (paymentsEnabled) {
     return {
       title: 'Conta Stripe conectada',
@@ -43,9 +49,13 @@ function describeStatus({ connected, detailsSubmitted, paymentsEnabled }: Connec
   }
 
   if (connected) {
+    const hasRejected = pendingRequirements.some(({ rejected }) => rejected);
+
     return {
       title: 'Cadastro incompleto',
-      detail: 'Termine o cadastro no Stripe para começar a receber agendamentos.',
+      detail: hasRejected
+        ? 'O Stripe recusou alguns dados. Corrija os itens abaixo no cadastro do Stripe para começar a receber agendamentos.'
+        : 'Termine o cadastro no Stripe para começar a receber agendamentos. Ainda faltam os itens abaixo.',
     };
   }
 
@@ -78,6 +88,10 @@ async function PaymentsContent() {
           <p className="text-sm text-white/60">{detail}</p>
         </div>
       </div>
+
+      {!status.detailsSubmitted && (
+        <PendingRequirements requirements={status.pendingRequirements} />
+      )}
 
       <ConnectActions
         connected={status.connected}

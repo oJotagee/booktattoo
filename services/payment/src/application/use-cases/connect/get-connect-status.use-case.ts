@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CONNECT_GATEWAY, type ConnectGateway } from '../../port/connect-gateway.port';
+import {
+  CONNECT_GATEWAY,
+  type ConnectGateway,
+  type ConnectRequirement,
+} from '../../port/connect-gateway.port';
 import { SyncConnectedAccountUseCase } from './sync-connected-account.use-case';
 import {
   CONNECTED_ACCOUNT_REPOSITORY,
@@ -17,6 +21,7 @@ export type GetConnectStatusOutput = {
   payoutsEnabled: boolean;
   detailsSubmitted: boolean;
   paymentsEnabled: boolean;
+  pendingRequirements: ConnectRequirement[];
 };
 
 @Injectable()
@@ -39,10 +44,13 @@ export class GetConnectStatusUseCase {
         payoutsEnabled: false,
         detailsSubmitted: false,
         paymentsEnabled: false,
+        pendingRequirements: [],
       };
     }
 
-    const status = await this.gateway.retrieveAccountStatus(account.stripeAccountId);
+    const { status, pendingRequirements } = await this.gateway.retrieveAccount(
+      account.stripeAccountId,
+    );
     const synced = await this.syncConnectedAccount.execute({ account, status });
 
     return {
@@ -51,6 +59,7 @@ export class GetConnectStatusUseCase {
       payoutsEnabled: synced.payoutsEnabled,
       detailsSubmitted: synced.detailsSubmitted,
       paymentsEnabled: synced.paymentsEnabled,
+      pendingRequirements,
     };
   }
 }

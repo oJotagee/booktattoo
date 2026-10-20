@@ -13,7 +13,12 @@ function buildAccount({
   cardPayments?: string;
   transfers?: string;
   payouts?: string;
-  entries?: Array<{ awaiting_action_from: string; minimum_deadline: { status: string } }>;
+  entries?: Array<{
+    awaiting_action_from: string;
+    minimum_deadline: { status: string };
+    description?: string;
+    errors?: Array<{ code: string }>;
+  }>;
 } = {}): Account {
   return {
     configuration: {
@@ -81,5 +86,55 @@ describe('StripeConnectGateway.toStatus', () => {
       payoutsEnabled: false,
       detailsSubmitted: true,
     });
+  });
+});
+
+describe('StripeConnectGateway.toPendingRequirements', () => {
+  const due = (description: string, errors: Array<{ code: string }> = []) => ({
+    awaiting_action_from: 'user',
+    minimum_deadline: { status: 'past_due' },
+    description,
+    errors,
+  });
+
+  it('groups blocking requirements by kind and flags rejected data', () => {
+    const requirements = StripeConnectGateway.toPendingRequirements(
+      buildAccount({
+        entries: [
+          due('identity.individual.address.city', [
+            { code: 'verification_failed_residential_address' },
+          ]),
+          due('identity.individual.address.line1'),
+          due('identity.individual.given_name'),
+          due('identity.individual.surname'),
+          due('identity.individual.id_numbers.br_cpf'),
+          due('identity.individual.verification.proof_of_liveness'),
+          due('defaults.profile.business_url'),
+          due('something.unexpected'),
+        ],
+      }),
+    );
+
+    expect(requirements).toEqual([
+      { kind: 'address', rejected: true },
+      { kind: 'name', rejected: false },
+      { kind: 'id_number', rejected: false },
+      { kind: 'identity_document', rejected: false },
+      { kind: 'business', rejected: false },
+      { kind: 'other', rejected: false },
+    ]);
+  });
+
+  it('leaves out requirements awaiting Stripe or only eventually due', () => {
+    const requirements = StripeConnectGateway.toPendingRequirements(
+      buildAccount({
+        entries: [
+          { ...due('identity.individual.political_exposure'), awaiting_action_from: 'stripe' },
+          { ...due('identity.individual.phone'), minimum_deadline: { status: 'eventually_due' } },
+        ],
+      }),
+    );
+
+    expect(requirements).toEqual([]);
   });
 });

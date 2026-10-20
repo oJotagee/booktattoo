@@ -80,10 +80,9 @@ export function createConnectGatewayMock(): ConnectGateway {
     createAccount: mock(async () => ({ id: 'acct_new' })),
     createOnboardingLink: mock(async () => ({ url: 'https://connect.stripe.com/setup/e/acct' })),
     createLoginLink: mock(async () => ({ url: 'https://connect.stripe.com/express/acct' })),
-    retrieveAccountStatus: mock(async () => ({
-      chargesEnabled: true,
-      payoutsEnabled: true,
-      detailsSubmitted: true,
+    retrieveAccount: mock(async () => ({
+      status: { chargesEnabled: true, payoutsEnabled: true, detailsSubmitted: true },
+      pendingRequirements: [],
     })),
   };
 }

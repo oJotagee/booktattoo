@@ -35,8 +35,9 @@ describe('GetConnectStatusUseCase', () => {
       payoutsEnabled: false,
       detailsSubmitted: false,
       paymentsEnabled: false,
+      pendingRequirements: [],
     });
-    expect(gateway.retrieveAccountStatus).not.toHaveBeenCalled();
+    expect(gateway.retrieveAccount).not.toHaveBeenCalled();
   });
 
   it('refreshes the status from Stripe and syncs it', async () => {
@@ -45,7 +46,7 @@ describe('GetConnectStatusUseCase', () => {
 
     const result = await useCase.execute({ userId: 'user-1' });
 
-    expect(gateway.retrieveAccountStatus).toHaveBeenCalledWith('acct_123');
+    expect(gateway.retrieveAccount).toHaveBeenCalledWith('acct_123');
     expect(publisher.publish).toHaveBeenCalledTimes(1);
     expect(result).toEqual({
       connected: true,
@@ -53,6 +54,19 @@ describe('GetConnectStatusUseCase', () => {
       payoutsEnabled: true,
       detailsSubmitted: true,
       paymentsEnabled: true,
+      pendingRequirements: [],
     });
+  });
+
+  it('returns the requirements the artist still owes Stripe', async () => {
+    accounts.findByUserId = async () => buildConnectedAccount();
+    gateway.retrieveAccount = async () => ({
+      status: { chargesEnabled: false, payoutsEnabled: false, detailsSubmitted: false },
+      pendingRequirements: [{ kind: 'address', rejected: true }],
+    });
+
+    const result = await useCase.execute({ userId: 'user-1' });
+
+    expect(result.pendingRequirements).toEqual([{ kind: 'address', rejected: true }]);
   });
 });
