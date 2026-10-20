@@ -4,7 +4,6 @@ import { Suspense } from 'react';
 import { ArtistGridSkeleton } from './_components/artist-grid-skeleton';
 import { ArtistListLoader } from './_components/artist-list-loader';
 import { BASE_OPEN_GRAPH, SITE_NAME } from '@/lib/site';
-import { Footer } from '../_components/footer';
 import { Header } from '../_components/header';
 
 const title = 'Tatuadores';
@@ -46,8 +45,6 @@ export default function ArtistsPage({ searchParams }: PageProps<'/artists'>) {
           <ArtistListLoader searchParams={searchParams} />
         </Suspense>
       </main>
-
-      <Footer />
     </div>
   );
 }

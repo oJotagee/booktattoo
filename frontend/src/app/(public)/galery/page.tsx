@@ -4,7 +4,6 @@ import { Suspense } from 'react';
 import { BASE_OPEN_GRAPH, SITE_NAME } from '@/lib/site';
 import { GaleryGridSkeleton } from './_components/galery-grid-skeleton';
 import { GaleryListLoader } from './_components/galery-list-loader';
-import { Footer } from '../_components/footer';
 import { Header } from '../_components/header';
 
 const title = 'Galeria de flash tattoos';
@@ -44,8 +43,6 @@ export default function GaleryPage({ searchParams }: PageProps<'/galery'>) {
           <GaleryListLoader searchParams={searchParams} />
         </Suspense>
       </main>
-
-      <Footer />
     </div>
   );
 }
