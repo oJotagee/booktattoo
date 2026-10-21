@@ -1,8 +1,8 @@
-import { CacheModule } from '@bookink/shared/cache';
 import { StorageModule } from '@bookink/shared/storage';
-import { MailModule } from '@bookink/shared/mail';
-import { JwtAuthModule } from '@bookink/shared/auth';
 import { MessagingModule } from '@bookink/shared/events';
+import { JwtAuthModule } from '@bookink/shared/auth';
+import { CacheModule } from '@bookink/shared/cache';
+import { MailModule } from '@bookink/shared/mail';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
@@ -13,12 +13,13 @@ import { GetUserPlanAccessUseCase } from '@/application/use-cases/subscription/g
 import { UpdateUserContactInfoUseCase } from '@/application/use-cases/user/update-user-contact-info.use-case';
 import { PrismaRefreshTokenRepository } from './infrastructure/repository/prisma-refresh-token.repository';
 import { SyncSubscriptionUseCase } from '@/application/use-cases/subscription/sync-subscription.use-case';
-import { SyncPaymentsEnabledUseCase } from '@/application/use-cases/user/sync-payments-enabled.use-case';
 import { PrismaSubscriptionRepository } from './infrastructure/repository/prisma-subscription.repository';
 import { PASSWORD_RESET_TOKEN_REPOSITORY } from '@/application/port/password-reset-token-repository.port';
+import { SyncPaymentsEnabledUseCase } from '@/application/use-cases/user/sync-payments-enabled.use-case';
 import { FindPublicArtistsUseCase } from '@/application/use-cases/artist/find-public-artists.use-case';
 import { UpdateUserAvatarUseCase } from '@/application/use-cases/user/update-user-avatar.use-case';
 import { UpdateUserStatusUseCase } from '@/application/use-cases/user/update-user-status.use-case';
+import { InternalArtistController } from './presentation/controllers/internal-artist.controller';
 import { PrismaAccountRepository } from './infrastructure/repository/prisma-account.repository';
 import { ForgotPasswordUseCase } from '@/application/use-cases/auth/forgot-password.use-case';
 import { PublicArtistController } from './presentation/controllers/public-artist.controller';
@@ -58,7 +59,13 @@ import jwtConfig from './infrastructure/config/jwt.config';
     JwtAuthModule,
     MessagingModule,
   ],
-  controllers: [AuthController, UserController, PublicArtistController, HealthController],
+  controllers: [
+    AuthController,
+    UserController,
+    PublicArtistController,
+    InternalArtistController,
+    HealthController,
+  ],
   providers: [
     PrismaService,
     RegisterUserUseCase,
