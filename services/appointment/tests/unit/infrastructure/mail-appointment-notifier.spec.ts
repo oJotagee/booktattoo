@@ -11,6 +11,7 @@ const config = {
   paymentServiceUrl: '',
   internalApiSecret: '',
   frontendUrl: 'http://localhost:3000',
+  bookingLinkSecret: '',
 };
 
 function sentMail(mail: MailPort): SendMailInput {
@@ -71,6 +72,7 @@ describe('MailAppointmentNotifier', () => {
         findById: async () => {
           throw new Error('user-service fora do ar');
         },
+        findContact: async () => null,
       },
       config,
     );

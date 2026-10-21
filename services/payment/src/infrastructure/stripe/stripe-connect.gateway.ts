@@ -3,14 +3,33 @@ import { Inject, Injectable } from '@nestjs/common';
 import type Stripe from 'stripe';
 
 import type { ConnectedAccountStatus } from '@/domain/entities/connected-account.entity';
-import type { ConnectGateway } from '@/application/port/connect-gateway.port';
+import type {
+  ConnectAccountSnapshot,
+  ConnectGateway,
+  ConnectRequirement,
+  ConnectRequirementKind,
+} from '@/application/port/connect-gateway.port';
 import stripeConfig from '../config/stripe.config';
 import { STRIPE_CLIENT } from './stripe.client';
 
 type V2Account = Awaited<ReturnType<Stripe['v2']['core']['accounts']['retrieve']>>;
+type RequirementEntry = NonNullable<NonNullable<V2Account['requirements']>['entries']>[number];
 
 const ACTIVE = 'active';
 const BLOCKING_DEADLINES = new Set(['currently_due', 'past_due']);
+
+const REQUIREMENT_KINDS: Array<[RegExp, ConnectRequirementKind]> = [
+  [/address/, 'address'],
+  [/given_name|surname/, 'name'],
+  [/date_of_birth/, 'date_of_birth'],
+  [/id_numbers/, 'id_number'],
+  [/verification\.(document|additional_document|proof_of_liveness)/, 'identity_document'],
+  [/phone/, 'phone'],
+  [/email/, 'email'],
+  [/external_account|outbound_destination|bank_account|payout_method/, 'bank_account'],
+  [/attestations|terms_of_service|tos_acceptance/, 'terms'],
+  [/business_details|profile|entity_type/, 'business'],
+];
 
 @Injectable()
 export class StripeConnectGateway implements ConnectGateway {
@@ -73,12 +92,15 @@ export class StripeConnectGateway implements ConnectGateway {
     return { url: link.url };
   }
 
-  async retrieveAccountStatus(accountId: string): Promise<ConnectedAccountStatus> {
+  async retrieveAccount(accountId: string): Promise<ConnectAccountSnapshot> {
     const account = await this.stripe.v2.core.accounts.retrieve(accountId, {
       include: ['configuration.merchant', 'configuration.recipient', 'requirements'],
     });
 
-    return StripeConnectGateway.toStatus(account);
+    return {
+      status: StripeConnectGateway.toStatus(account),
+      pendingRequirements: StripeConnectGateway.toPendingRequirements(account),
+    };
   }
 
   static toStatus({ configuration, requirements }: V2Account): ConnectedAccountStatus {
@@ -90,11 +112,32 @@ export class StripeConnectGateway implements ConnectGateway {
         merchant?.card_payments?.status === ACTIVE &&
         recipient?.stripe_balance?.stripe_transfers?.status === ACTIVE,
       payoutsEnabled: merchant?.stripe_balance?.payouts?.status === ACTIVE,
-      detailsSubmitted: !(requirements?.entries ?? []).some(
-        (entry) =>
-          entry.awaiting_action_from === 'user' &&
-          BLOCKING_DEADLINES.has(entry.minimum_deadline.status),
-      ),
+      detailsSubmitted: !(requirements?.entries ?? []).some(StripeConnectGateway.isBlocking),
     };
+  }
+
+  static toPendingRequirements({ requirements }: V2Account): ConnectRequirement[] {
+    const rejectedByKind = new Map<ConnectRequirementKind, boolean>();
+
+    for (const entry of requirements?.entries ?? []) {
+      if (!StripeConnectGateway.isBlocking(entry)) continue;
+
+      const kind = StripeConnectGateway.toRequirementKind(entry.description);
+      const rejected = (entry.errors ?? []).length > 0;
+
+      rejectedByKind.set(kind, (rejectedByKind.get(kind) ?? false) || rejected);
+    }
+
+    return [...rejectedByKind].map(([kind, rejected]) => ({ kind, rejected }));
+  }
+
+  private static isBlocking(entry: RequirementEntry): boolean {
+    return (
+      entry.awaiting_action_from === 'user' && BLOCKING_DEADLINES.has(entry.minimum_deadline.status)
+    );
+  }
+
+  private static toRequirementKind(field: string): ConnectRequirementKind {
+    return REQUIREMENT_KINDS.find(([pattern]) => pattern.test(field))?.[1] ?? 'other';
   }
 }

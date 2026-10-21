@@ -6,4 +6,5 @@ export default registerAs('services', () => ({
   paymentServiceUrl: process.env.PAYMENT_SERVICE_URL ?? 'http://localhost:8084',
   internalApiSecret: process.env.INTERNAL_API_SECRET ?? '',
   frontendUrl: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+  bookingLinkSecret: process.env.BOOKING_LINK_SECRET ?? '',
 }));

@@ -24,7 +24,7 @@ O frontend fala só com o **API gateway (Kong)** em `http://localhost:8000`, que
 |---|---|
 | `/auth`, `/users`, `GET /public/artists` | user |
 | `/services`, `/galeries`, `GET /public/services`, `GET /public/galeries` | catalog |
-| `/appointments`, `/booking-requests`, `/reminders`, `GET`/`POST /public/appointments` | appointment |
+| `/appointments`, `/booking-requests`, `/reminders`, `GET`/`POST /public/appointments`, `GET`/`POST /public/booking-requests` | appointment |
 | `/billing`, `POST /webhooks` | payment |
 
 O Swagger de cada serviço fica direto na porta dele: `http://localhost:<porta>/api/docs`.
@@ -38,6 +38,7 @@ O Swagger de cada serviço fica direto na porta dele: `http://localhost:<porta>/
 | catalog → user | `GET /users/me/plan` | Aplicar os limites do plano antes de criar um serviço ou flash |
 | appointment → user | `GET /public/artists/:id` | Ler o status e os horários do tatuador ao agendar |
 | appointment → catalog | `GET /public/galeries/:id` | Ler o preço, o serviço, a duração e o sinal do flash ao agendar |
+| appointment → user | `GET /internal/artists/:id/contact` | Ler o e-mail do tatuador para avisar sobre mensagens novas. Exige `X-Internal-Secret` e a rota não é exposta no Kong |
 | appointment → payment | `POST /internal/deposits/checkout` | Abrir o checkout do sinal. Exige o header `X-Internal-Secret` e a rota não é exposta no Kong |
 
 **Assíncrona (RabbitMQ):** uma exchange topic única, `bookink.events`, com routing key igual ao `type` do evento e uma fila por consumidor. Os contratos dos eventos ficam em [`@bookink/shared/events`](packages/shared/src/events).
@@ -79,6 +80,8 @@ O cache é só para leitura. Ao criar um agendamento, a checagem de conflito de 
 3. O appointment-service cria o agendamento como `PENDING` e o cliente vai para o Stripe Checkout pagar o sinal. O flash sai da galeria.
 4. O webhook do Stripe confirma o pagamento e o agendamento vira `CONFIRMED`. O cliente recebe um e-mail de confirmação. Se o checkout expirar (~30 min), o agendamento é cancelado e o horário e o flash voltam a ficar livres.
 
+**Pedidos fora da galeria.** Na página do tatuador, o cliente também pode abrir uma conversa sem criar conta, por um link assinado que chega por e-mail. Na conversa, o tatuador envia uma proposta de agendamento (data, duração, valor e sinal). O cliente paga o sinal pelo mesmo link, e daí em diante o fluxo é o mesmo do flash: o horário é checado no pagamento, o checkout dura 30 minutos e o webhook confirma o agendamento.
+
 **Sinal direto para o tatuador (Stripe Connect).** Cada tatuador conecta uma conta Express em **Recebimentos** no dashboard. O checkout do sinal é uma destination charge (`transfer_data` + `on_behalf_of`), sem taxa da plataforma. O tatuador só aceita agendamentos depois que o Stripe libera cobranças e saques na conta (`paymentsEnabled`). Antes disso, o perfil público avisa que ele ainda não aceita agendamentos online.
 
 **Cancelamento e estorno.** Quando o tatuador cancela um agendamento já pago, o appointment-service pede o estorno ao payment-service (`POST /internal/deposits/refund`, com `reverse_transfer`) antes de gravar o cancelamento. Se o estorno falhar, nada muda e o tatuador pode tentar de novo. O cliente recebe um e-mail avisando do estorno. Cancelar um agendamento pendente expira o checkout aberto. Se um pagamento chegar depois que o agendamento foi cancelado ou expirou, ele é estornado automaticamente. Sinais estornados não entram nos indicadores do dashboard.
@@ -98,6 +101,8 @@ Duas camadas: o Kong segura o volume por IP, e os serviços seguram o abuso por 
 | `POST /auth/login`, `/auth/register`, `/auth/reset-password` | 10/min e 60/h |
 | `POST /auth/forgot-password` | 3/min e 10/h |
 | `POST /public/appointments` | 5/min e 20/h |
+| `POST /public/booking-requests` (abrir conversa e mandar mensagem) | 10/min e 60/h |
+| `GET /public/booking-requests` (polling da conversa) | 30/min |
 | `POST /auth/refresh-token`, `/auth/oauth/upsert` | 1000/min (chamadas de sessão do próprio Next) |
 | Qualquer outra rota | 300/min |
 
@@ -112,6 +117,7 @@ As chamadas à API saem do servidor do Next, então o Next repassa o IP real do 
 | Login (user) | 5 senhas erradas para o mesmo e-mail bloqueiam a conta por 15 minutos (`429`), mesmo com a senha certa durante o bloqueio |
 | Esqueci a senha (user) | No máximo 1 e-mail de redefinição por conta a cada 60s. A resposta é sempre a mesma, para não revelar se o e-mail existe |
 | Agendamento (appointment) | No máximo 1 agendamento aguardando pagamento por e-mail ou telefone (`409`) |
+| Conversa (appointment) | No máximo 1 conversa aberta por tatuador por e-mail ou telefone (`409`) e 5 mensagens seguidas do cliente sem resposta (`429`) |
 
 ## Assinatura e planos
 
@@ -192,6 +198,8 @@ Projeto em desenvolvimento. Já funcionam:
 - Assinatura mensal com trial, limites por plano e troca de plano
 - Página pública do tatuador, com link para compartilhar
 - Agendamento de flash com o sinal pago no Stripe Checkout
+- Conversa entre cliente e tatuador para pedidos fora da galeria, sem login do cliente (link assinado por e-mail)
+- Proposta de agendamento dentro da conversa, com o sinal pago pelo cliente no mesmo link
 - Sinal pago direto para a conta do tatuador, com Stripe Connect (Accounts v2, painel Express)
 - Estorno automático ao cancelar um agendamento já pago e em pagamentos tardios
 - E-mails de confirmação e de estorno para o cliente

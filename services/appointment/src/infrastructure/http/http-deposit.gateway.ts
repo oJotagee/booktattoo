@@ -20,13 +20,19 @@ export class HttpDepositGateway implements DepositGateway {
     private readonly config: ConfigType<typeof servicesConfig>,
   ) {}
 
-  async create(params: CreateDepositCheckoutParams): Promise<DepositCheckout> {
-    const artistPage = `${this.config.frontendUrl}/${encodeURIComponent(params.artistId)}`;
+  async create({ returnPath, ...params }: CreateDepositCheckoutParams): Promise<DepositCheckout> {
+    const returnUrl = returnPath ? `${this.config.frontendUrl}${returnPath}` : null;
+    const success = returnUrl
+      ? `${returnUrl}?payment=success`
+      : `${this.artistPage(params.artistId)}?booking=success`;
+    const cancel = returnUrl
+      ? `${returnUrl}?payment=cancelled`
+      : `${this.artistPage(params.artistId)}?booking=cancelled`;
 
     const checkout = await this.post<DepositCheckout>('checkout', {
       ...params,
-      successUrl: `${artistPage}?booking=success`,
-      cancelUrl: `${artistPage}?booking=cancelled`,
+      successUrl: success,
+      cancelUrl: cancel,
     });
 
     if (!checkout) throw new ExternalServiceUnavailableError();
@@ -44,6 +50,10 @@ export class HttpDepositGateway implements DepositGateway {
 
   async expireCheckout(checkoutSessionId: string): Promise<void> {
     await this.post('expire', { checkoutSessionId });
+  }
+
+  private artistPage(artistId: string): string {
+    return `${this.config.frontendUrl}/${encodeURIComponent(artistId)}`;
   }
 
   private post<T>(action: string, data: object): Promise<T | null> {

@@ -1,7 +1,7 @@
 import { escapeHtml, renderBrandEmail } from '@bookink/shared/mail';
 
 import type { AppointmentEntity } from '@/domain/entities/appointment.entity';
-import { STUDIO_TIME_ZONE } from '@/domain/schedule';
+import { formatBRL, formatStudioDateTime } from '@/domain/format';
 
 export type AppointmentEmailContext = {
   appointment: AppointmentEntity;
@@ -15,31 +15,17 @@ export type AppointmentEmail = {
   text: string;
 };
 
-const dateTimeFormat = new Intl.DateTimeFormat('pt-BR', {
-  timeZone: STUDIO_TIME_ZONE,
-  dateStyle: 'full',
-  timeStyle: 'short',
-});
+export { formatBRL, formatStudioDateTime };
 
-const currencyFormat = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-
-export function formatStudioDateTime(date: Date): string {
-  return dateTimeFormat.format(date);
-}
-
-export function formatBRL(cents: number): string {
-  return currencyFormat.format(cents / 100);
-}
-
-function firstName(fullName: string): string {
+export function firstName(fullName: string): string {
   return fullName.split(/\s+/)[0] || fullName;
 }
 
-function paragraph(html: string, last = false): string {
+export function paragraph(html: string, last = false): string {
   return `<p style="margin:0 0 ${last ? 0 : 12}px 0;">${html}</p>`;
 }
 
-function details(rows: Array<[string, string]>): string {
+export function details(rows: Array<[string, string]>): string {
   const items = rows
     .map(([label, value]) => `<li><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</li>`)
     .join('');

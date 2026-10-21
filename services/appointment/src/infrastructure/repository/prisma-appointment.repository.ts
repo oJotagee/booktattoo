@@ -8,6 +8,7 @@ import {
   type AppointmentEntity,
   AppointmentStatus,
 } from '@/domain/entities/appointment.entity';
+import { BookingOfferStatus } from '@/domain/entities/booking-offer.entity';
 import type {
   AppointmentRepository,
   CreateExclusiveParams,
@@ -73,7 +74,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
     await this.prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${appointment.userId}))`;
 
-      const [sameDay, galeryTaken, clientPending] = await Promise.all([
+      const [sameDay, galeryTaken, clientPending, offer] = await Promise.all([
         tx.appointment.findMany({
           where: {
             userId: appointment.userId,
@@ -98,12 +99,19 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
             ],
           },
         }),
+        appointment.bookingOfferId
+          ? tx.bookingOffer.findUnique({
+              where: { id: appointment.bookingOfferId },
+              select: { status: true },
+            })
+          : Promise.resolve(null),
       ]);
 
       assertAvailable({
         sameDay: sameDay.map(AppointmentMapper.toDomain),
         galeryTaken: galeryTaken > 0,
         clientHasPending: clientPending > 0,
+        offerAvailable: !appointment.bookingOfferId || offer?.status === BookingOfferStatus.PENDING,
       });
 
       await tx.appointment.create({ data: AppointmentMapper.toPersistence(appointment) });
@@ -111,8 +119,34 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
   }
 
   async update(appointment: AppointmentEntity): Promise<void> {
-    const { id, bookingRequestId: _, ...data } = AppointmentMapper.toPersistence(appointment);
+    const {
+      id,
+      bookingRequestId: _request,
+      bookingOfferId: _offer,
+      ...data
+    } = AppointmentMapper.toPersistence(appointment);
 
     await this.prisma.appointment.update({ where: { id }, data });
+  }
+
+  // Update condicional: entregas concorrentes do mesmo webhook passam pela leitura
+  // juntas, mas só uma encontra a linha ainda sem `paidAt`
+  async recordPayment(
+    appointment: AppointmentEntity,
+    expectedStatus: AppointmentStatus,
+  ): Promise<boolean> {
+    const {
+      id,
+      bookingRequestId: _request,
+      bookingOfferId: _offer,
+      ...data
+    } = AppointmentMapper.toPersistence(appointment);
+
+    const { count } = await this.prisma.appointment.updateMany({
+      where: { id, status: expectedStatus, paidAt: null },
+      data,
+    });
+
+    return count === 1;
   }
 }

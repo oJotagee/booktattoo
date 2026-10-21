@@ -1,18 +1,19 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Loader2, MessagesSquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { toast } from 'sonner';
 
 import type { DayAppointment } from '../../_data-access/get-day-appointments';
 import { formatCurrency, formatDuration } from '@/utils/formatService';
 import { cancelAppointment } from '../../_actions/cancel-appointment';
 import { AppointmentStatusBadge } from './appointment-status-badge';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { formatPhone } from '@/utils/formatPhone';
 import { formatDateParam } from '@/lib/schedule';
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -104,6 +105,16 @@ export function AppointmentDetailsDialog({
                 value={`${formatCurrency(appointment.depositAmount)} · ${depositLabel(appointment)}`}
               />
             </dl>
+
+            {appointment.bookingRequestId && (
+              <Link
+                href={`/dashboard/requests/${appointment.bookingRequestId}`}
+                className={buttonVariants({ variant: 'outline', className: 'w-fit' })}
+              >
+                <MessagesSquare />
+                Ver conversa
+              </Link>
+            )}
 
             {canCancel && appointment.paidAt && (
               <p className="text-sm text-muted-foreground">

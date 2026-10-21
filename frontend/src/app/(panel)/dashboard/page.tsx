@@ -31,13 +31,15 @@ export default function Dashboard() {
           <StatsCards />
         </Suspense>
 
-        <Suspense fallback={<DayAgendaSkeleton />}>
-          <DayAgenda />
-        </Suspense>
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <Suspense fallback={<DayAgendaSkeleton />}>
+            <DayAgenda />
+          </Suspense>
 
-        <Suspense fallback={<ReminderListSkeleton rows={3} />}>
-          <Reminders />
-        </Suspense>
+          <Suspense fallback={<ReminderListSkeleton rows={3} />}>
+            <Reminders />
+          </Suspense>
+        </div>
       </div>
     </>
   );

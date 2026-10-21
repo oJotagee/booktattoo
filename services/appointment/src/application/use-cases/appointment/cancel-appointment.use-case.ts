@@ -12,6 +12,18 @@ import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.erro
 import { APPOINTMENT_REPOSITORY } from '../../port/appointment-repository.port';
 import { blockedTimesCacheNamespace } from '@/application/cache/public-cache';
 import { AppointmentNotFoundError } from '@/domain/errors/appointment.error';
+import {
+  BOOKING_OFFER_REPOSITORY,
+  type BookingOfferRepository,
+} from '../../port/booking-offer-repository.port';
+import {
+  BOOKING_REQUEST_REPOSITORY,
+  type BookingRequestRepository,
+} from '../../port/booking-request-repository.port';
+import { offerCancelledMessage } from '../booking-offer/offer-messages';
+import type { AppointmentEntity } from '@/domain/entities/appointment.entity';
+import { BookingOfferStatus } from '@/domain/entities/booking-offer.entity';
+import { BookingRequestMessageEntity } from '@/domain/entities/booking-request.entity';
 
 @Injectable()
 export class CancelAppointmentUseCase {
@@ -28,6 +40,10 @@ export class CancelAppointmentUseCase {
     private readonly deposits: DepositGateway,
     @Inject(APPOINTMENT_NOTIFIER)
     private readonly notifier: AppointmentNotifier,
+    @Inject(BOOKING_OFFER_REPOSITORY)
+    private readonly offers: BookingOfferRepository,
+    @Inject(BOOKING_REQUEST_REPOSITORY)
+    private readonly requests: BookingRequestRepository,
   ) {}
 
   async execute({ id, userId }: { id: string; userId: string }): Promise<void> {
@@ -51,6 +67,7 @@ export class CancelAppointmentUseCase {
 
     await this.appointments.update(cancelled);
     await this.cache.invalidate(blockedTimesCacheNamespace(appointment.userId));
+    if (cancelled.bookingOfferId) await this.markOfferCancelled(cancelled);
 
     await this.publisher.publish(
       createEventEnvelope(
@@ -65,6 +82,27 @@ export class CancelAppointmentUseCase {
     );
 
     if (cancelled.refundedAt) await this.notifier.cancelledWithRefund(cancelled);
+  }
+
+  private async markOfferCancelled(appointment: AppointmentEntity): Promise<void> {
+    const [offer, request] = await Promise.all([
+      appointment.bookingOfferId ? this.offers.findById(appointment.bookingOfferId) : null,
+      appointment.bookingRequestId ? this.requests.findById(appointment.bookingRequestId) : null,
+    ]);
+
+    if (offer?.status !== BookingOfferStatus.PAID || offer.appointmentId !== appointment.id) return;
+    if (!request) return;
+
+    const message = BookingRequestMessageEntity.system(
+      request.id,
+      offerCancelledMessage(appointment.refundedAt !== null),
+    );
+
+    await this.offers.save({
+      offers: [offer.markCancelled()],
+      request: request.receiveMessage(message),
+      message,
+    });
   }
 
   private async expireCheckout(appointmentId: string, checkoutSessionId: string): Promise<void> {

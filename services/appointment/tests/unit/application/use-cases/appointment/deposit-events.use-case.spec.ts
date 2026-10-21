@@ -1,11 +1,13 @@
-import { beforeEach, describe, expect, it } from 'bun:test';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 import { ConfirmAppointmentPaymentUseCase } from '@/application/use-cases/appointment/confirm-appointment-payment.use-case';
 import { ExpirePendingAppointmentUseCase } from '@/application/use-cases/appointment/expire-pending-appointment.use-case';
-import { AppointmentStatus } from '@/domain/entities/appointment.entity';
+import { type AppointmentEntity, AppointmentStatus } from '@/domain/entities/appointment.entity';
 import { buildAppointment } from '@tests/unit/support/builders';
 import {
   createAppointmentRepositoryMock,
+  createBookingOfferRepositoryMock,
+  createBookingRequestRepositoryMock,
   createCacheMock,
   createDepositGatewayMock,
   createEventPublisherMock,
@@ -26,7 +28,13 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
     appointments = createAppointmentRepositoryMock();
     deposits = createDepositGatewayMock();
     notifier = createNotifierMock();
-    useCase = new ConfirmAppointmentPaymentUseCase(appointments, deposits, notifier);
+    useCase = new ConfirmAppointmentPaymentUseCase(
+      appointments,
+      deposits,
+      notifier,
+      createBookingOfferRepositoryMock(),
+      createBookingRequestRepositoryMock(),
+    );
   });
 
   it('confirms a pending appointment', async () => {
@@ -34,8 +42,9 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
 
     await useCase.execute(input);
 
-    expect(appointments.update).toHaveBeenCalledWith(
+    expect(appointments.recordPayment).toHaveBeenCalledWith(
       expect.objectContaining({ status: AppointmentStatus.CONFIRMED, paidAt }),
+      AppointmentStatus.PENDING,
     );
     expect(deposits.refund).not.toHaveBeenCalled();
     expect(notifier.confirmed).toHaveBeenCalledWith(
@@ -48,7 +57,42 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
 
     await useCase.execute(input);
 
-    expect(appointments.update).not.toHaveBeenCalled();
+    expect(appointments.recordPayment).not.toHaveBeenCalled();
+  });
+
+  it('does not confirm twice when a concurrent delivery confirms first', async () => {
+    const reads = [buildAppointment(), buildAppointment().confirmPayment(paidAt)];
+    appointments.findById = async () => reads.shift() ?? null;
+    appointments.recordPayment = mock(async () => false);
+
+    await useCase.execute(input);
+
+    expect(appointments.recordPayment).toHaveBeenCalledTimes(1);
+    expect(notifier.confirmed).not.toHaveBeenCalled();
+    expect(deposits.refund).not.toHaveBeenCalled();
+  });
+
+  it('refunds when the appointment is cancelled between the read and the confirmation', async () => {
+    const reads = [buildAppointment(), buildAppointment().cancel()];
+    appointments.findById = async () => reads.shift() ?? null;
+    appointments.recordPayment = mock(
+      async (_: AppointmentEntity, expected: AppointmentStatus) =>
+        expected === AppointmentStatus.CANCELLED,
+    );
+
+    await useCase.execute(input);
+
+    expect(deposits.refund).toHaveBeenCalledTimes(1);
+    expect(notifier.latePaymentRefunded).toHaveBeenCalledTimes(1);
+    expect(notifier.confirmed).not.toHaveBeenCalled();
+  });
+
+  it('fails when the payment still cannot be recorded after rereading', async () => {
+    appointments.findById = async () => buildAppointment();
+    appointments.recordPayment = mock(async () => false);
+
+    await expect(useCase.execute(input)).rejects.toThrow('appointment-1');
+    expect(notifier.confirmed).not.toHaveBeenCalled();
   });
 
   it('refunds a payment that arrives after the appointment was cancelled', async () => {
@@ -60,13 +104,14 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
       appointmentId: 'appointment-1',
       checkoutSessionId: 'cs_1',
     });
-    expect(appointments.update).toHaveBeenCalledWith(
+    expect(appointments.recordPayment).toHaveBeenCalledWith(
       expect.objectContaining({
         status: AppointmentStatus.CANCELLED,
         paidAt,
         refundId: 're_1',
         refundedAt: expect.any(Date),
       }),
+      AppointmentStatus.CANCELLED,
     );
     expect(notifier.latePaymentRefunded).toHaveBeenCalledWith(
       expect.objectContaining({ refundId: 're_1' }),
@@ -81,7 +126,16 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
     await useCase.execute(input);
 
     expect(deposits.refund).not.toHaveBeenCalled();
-    expect(appointments.update).not.toHaveBeenCalled();
+    expect(appointments.recordPayment).not.toHaveBeenCalled();
+  });
+
+  it('notifies a late refund once when a concurrent delivery records it first', async () => {
+    appointments.findById = async () => buildAppointment().cancel();
+    appointments.recordPayment = mock(async () => false);
+
+    await useCase.execute(input);
+
+    expect(notifier.latePaymentRefunded).not.toHaveBeenCalled();
   });
 
   it('propagates refund failures so the event goes to the DLQ', async () => {
@@ -91,7 +145,7 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
     };
 
     await expect(useCase.execute(input)).rejects.toThrow('payment-service fora do ar');
-    expect(appointments.update).not.toHaveBeenCalled();
+    expect(appointments.recordPayment).not.toHaveBeenCalled();
   });
 });
 

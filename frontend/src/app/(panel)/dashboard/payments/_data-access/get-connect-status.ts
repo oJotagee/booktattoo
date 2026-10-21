@@ -1,12 +1,31 @@
 import { getAccessToken } from '@/lib/get-access-token';
 import { api } from '@/lib/api';
 
+export type ConnectRequirementKind =
+  | 'name'
+  | 'address'
+  | 'date_of_birth'
+  | 'id_number'
+  | 'identity_document'
+  | 'phone'
+  | 'email'
+  | 'bank_account'
+  | 'business'
+  | 'terms'
+  | 'other';
+
+export interface ConnectRequirement {
+  kind: ConnectRequirementKind;
+  rejected: boolean;
+}
+
 export interface ConnectStatus {
   connected: boolean;
   chargesEnabled: boolean;
   payoutsEnabled: boolean;
   detailsSubmitted: boolean;
   paymentsEnabled: boolean;
+  pendingRequirements: ConnectRequirement[];
 }
 
 export async function getConnectStatus(): Promise<ConnectStatus> {
@@ -17,5 +36,5 @@ export async function getConnectStatus(): Promise<ConnectStatus> {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
-  return data;
+  return { ...data, pendingRequirements: data.pendingRequirements ?? [] };
 }

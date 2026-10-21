@@ -7,6 +7,7 @@ export type CreateDepositCheckoutParams = {
   title: string;
   imageUrl: string | null;
   customerEmail: string;
+  returnPath?: string;
 };
 
 export type DepositCheckout = {

@@ -107,7 +107,7 @@ export class HandleBillingWebhookUseCase {
       return;
     }
 
-    const status = await this.connectGateway.retrieveAccountStatus(snapshot.id);
+    const { status } = await this.connectGateway.retrieveAccount(snapshot.id);
 
     await this.syncConnectedAccount.execute({ account, status, eventId: id });
   }

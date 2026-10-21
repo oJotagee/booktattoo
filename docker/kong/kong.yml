@@ -115,6 +115,34 @@ services:
               limit_by: ip
               fault_tolerant: true
               error_message: Muitas tentativas de agendamento em pouco tempo. Aguarde um instante e tente novamente.
+      - name: appointment-public-booking-request-read-routes
+        paths:
+          - /public/booking-requests
+        methods:
+          - GET
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 30
+              policy: local
+              limit_by: ip
+              fault_tolerant: true
+      - name: appointment-public-booking-request-write-routes
+        paths:
+          - /public/booking-requests
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 10
+              hour: 60
+              policy: local
+              limit_by: ip
+              fault_tolerant: true
+              error_message: Muitas mensagens em pouco tempo. Aguarde um instante e tente novamente.
 
   - name: payment-service
     url: http://payment:8084

@@ -21,6 +21,7 @@ export interface DayAppointment {
   galeryImageUrl: string | null;
   paidAt: string | null;
   refundedAt: string | null;
+  bookingRequestId: string | null;
 }
 
 export async function getDayAppointments({ date }: { date: string }): Promise<DayAppointment[]> {

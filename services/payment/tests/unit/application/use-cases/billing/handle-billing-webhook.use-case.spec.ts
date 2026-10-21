@@ -72,7 +72,7 @@ describe('HandleBillingWebhookUseCase', () => {
 
     await useCase.execute({ ...input, source: 'connect' });
 
-    expect(connectGateway.retrieveAccountStatus).toHaveBeenCalledWith('acct_123');
+    expect(connectGateway.retrieveAccount).toHaveBeenCalledWith('acct_123');
     expect(connectedAccounts.save).toHaveBeenCalledWith(
       expect.objectContaining({ paymentsEnabled: true }),
     );
