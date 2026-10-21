@@ -35,16 +35,18 @@ export class E2EApi {
     const anonymous = await requestFactory.newContext({ baseURL: E2E_ENV.apiUrl });
     const { user } = E2E_ENV;
 
-    const register = await anonymous.post('/auth/register', { data: user });
-    if (!register.ok() && register.status() !== 409) {
-      throw new Error(
-        `Falha ao registrar o usuário E2E (${register.status()}): ${await register.text()}`,
-      );
-    }
+    const credentials = { email: user.email, password: user.password };
 
-    const login = await anonymous.post('/auth/login', {
-      data: { email: user.email, password: user.password },
-    });
+    let login = await anonymous.post('/auth/login', { data: credentials });
+    if (!login.ok()) {
+      const register = await anonymous.post('/auth/register', { data: user });
+      if (!register.ok() && register.status() !== 409) {
+        throw new Error(
+          `Falha ao registrar o usuário E2E (${register.status()}): ${await register.text()}`,
+        );
+      }
+      login = await anonymous.post('/auth/login', { data: credentials });
+    }
     if (!login.ok()) {
       throw new Error(`Falha no login do usuário E2E (${login.status()}): ${await login.text()}`);
     }
