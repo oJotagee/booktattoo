@@ -30,7 +30,7 @@ export const subscriptionPlans: SubscriptionPlanInfo[] = [
     price: 'R$ 27,90',
     features: [
       `Até ${PLANS.BASIC.services} serviços`,
-      `Até ${PLANS.BASIC.galeries} produtos na galeria`,
+      `Até ${PLANS.BASIC.galeries} flashs na galeria`,
       'Agendamentos ilimitados',
     ],
   },
@@ -42,7 +42,7 @@ export const subscriptionPlans: SubscriptionPlanInfo[] = [
     price: 'R$ 97,90',
     features: [
       `Até ${PLANS.PROFESSIONAL.services} serviços`,
-      `Até ${PLANS.PROFESSIONAL.galeries} produtos na galeria`,
+      `Até ${PLANS.PROFESSIONAL.galeries} flashs na galeria`,
       'Agendamentos ilimitados',
     ],
   },
