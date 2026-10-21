@@ -1,7 +1,11 @@
 import type { ConfigType } from '@nestjs/config';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
-import type { ArtistGateway, ArtistSnapshot } from '@/application/port/artist-gateway.port';
+import type {
+  ArtistContact,
+  ArtistGateway,
+  ArtistSnapshot,
+} from '@/application/port/artist-gateway.port';
 import servicesConfig from '../config/services.config';
 import { requestJson } from './request-json';
 
@@ -26,5 +30,22 @@ export class HttpArtistGateway implements ArtistGateway {
       times: artist.times,
       paymentsEnabled: artist.paymentsEnabled ?? false,
     };
+  }
+
+  async findContact(id: string): Promise<ArtistContact | null> {
+    if (!this.config.internalApiSecret) {
+      this.logger.error(
+        'INTERNAL_API_SECRET não configurado; não dá para ler o e-mail do tatuador.',
+      );
+      return null;
+    }
+
+    const contact = await requestJson<ArtistContact>(this.logger, {
+      method: 'GET',
+      url: `${this.config.userServiceUrl}/internal/artists/${encodeURIComponent(id)}/contact`,
+      headers: { 'X-Internal-Secret': this.config.internalApiSecret },
+    });
+
+    return contact && { name: contact.name, email: contact.email };
   }
 }

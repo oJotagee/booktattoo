@@ -12,6 +12,7 @@ export type AvailabilityContext = {
   sameDay: AppointmentEntity[];
   galeryTaken: boolean;
   clientHasPending: boolean;
+  offerAvailable: boolean;
 };
 
 export type CreateExclusiveParams = {

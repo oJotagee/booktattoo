@@ -31,14 +31,25 @@ type AppointmentProps = {
   paidAt: Date | null;
   refundId: string | null;
   refundedAt: Date | null;
+  bookingRequestId: string | null;
+  bookingOfferId: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
 
 type AppointmentCreateInput = Omit<
   AppointmentProps,
-  'status' | 'checkoutSessionId' | 'paidAt' | 'refundId' | 'refundedAt' | 'createdAt' | 'updatedAt'
->;
+  | 'status'
+  | 'checkoutSessionId'
+  | 'paidAt'
+  | 'refundId'
+  | 'refundedAt'
+  | 'bookingRequestId'
+  | 'bookingOfferId'
+  | 'createdAt'
+  | 'updatedAt'
+> &
+  Partial<Pick<AppointmentProps, 'bookingRequestId' | 'bookingOfferId'>>;
 
 export class AppointmentEntity {
   private constructor(private readonly props: AppointmentProps) {
@@ -117,6 +128,14 @@ export class AppointmentEntity {
     return this.props.refundedAt;
   }
 
+  get bookingRequestId(): string | null {
+    return this.props.bookingRequestId;
+  }
+
+  get bookingOfferId(): string | null {
+    return this.props.bookingOfferId;
+  }
+
   get isRefundable(): boolean {
     return this.props.paidAt !== null && this.props.refundedAt === null;
   }
@@ -146,6 +165,8 @@ export class AppointmentEntity {
       paidAt: null,
       refundId: null,
       refundedAt: null,
+      bookingRequestId: input.bookingRequestId ?? null,
+      bookingOfferId: input.bookingOfferId ?? null,
       createdAt: now,
       updatedAt: now,
     });

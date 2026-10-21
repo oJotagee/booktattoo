@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 import { CreatePublicAppointmentUseCase } from '@/application/use-cases/appointment/create-public-appointment.use-case';
+import { DepositBookingService } from '@/application/services/deposit-booking.service';
 import { AppointmentStatus, type AppointmentEntity } from '@/domain/entities/appointment.entity';
 import { buildAppointment } from '@tests/unit/support/builders';
 import {
@@ -45,12 +46,9 @@ describe('CreatePublicAppointmentUseCase', () => {
 
   function buildUseCase() {
     return new CreatePublicAppointmentUseCase(
-      appointments,
       artists,
       catalog,
-      checkout,
-      publisher,
-      cache,
+      new DepositBookingService(appointments, checkout, publisher, cache),
     );
   }
 
@@ -158,6 +156,7 @@ describe('CreatePublicAppointmentUseCase', () => {
       ],
       galeryTaken: false,
       clientHasPending: false,
+      offerAvailable: true,
     });
 
     // 09:30 + 60min precisa de 09:30 e 10:00; 10:00 já está ocupado
@@ -170,6 +169,7 @@ describe('CreatePublicAppointmentUseCase', () => {
       sameDay: [],
       galeryTaken: true,
       clientHasPending: false,
+      offerAvailable: true,
     });
 
     await expect(buildUseCase().execute(input)).rejects.toBeInstanceOf(GaleryUnavailableError);
@@ -201,6 +201,7 @@ describe('CreatePublicAppointmentUseCase', () => {
       sameDay: [],
       galeryTaken: true,
       clientHasPending: false,
+      offerAvailable: true,
     });
 
     await expect(buildUseCase().execute(input)).rejects.toBeInstanceOf(GaleryUnavailableError);
@@ -212,6 +213,7 @@ describe('CreatePublicAppointmentUseCase', () => {
       sameDay: [],
       galeryTaken: false,
       clientHasPending: true,
+      offerAvailable: true,
     });
 
     await expect(buildUseCase().execute(input)).rejects.toBeInstanceOf(

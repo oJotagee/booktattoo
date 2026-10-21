@@ -6,6 +6,8 @@ import { AppointmentStatus } from '@/domain/entities/appointment.entity';
 import { buildAppointment } from '@tests/unit/support/builders';
 import {
   createAppointmentRepositoryMock,
+  createBookingOfferRepositoryMock,
+  createBookingRequestRepositoryMock,
   createCacheMock,
   createDepositGatewayMock,
   createEventPublisherMock,
@@ -26,7 +28,13 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
     appointments = createAppointmentRepositoryMock();
     deposits = createDepositGatewayMock();
     notifier = createNotifierMock();
-    useCase = new ConfirmAppointmentPaymentUseCase(appointments, deposits, notifier);
+    useCase = new ConfirmAppointmentPaymentUseCase(
+      appointments,
+      deposits,
+      notifier,
+      createBookingOfferRepositoryMock(),
+      createBookingRequestRepositoryMock(),
+    );
   });
 
   it('confirms a pending appointment', async () => {

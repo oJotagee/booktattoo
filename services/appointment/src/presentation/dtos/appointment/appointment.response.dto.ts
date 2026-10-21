@@ -60,6 +60,9 @@ export class DayAppointmentResponseDto {
 
   @ApiProperty({ nullable: true, type: Date })
   refundedAt!: Date | null;
+
+  @ApiProperty({ nullable: true, type: String, description: 'Conversa que originou o agendamento' })
+  bookingRequestId!: string | null;
 }
 
 export class AppointmentStatsResponseDto {

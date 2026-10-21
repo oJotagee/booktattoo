@@ -22,6 +22,7 @@ type DayAppointmentOutput = {
   galeryImageUrl: string | null;
   paidAt: Date | null;
   refundedAt: Date | null;
+  bookingRequestId: string | null;
 };
 
 const LISTED_STATUSES = [
@@ -68,6 +69,7 @@ export class FindDayAppointmentsUseCase {
       galeryImageUrl: appointment.galeryImageUrl,
       paidAt: appointment.paidAt,
       refundedAt: appointment.refundedAt,
+      bookingRequestId: appointment.bookingRequestId,
     }));
   }
 }

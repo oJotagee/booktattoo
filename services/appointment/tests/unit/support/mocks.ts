@@ -13,6 +13,24 @@ import type { DepositGateway } from '@/application/port/deposit-gateway.port';
 import type { AppointmentNotifier } from '@/application/port/appointment-notifier.port';
 import type { AppointmentEntity } from '@/domain/entities/appointment.entity';
 import type { ReminderRepository } from '@/application/port/reminder-repository.port';
+import type { BookingLink } from '@/application/port/booking-link.port';
+import type {
+  BookingOfferRepository,
+  OfferGuardContext,
+  SaveOffersParams,
+} from '@/application/port/booking-offer-repository.port';
+import type { BookingOfferEntity } from '@/domain/entities/booking-offer.entity';
+import type { BookingRequestNotifier } from '@/application/port/booking-request-notifier.port';
+import type {
+  BookingRequestRepository,
+  BookingRequestSummary,
+  CreateWithFirstMessageParams,
+  OpenRequestContext,
+} from '@/application/port/booking-request-repository.port';
+import type {
+  BookingRequestEntity,
+  BookingRequestMessageEntity,
+} from '@/domain/entities/booking-request.entity';
 
 export function createReminderRepositoryMock(): ReminderRepository {
   return {
@@ -25,7 +43,12 @@ export function createReminderRepositoryMock(): ReminderRepository {
 }
 
 export function createAppointmentRepositoryMock(
-  context: AvailabilityContext = { sameDay: [], galeryTaken: false, clientHasPending: false },
+  context: AvailabilityContext = {
+    sameDay: [],
+    galeryTaken: false,
+    clientHasPending: false,
+    offerAvailable: true,
+  },
 ): AppointmentRepository {
   return {
     findById: mock(async (): Promise<AppointmentEntity | null> => null),
@@ -43,7 +66,60 @@ export function createAppointmentRepositoryMock(
 export function createArtistGatewayMock(
   artist: ArtistSnapshot | null = buildArtistSnapshot(),
 ): ArtistGateway {
-  return { findById: mock(async () => artist) };
+  return {
+    findById: mock(async () => artist),
+    findContact: mock(async () =>
+      artist ? { name: artist.name, email: 'ana@estudio.com' } : null,
+    ),
+  };
+}
+
+export function createBookingRequestRepositoryMock(
+  context: OpenRequestContext = { clientHasOpenRequest: false },
+): BookingRequestRepository & { messages: BookingRequestMessageEntity[] } {
+  const repository = {
+    messages: [] as BookingRequestMessageEntity[],
+    findById: mock(async (): Promise<BookingRequestEntity | null> => null),
+    findByUser: mock(async () => ({ items: [] as BookingRequestSummary[], total: 0 })),
+    findMessages: mock(async () => repository.messages),
+    createWithFirstMessage: mock(async ({ assertCanOpen }: CreateWithFirstMessageParams) =>
+      assertCanOpen(context),
+    ),
+    addMessage: mock(async () => undefined),
+    update: mock(async () => undefined),
+  };
+
+  return repository;
+}
+
+export function createBookingLinkMock(): BookingLink {
+  return {
+    sign: mock((id: string) => `signed.${id}`),
+    verify: mock((token: string) => (token.startsWith('signed.') ? token.slice(7) : null)),
+  };
+}
+
+export function createBookingRequestNotifierMock(): BookingRequestNotifier {
+  return {
+    opened: mock(async () => undefined),
+    clientReplied: mock(async () => undefined),
+    artistReplied: mock(async () => undefined),
+    offerSent: mock(async () => undefined),
+  };
+}
+
+export function createBookingOfferRepositoryMock(
+  pending: BookingOfferEntity | null = null,
+  paymentInProgress = false,
+  guardContext: OfferGuardContext = { offerPending: true, offerBooked: paymentInProgress },
+): BookingOfferRepository {
+  return {
+    findById: mock(async () => pending),
+    findPending: mock(async () => pending),
+    findCurrent: mock(async () => pending),
+    hasPaymentInProgress: mock(async () => paymentInProgress),
+    save: mock(async ({ guard }: SaveOffersParams) => guard?.assert(guardContext)),
+  };
 }
 
 export function createCatalogGatewayMock(

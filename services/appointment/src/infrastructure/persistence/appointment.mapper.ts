@@ -23,15 +23,14 @@ export class AppointmentMapper {
       paidAt: appointment.paidAt,
       refundId: appointment.refundId,
       refundedAt: appointment.refundedAt,
+      bookingRequestId: appointment.bookingRequestId,
+      bookingOfferId: appointment.bookingOfferId,
       createdAt: appointment.createdAt,
       updatedAt: appointment.updatedAt,
     });
   }
 
   static toPersistence(appointment: AppointmentEntity): PrismaAppointment {
-    return {
-      ...appointment.toSafeJSON(),
-      bookingRequestId: null,
-    };
+    return appointment.toSafeJSON();
   }
 }

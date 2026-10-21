@@ -20,26 +20,79 @@ model Reminder {
 }
 
 enum BookingRequestStatus {
-  PENDING
-  ACCEPTED
-  DECLINED
+  OPEN
+  CLOSED
 }
 
 model BookingRequest {
   id            String               @id @default(cuid())
   clientName    String
-  clientContact String
-  message       String?
-  status        BookingRequestStatus @default(PENDING)
+  clientEmail   String
+  clientPhone   String
+  status        BookingRequestStatus @default(OPEN)
+  lastMessageAt DateTime             @default(now())
+  closedAt      DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   userId String
 
-  appointment Appointment?
+  messages     BookingRequestMessage[]
+  offers       BookingOffer[]
+  appointments Appointment[]
 
-  @@index([userId])
+  @@index([userId, status, lastMessageAt])
+  @@index([clientEmail])
+  @@index([clientPhone])
+}
+
+enum BookingRequestMessageAuthor {
+  ARTIST
+  CLIENT
+  SYSTEM
+}
+
+enum BookingOfferStatus {
+  PENDING
+  PAID
+  WITHDRAWN
+  CANCELLED
+}
+
+model BookingOffer {
+  id            String             @id @default(cuid())
+  title         String
+  scheduledAt   DateTime
+  duration      Int
+  price         Int
+  depositAmount Int
+  status        BookingOfferStatus @default(PENDING)
+  appointmentId String?
+  paidAt        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookingRequestId String
+  bookingRequest   BookingRequest @relation(fields: [bookingRequestId], references: [id], onDelete: Cascade)
+
+  appointments Appointment[]
+
+  @@index([bookingRequestId, status])
+}
+
+model BookingRequestMessage {
+  id     String                      @id @default(cuid())
+  author BookingRequestMessageAuthor
+  body   String
+
+  createdAt DateTime @default(now())
+
+  bookingRequestId String
+  bookingRequest   BookingRequest @relation(fields: [bookingRequestId], references: [id], onDelete: Cascade)
+
+  @@index([bookingRequestId, createdAt])
 }
 
 enum AppointmentStatus {
@@ -69,7 +122,8 @@ model Appointment {
   // Sem @unique: um flash cancelado pode ser reservado de novo. A regra de
   // "um agendamento ativo por flash" fica no use case
   galeryId       String?
-  galeryTitle    String? // congelado no momento da criação
+  // Título congelado: do flash, ou da proposta quando galeryId é nulo
+  galeryTitle    String?
   galeryImageUrl String? // congelado no momento da criação
 
   checkoutSessionId String?   @unique
@@ -77,9 +131,14 @@ model Appointment {
   refundId          String?   @unique
   refundedAt        DateTime?
 
-  bookingRequestId String?         @unique
+  // Sem @unique: uma proposta pode gerar várias tentativas de pagamento
+  bookingRequestId String?
   bookingRequest   BookingRequest? @relation(fields: [bookingRequestId], references: [id])
+  bookingOfferId   String?
+  bookingOffer     BookingOffer?   @relation(fields: [bookingOfferId], references: [id])
 
   @@index([userId, scheduledAt])
   @@index([galeryId])
+  @@index([bookingRequestId])
+  @@index([bookingOfferId, status])
 }

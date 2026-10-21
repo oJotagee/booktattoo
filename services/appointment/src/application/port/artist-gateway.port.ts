@@ -8,6 +8,12 @@ export type ArtistSnapshot = {
   paymentsEnabled: boolean;
 };
 
+export type ArtistContact = {
+  name: string;
+  email: string;
+};
+
 export interface ArtistGateway {
   findById(id: string): Promise<ArtistSnapshot | null>;
+  findContact(id: string): Promise<ArtistContact | null>;
 }

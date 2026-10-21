@@ -1,16 +1,21 @@
-import { beforeEach, describe, expect, it } from 'bun:test';
+import { beforeEach, describe, expect, it, type mock } from 'bun:test';
 
+import type { SaveOffersParams } from '@/application/port/booking-offer-repository.port';
 import { CancelAppointmentUseCase } from '@/application/use-cases/appointment/cancel-appointment.use-case';
-import { AppointmentStatus } from '@/domain/entities/appointment.entity';
+import { AppointmentEntity, AppointmentStatus } from '@/domain/entities/appointment.entity';
+import { BookingOfferStatus } from '@/domain/entities/booking-offer.entity';
+import { MessageAuthor } from '@/domain/entities/booking-request.entity';
 import { ForbiddenResourceAccessError } from '@/domain/errors/authorization.error';
 import {
   AppointmentAlreadyCancelledError,
   AppointmentNotFoundError,
   ExternalServiceUnavailableError,
 } from '@/domain/errors/appointment.error';
-import { buildAppointment } from '@tests/unit/support/builders';
+import { buildAppointment, buildBookingRequest, buildOffer } from '@tests/unit/support/builders';
 import {
   createAppointmentRepositoryMock,
+  createBookingOfferRepositoryMock,
+  createBookingRequestRepositoryMock,
   createCacheMock,
   createDepositGatewayMock,
   createEventPublisherMock,
@@ -25,6 +30,8 @@ describe('CancelAppointmentUseCase', () => {
   let cache: ReturnType<typeof createCacheMock>;
   let deposits: ReturnType<typeof createDepositGatewayMock>;
   let notifier: ReturnType<typeof createNotifierMock>;
+  let offers: ReturnType<typeof createBookingOfferRepositoryMock>;
+  let requests: ReturnType<typeof createBookingRequestRepositoryMock>;
   let useCase: CancelAppointmentUseCase;
 
   beforeEach(() => {
@@ -33,7 +40,47 @@ describe('CancelAppointmentUseCase', () => {
     cache = createCacheMock();
     deposits = createDepositGatewayMock();
     notifier = createNotifierMock();
-    useCase = new CancelAppointmentUseCase(appointments, publisher, cache, deposits, notifier);
+    offers = createBookingOfferRepositoryMock();
+    requests = createBookingRequestRepositoryMock();
+    useCase = new CancelAppointmentUseCase(
+      appointments,
+      publisher,
+      cache,
+      deposits,
+      notifier,
+      offers,
+      requests,
+    );
+  });
+
+  it('marks the paid offer as cancelled and tells the client in the conversation', async () => {
+    const paidOffer = buildOffer().markPaid('appointment-1', paidAt);
+    offers.findById = async () => paidOffer;
+    requests.findById = async () => buildBookingRequest();
+    appointments.findById = async () =>
+      AppointmentEntity.restore({
+        ...buildAppointment().attachCheckout('cs_1').confirmPayment(paidAt).toSafeJSON(),
+        galeryId: null,
+        bookingRequestId: 'request-1',
+        bookingOfferId: 'offer-1',
+      });
+
+    await useCase.execute({ id: 'appointment-1', userId: 'user-1' });
+
+    const [{ offers: saved, message }] = (offers.save as ReturnType<typeof mock>).mock.calls[0] as [
+      SaveOffersParams,
+    ];
+    expect(saved[0].status).toBe(BookingOfferStatus.CANCELLED);
+    expect(message.author).toBe(MessageAuthor.SYSTEM);
+    expect(message.body).toContain('reembolsado');
+  });
+
+  it('leaves offers alone when the appointment did not come from one', async () => {
+    appointments.findById = async () => buildAppointment();
+
+    await useCase.execute({ id: 'appointment-1', userId: 'user-1' });
+
+    expect(offers.save).not.toHaveBeenCalled();
   });
 
   it('cancels the appointment and releases the flash', async () => {
