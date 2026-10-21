@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import Image from 'next/image';
 
 import { GaleryGridSkeleton } from '../galery/_components/galery-grid-skeleton';
+import { BookingRequestSection } from '../_components/booking-request/booking-request-section';
 import { BookingReturnToast } from '../_components/booking/booking-return-toast';
 import { GaleryListLoader } from '../galery/_components/galery-list-loader';
 import { getPublicArtist } from '../_data-access/get-public-artist';
@@ -125,6 +126,10 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
           <GaleryListLoader artistId={artist.id} searchParams={searchParams} />
           <BookingReturnToast />
         </Suspense>
+
+        {artist.status === 'ACTIVE' && (
+          <BookingRequestSection artistId={artist.id} artistName={artist.name} />
+        )}
 
         {artist.address && (
           <section aria-labelledby="studio-location" className="mt-14">
