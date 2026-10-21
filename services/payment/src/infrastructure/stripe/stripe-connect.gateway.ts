@@ -133,8 +133,7 @@ export class StripeConnectGateway implements ConnectGateway {
 
   private static isBlocking(entry: RequirementEntry): boolean {
     return (
-      entry.awaiting_action_from === 'user' &&
-      BLOCKING_DEADLINES.has(entry.minimum_deadline.status)
+      entry.awaiting_action_from === 'user' && BLOCKING_DEADLINES.has(entry.minimum_deadline.status)
     );
   }
 
