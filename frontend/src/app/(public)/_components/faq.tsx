@@ -38,7 +38,7 @@ export function Faq() {
       <p className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Dúvidas</p>
       <h2 className="text-white text-3xl md:text-4xl font-bold md:w-sm">Perguntas frequentes</h2>
 
-      <dl className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 max-w-5xl">
+      <dl className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
         {faq.map((item) => (
           <div key={item.question} className="space-y-2">
             <dt className="text-white text-lg font-semibold">{item.question}</dt>
