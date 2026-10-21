@@ -5,7 +5,7 @@ import { resetNextMocks, toast } from '../../../support/next';
 import { renderWithProviders } from '../../../support/render';
 import type { BookingOffer } from '@/components/conversation/types';
 
-const TOKEN = 'cmVxLTE.c2ln';
+const TOKEN = 'conversation-1.signature';
 const CHECKOUT_URL = 'https://checkout.stripe.com/c/pay/cs_test_123';
 
 const offer: BookingOffer = {

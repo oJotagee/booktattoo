@@ -8,7 +8,7 @@ type ActionResult = { data?: { token: string }; error?: string };
 
 const createBookingRequest = mock(
   async (_input: Record<string, string>): Promise<ActionResult> => ({
-    data: { token: 'cmVxLTE.c2ln' },
+    data: { token: 'conversation-1.signature' },
   }),
 );
 
@@ -77,7 +77,7 @@ describe('BookingRequestDialog', () => {
         expect.anything(),
       ),
     );
-    await waitFor(() => expect(router.push).toHaveBeenCalledWith('/pedido/cmVxLTE.c2ln'));
+    await waitFor(() => expect(router.push).toHaveBeenCalledWith('/pedido/conversation-1.signature'));
   });
 
   it('shows the API error and stays on the dialog', async () => {

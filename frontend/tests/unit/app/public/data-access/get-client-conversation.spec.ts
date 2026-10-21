@@ -13,7 +13,7 @@ const { getClientConversation } = await import(
   '@/app/(public)/_data-access/get-client-conversation'
 );
 
-const TOKEN = 'cmVxLTE.c2lnbmF0dXJl';
+const TOKEN = 'conversation-1.signature';
 
 const conversation = {
   id: 'request-1',

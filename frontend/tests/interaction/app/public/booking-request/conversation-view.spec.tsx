@@ -5,7 +5,7 @@ import { resetNextMocks, toast } from '../../../support/next';
 import { renderWithProviders } from '../../../support/render';
 import type { ClientConversation } from '@/app/(public)/_data-access/get-client-conversation';
 
-const TOKEN = 'cmVxLTE.c2ln';
+const TOKEN = 'conversation-1.signature';
 
 const conversation: ClientConversation = {
   id: 'request-1',

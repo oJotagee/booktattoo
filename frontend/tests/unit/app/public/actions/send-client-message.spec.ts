@@ -11,7 +11,7 @@ mock.module('axios', () => ({
 
 const { sendClientMessage } = await import('@/app/(public)/_actions/send-client-message');
 
-const TOKEN = 'cmVxLTE.c2lnbmF0dXJl';
+const TOKEN = 'conversation-1.signature';
 
 const message = {
   id: 'message-2',

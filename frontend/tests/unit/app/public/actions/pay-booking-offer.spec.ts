@@ -11,7 +11,7 @@ mock.module('axios', () => ({
 
 const { payBookingOffer } = await import('@/app/(public)/_actions/pay-booking-offer');
 
-const TOKEN = 'cmVxLTE.c2lnbmF0dXJl';
+const TOKEN = 'conversation-1.signature';
 const CHECKOUT_URL = 'https://checkout.stripe.com/c/pay/cs_test_123';
 
 describe('payBookingOffer', () => {

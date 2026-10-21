@@ -22,7 +22,7 @@ const input = {
 describe('createBookingRequest', () => {
   beforeEach(() => {
     api.post.mockClear();
-    api.post.mockImplementation(async () => ({ data: { token: 'cmVxLTE.c2ln' } }));
+    api.post.mockImplementation(async () => ({ data: { token: 'conversation-1.signature' } }));
   });
 
   it('creates the request with the phone digits only and returns the token', async () => {
@@ -35,7 +35,7 @@ describe('createBookingRequest', () => {
       phone: '11999999999',
       message: 'Quero uma rosa fineline no antebraço, uns 10 cm.',
     });
-    expect(result).toEqual({ data: { token: 'cmVxLTE.c2ln' } });
+    expect(result).toEqual({ data: { token: 'conversation-1.signature' } });
   });
 
   it('validates the input before calling the API', async () => {
