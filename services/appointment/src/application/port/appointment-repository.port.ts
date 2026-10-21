@@ -29,4 +29,10 @@ export interface AppointmentRepository {
   sumDepositsPaidInRange(params: DayRange & { userId: string }): Promise<number>;
   createExclusive(params: CreateExclusiveParams): Promise<void>;
   update(appointment: AppointmentEntity): Promise<void>;
+  // Grava o pagamento só se o agendamento ainda está em `expectedStatus` e sem
+  // `paidAt`. Retorna false quando outra entrega do mesmo evento já gravou
+  recordPayment(
+    appointment: AppointmentEntity,
+    expectedStatus: AppointmentStatus,
+  ): Promise<boolean>;
 }

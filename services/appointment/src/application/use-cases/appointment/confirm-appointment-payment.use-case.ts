@@ -16,7 +16,7 @@ import {
   type BookingRequestRepository,
 } from '../../port/booking-request-repository.port';
 import { offerPaidMessage } from '../booking-offer/offer-messages';
-import type { AppointmentEntity } from '@/domain/entities/appointment.entity';
+import { type AppointmentEntity, AppointmentStatus } from '@/domain/entities/appointment.entity';
 import { BookingRequestMessageEntity } from '@/domain/entities/booking-request.entity';
 
 type ConfirmAppointmentPaymentInput = {
@@ -42,11 +42,14 @@ export class ConfirmAppointmentPaymentUseCase {
     private readonly requests: BookingRequestRepository,
   ) {}
 
-  async execute({
-    appointmentId,
-    checkoutSessionId,
-    paidAt,
-  }: ConfirmAppointmentPaymentInput): Promise<void> {
+  execute(input: ConfirmAppointmentPaymentInput): Promise<void> {
+    return this.handle(input, false);
+  }
+
+  private async handle(
+    { appointmentId, checkoutSessionId, paidAt }: ConfirmAppointmentPaymentInput,
+    reread: boolean,
+  ): Promise<void> {
     const appointment = await this.appointments.findById(appointmentId);
 
     if (!appointment) {
@@ -58,10 +61,13 @@ export class ConfirmAppointmentPaymentUseCase {
     if (appointment.paidAt) return;
 
     if (!appointment.isPending) {
+      // O estorno é idempotente por agendamento no payment-service
       const { refundId } = await this.deposits.refund({ appointmentId, checkoutSessionId });
       const refunded = appointment.recordLatePayment(paidAt).recordRefund(refundId, new Date());
 
-      await this.appointments.update(refunded);
+      // Entrega concorrente já registrou o estorno e avisou o cliente
+      if (!(await this.appointments.recordPayment(refunded, appointment.status))) return;
+
       this.logger.warn(
         `Sinal pago para o agendamento ${appointmentId} com status ${appointment.status}; estornado (${refundId})`,
       );
@@ -71,7 +77,16 @@ export class ConfirmAppointmentPaymentUseCase {
 
     const confirmed = appointment.confirmPayment(paidAt);
 
-    await this.appointments.update(confirmed);
+    // Entregas concorrentes do mesmo evento passam juntas pela checagem acima, mas só
+    // uma confirma. A outra relê: ou já está pago, ou o agendamento foi cancelado ou
+    // expirou no meio do caminho e o pagamento vira estorno
+    if (!(await this.appointments.recordPayment(confirmed, AppointmentStatus.PENDING))) {
+      if (reread) {
+        throw new Error(`Não foi possível registrar o sinal do agendamento ${appointmentId}`);
+      }
+      return this.handle({ appointmentId, checkoutSessionId, paidAt }, true);
+    }
+
     if (confirmed.bookingOfferId) await this.markOfferPaid(confirmed.bookingOfferId, confirmed);
     await this.notifier.confirmed(confirmed);
   }

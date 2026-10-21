@@ -60,6 +60,7 @@ export function createAppointmentRepositoryMock(
       assertAvailable(context),
     ),
     update: mock(async () => undefined),
+    recordPayment: mock(async () => true),
   };
 }
 

@@ -128,4 +128,25 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
 
     await this.prisma.appointment.update({ where: { id }, data });
   }
+
+  // Update condicional: entregas concorrentes do mesmo webhook passam pela leitura
+  // juntas, mas só uma encontra a linha ainda sem `paidAt`
+  async recordPayment(
+    appointment: AppointmentEntity,
+    expectedStatus: AppointmentStatus,
+  ): Promise<boolean> {
+    const {
+      id,
+      bookingRequestId: _request,
+      bookingOfferId: _offer,
+      ...data
+    } = AppointmentMapper.toPersistence(appointment);
+
+    const { count } = await this.prisma.appointment.updateMany({
+      where: { id, status: expectedStatus, paidAt: null },
+      data,
+    });
+
+    return count === 1;
+  }
 }

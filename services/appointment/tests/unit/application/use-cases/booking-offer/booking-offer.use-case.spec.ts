@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, type mock } from 'bun:test';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 import type { SaveOffersParams } from '@/application/port/booking-offer-repository.port';
 import { DepositBookingService } from '@/application/services/deposit-booking.service';
@@ -264,6 +264,43 @@ describe('offer lifecycle around the conversation', () => {
     expect(saved[0].status).toBe(BookingOfferStatus.PAID);
     expect(saved[0].appointmentId).toBe('appointment-1');
     expect(message.body).toContain('Sinal pago');
+  });
+
+  it('posts a single system message when the same payment is delivered twice at once', async () => {
+    const offers = createBookingOfferRepositoryMock(buildOffer());
+    const requests = createBookingRequestRepositoryMock();
+    requests.findById = async () => buildBookingRequest();
+    const notifier = createNotifierMock();
+    const appointments = createAppointmentRepositoryMock();
+    let stored = AppointmentEntity.restore({
+      ...buildAppointment().toSafeJSON(),
+      galeryId: null,
+      bookingRequestId: 'request-1',
+      bookingOfferId: 'offer-1',
+    });
+    appointments.findById = async () => stored;
+    // Mesma semântica do update condicional no banco
+    appointments.recordPayment = mock(
+      async (next: AppointmentEntity, expected: AppointmentStatus) => {
+        if (stored.status !== expected || stored.paidAt) return false;
+        stored = next;
+        return true;
+      },
+    );
+    const useCase = new ConfirmAppointmentPaymentUseCase(
+      appointments,
+      createDepositGatewayMock(),
+      notifier,
+      offers,
+      requests,
+    );
+    const input = { appointmentId: 'appointment-1', checkoutSessionId: 'cs_1', paidAt: new Date() };
+
+    await Promise.all([useCase.execute(input), useCase.execute(input)]);
+
+    expect(offers.save).toHaveBeenCalledTimes(1);
+    expect(notifier.confirmed).toHaveBeenCalledTimes(1);
+    expect(stored.status).toBe(AppointmentStatus.CONFIRMED);
   });
 
   it('withdraws the pending offer when the artist asks', async () => {
