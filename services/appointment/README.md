@@ -18,11 +18,11 @@ Configure no `services/appointment/.env`:
 ```env
 GOOGLE_CALENDAR_CLIENT_ID="ID do cliente OAuth"
 GOOGLE_CALENDAR_CLIENT_SECRET="segredo do cliente OAuth"
-GOOGLE_CALENDAR_REDIRECT_URI="http://localhost:8082/google-calendar/callback"
+GOOGLE_CALENDAR_REDIRECT_URI="http://localhost:3000/google-calendar/callback"
 GOOGLE_CALENDAR_ENCRYPTION_KEY="chave aleatória de 32 bytes em hex ou base64"
 ```
 
-No Google Cloud Console, habilite Google Calendar API, configure a tela de consentimento OAuth e crie um cliente OAuth do tipo aplicação Web. Cadastre exatamente a URI de callback acima em **Authorized redirect URIs**. Em produção, use HTTPS e segredos próprios do ambiente. Gere a chave com um gerador criptográfico e mantenha-a no gerenciador de segredos; perder a chave impede descriptografar refresh tokens já salvos.
+No Google Cloud Console, habilite Google Calendar API, configure a tela de consentimento OAuth e crie um cliente OAuth do tipo aplicação Web. Cadastre exatamente a URI de callback acima em **Authorized redirect URIs**; ela aponta para o frontend, que repassa o código ao appointment-service pelo gateway e volta para o `FRONTEND_URL`. Em produção, use HTTPS e segredos próprios do ambiente. Gere a chave com um gerador criptográfico e mantenha-a no gerenciador de segredos; perder a chave impede descriptografar refresh tokens já salvos.
 
 Gere o cliente e aplique a migration incremental no banco de appointment:
 
