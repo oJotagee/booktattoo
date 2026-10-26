@@ -213,7 +213,7 @@ export class GoogleCalendarService implements OnModuleInit {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         if (!response.ok && response.status !== 404 && response.status !== 410)
-          throw new Error(`Calendar API ${response.status}`);
+          throw await this.calendarError(response);
         await this.prisma.calendarSync.updateMany({
           where: { id: job.id, operation: job.operation, status: 'PROCESSING' },
           data: { status: 'SUCCEEDED', syncedAt: new Date(), lastError: null },
@@ -250,7 +250,7 @@ export class GoogleCalendarService implements OnModuleInit {
         if (response.status === 404)
           response = await fetch(collection, { method: 'POST', headers, body });
       }
-      if (!response.ok) throw new Error(`Calendar API ${response.status}`);
+      if (!response.ok) throw await this.calendarError(response);
 
       await this.prisma.calendarSync.updateMany({
         where: { id: job.id, operation: job.operation, status: 'PROCESSING' },
@@ -299,6 +299,18 @@ export class GoogleCalendarService implements OnModuleInit {
         });
       throw error;
     }
+  }
+
+  private async calendarError(response: Response): Promise<Error> {
+    const data = (await response.json().catch(() => null)) as {
+      error?: { message?: string; errors?: { reason?: string }[] };
+    } | null;
+    const reason = data?.error?.errors?.[0]?.reason;
+    const message = data?.error?.message;
+
+    return new Error(
+      `Calendar API ${response.status}${reason ? ` (${reason})` : ''}${message ? `: ${message}` : ''}`,
+    );
   }
 
   private async tokenRequest(params: Record<string, string>): Promise<GoogleTokenResponse> {
