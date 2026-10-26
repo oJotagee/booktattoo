@@ -52,6 +52,15 @@ describe('ConfirmAppointmentPaymentUseCase', () => {
     );
   });
 
+  it('rejects a paid checkout with a mismatched amount or checkout reference', async () => {
+    appointments.findById = async () => buildAppointment().attachCheckout('cs_1');
+
+    await useCase.execute({ ...input, amount: 7000, currency: 'brl' });
+
+    expect(appointments.recordPayment).not.toHaveBeenCalled();
+    expect(notifier.confirmed).not.toHaveBeenCalled();
+  });
+
   it('ignores a redelivered event', async () => {
     appointments.findById = async () => buildAppointment().confirmPayment(paidAt);
 

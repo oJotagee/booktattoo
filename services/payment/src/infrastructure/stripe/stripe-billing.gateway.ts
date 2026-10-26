@@ -363,7 +363,12 @@ export class StripeBillingGateway implements BillingGateway {
       type: event.type,
       kind,
       subscriptionId: null,
-      deposit: { appointmentId, checkoutSessionId: session.id, amount: session.amount_total },
+      deposit: {
+        appointmentId,
+        checkoutSessionId: session.id,
+        amount: session.amount_total,
+        currency: session.currency,
+      },
     };
   }
 

@@ -38,6 +38,7 @@ export type DepositChangedPayload = {
   appointmentId: string;
   checkoutSessionId: string;
   amount: number | null;
+  currency: string | null;
 };
 
 export type PaymentDepositPaid = EventEnvelope<'payment.deposit.paid', DepositChangedPayload>;

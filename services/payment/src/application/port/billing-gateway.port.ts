@@ -28,6 +28,7 @@ export type DepositSnapshot = {
   appointmentId: string;
   checkoutSessionId: string;
   amount: number | null;
+  currency: string | null;
 };
 
 export type ConnectedAccountSnapshot = {

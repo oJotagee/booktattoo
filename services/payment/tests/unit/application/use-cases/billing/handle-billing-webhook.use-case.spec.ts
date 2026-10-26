@@ -139,7 +139,12 @@ describe('HandleBillingWebhookUseCase', () => {
       type: 'checkout.session.completed',
       kind: BillingWebhookEventKind.DEPOSIT_PAID,
       subscriptionId: null,
-      deposit: { appointmentId: 'appointment-1', checkoutSessionId: 'cs_1', amount: 8000 },
+      deposit: {
+        appointmentId: 'appointment-1',
+        checkoutSessionId: 'cs_1',
+        amount: 8000,
+        currency: 'brl',
+      },
     });
 
     await useCase.execute(input);
@@ -150,7 +155,12 @@ describe('HandleBillingWebhookUseCase', () => {
         eventId: 'evt_4',
         type: 'payment.deposit.paid',
         correlationId: 'appointment-1',
-        payload: { appointmentId: 'appointment-1', checkoutSessionId: 'cs_1', amount: 8000 },
+        payload: {
+          appointmentId: 'appointment-1',
+          checkoutSessionId: 'cs_1',
+          amount: 8000,
+          currency: 'brl',
+        },
       }),
     );
     expect(processedEvents.save).toHaveBeenCalledWith('evt_4', 'checkout.session.completed');
@@ -162,7 +172,12 @@ describe('HandleBillingWebhookUseCase', () => {
       type: 'checkout.session.expired',
       kind: BillingWebhookEventKind.DEPOSIT_EXPIRED,
       subscriptionId: null,
-      deposit: { appointmentId: 'appointment-1', checkoutSessionId: 'cs_1', amount: 8000 },
+      deposit: {
+        appointmentId: 'appointment-1',
+        checkoutSessionId: 'cs_1',
+        amount: 8000,
+        currency: 'brl',
+      },
     });
 
     await useCase.execute(input);

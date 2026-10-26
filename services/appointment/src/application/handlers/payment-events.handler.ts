@@ -14,11 +14,14 @@ export class PaymentEventsHandler {
   async handle({ type, payload, occurredAt }: PaymentDepositEvent): Promise<void> {
     switch (type) {
       case 'payment.deposit.paid':
-        return this.confirmPayment.execute({
+        await this.confirmPayment.execute({
           appointmentId: payload.appointmentId,
           checkoutSessionId: payload.checkoutSessionId,
+          amount: payload.amount,
+          currency: payload.currency,
           paidAt: new Date(occurredAt),
         });
+        return;
       case 'payment.deposit.expired':
         return this.expirePending.execute({ appointmentId: payload.appointmentId });
     }

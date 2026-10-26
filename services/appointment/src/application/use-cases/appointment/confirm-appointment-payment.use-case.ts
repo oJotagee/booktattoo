@@ -23,6 +23,8 @@ type ConfirmAppointmentPaymentInput = {
   appointmentId: string;
   checkoutSessionId: string;
   paidAt: Date;
+  amount?: number | null;
+  currency?: string | null;
 };
 
 @Injectable()
@@ -47,13 +49,25 @@ export class ConfirmAppointmentPaymentUseCase {
   }
 
   private async handle(
-    { appointmentId, checkoutSessionId, paidAt }: ConfirmAppointmentPaymentInput,
+    { appointmentId, checkoutSessionId, paidAt, amount, currency }: ConfirmAppointmentPaymentInput,
     reread: boolean,
   ): Promise<void> {
     const appointment = await this.appointments.findById(appointmentId);
 
     if (!appointment) {
       this.logger.warn(`Sinal pago para o agendamento ${appointmentId}, que não existe`);
+      return;
+    }
+
+    if (
+      (amount !== undefined &&
+        (appointment.checkoutSessionId !== checkoutSessionId ||
+          amount !== appointment.depositAmount)) ||
+      (currency !== undefined && currency?.toLowerCase() !== 'brl')
+    ) {
+      this.logger.warn(
+        `Pagamento recebido não corresponde ao sinal esperado para o agendamento ${appointmentId}`,
+      );
       return;
     }
 
@@ -84,7 +98,7 @@ export class ConfirmAppointmentPaymentUseCase {
       if (reread) {
         throw new Error(`Não foi possível registrar o sinal do agendamento ${appointmentId}`);
       }
-      return this.handle({ appointmentId, checkoutSessionId, paidAt }, true);
+      return this.handle({ appointmentId, checkoutSessionId, paidAt, amount, currency }, true);
     }
 
     if (confirmed.bookingOfferId) await this.markOfferPaid(confirmed.bookingOfferId, confirmed);
