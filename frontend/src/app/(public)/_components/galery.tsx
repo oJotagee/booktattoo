@@ -1,16 +1,13 @@
-import { ArrowRight } from "lucide-react";
-import { Suspense } from "react";
-import Link from "next/link";
+import { ArrowRight } from 'lucide-react';
+import { Suspense } from 'react';
+import Link from 'next/link';
 
-import {
-  FeaturedGaleryCarousel,
-  GaleryCarouselSkeleton,
-} from "./featured-galery-carousel";
+import { FeaturedGaleryCarousel, GaleryCarouselSkeleton } from './featured-galery-carousel';
 import {
   getAllPublicGaleries,
   type OutputPublicGalery,
-} from "../_data-access/get-all-public-galeries";
-import { FEATURED_GALERY_LIMIT } from "./featured-galery-limit";
+} from '../_data-access/get-all-public-galeries';
+import { FEATURED_GALERY_LIMIT } from './featured-galery-limit';
 
 export function Galery() {
   return (
@@ -31,23 +28,13 @@ async function FeaturedGalerySection() {
   return <GalerySection data={data} />;
 }
 
-function GalerySection({
-  data,
-  loading,
-}: {
-  data?: OutputPublicGalery;
-  loading?: boolean;
-}) {
+function GalerySection({ data, loading }: { data?: OutputPublicGalery; loading?: boolean }) {
   return (
     <section className="relative w-full py-14 px-6 md:px-28 md:py-22">
       <div className="flex flex-row items-end justify-between">
         <div>
-          <p className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">
-            Galeria
-          </p>
-          <h2 className="text-white text-3xl md:text-4xl font-bold md:w-sm">
-            Itens em destaque
-          </h2>
+          <p className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Galeria</p>
+          <h2 className="text-white text-3xl md:text-4xl font-bold md:w-sm">Itens em destaque</h2>
         </div>
 
         <Link
@@ -59,11 +46,7 @@ function GalerySection({
         </Link>
       </div>
 
-      {loading ? (
-        <GaleryCarouselSkeleton />
-      ) : (
-        <FeaturedGaleryCarousel initialData={data} />
-      )}
+      {loading ? <GaleryCarouselSkeleton /> : <FeaturedGaleryCarousel initialData={data} />}
     </section>
   );
 }

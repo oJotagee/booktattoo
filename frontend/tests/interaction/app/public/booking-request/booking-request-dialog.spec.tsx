@@ -77,7 +77,9 @@ describe('BookingRequestDialog', () => {
         expect.anything(),
       ),
     );
-    await waitFor(() => expect(router.push).toHaveBeenCalledWith('/pedido/conversation-1.signature'));
+    await waitFor(() =>
+      expect(router.push).toHaveBeenCalledWith('/pedido/conversation-1.signature'),
+    );
   });
 
   it('shows the API error and stays on the dialog', async () => {

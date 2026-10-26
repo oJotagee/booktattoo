@@ -1,20 +1,18 @@
-import { Suspense, type ReactNode } from "react";
-import { connection } from "next/server";
-import Image from "next/image";
-import Link from "next/link";
+import { Suspense, type ReactNode } from 'react';
+import { connection } from 'next/server';
+import Image from 'next/image';
+import Link from 'next/link';
 
-import { getAllArtists } from "../_data-access/get-all-artists";
-import { TeamSkeleton } from "./team-skeleton";
-import { getInitials } from "@/lib/utils";
+import { getAllArtists } from '../_data-access/get-all-artists';
+import { TeamSkeleton } from './team-skeleton';
+import { getInitials } from '@/lib/utils';
 
 const ARTISTS_LIMIT = 4;
 
 function TeamSection({ children }: { children: ReactNode }) {
   return (
     <section className="relative w-full py-14 px-6 md:px-28 md:py-22 bg-mist-800/20">
-      <p className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">
-        Tatuadores
-      </p>
+      <p className="text-orange-600/80 uppercase text-md mb-5 tracking-widest">Tatuadores</p>
       <h2 className="text-white text-3xl md:text-4xl font-bold md:w-sm">
         Quem agenda pelo BookTattoo
       </h2>
@@ -84,11 +82,9 @@ async function TeamList() {
               )}
             </div>
             <div className="flex flex-col items-center p-4">
-              <span className="text-white font-medium truncate capitalize">
-                {artist.name}
-              </span>
+              <span className="text-white font-medium truncate capitalize">{artist.name}</span>
               <span className="text-white/30 text-sm capitalize">
-                {artist.role ? artist.role : "N/A"}
+                {artist.role ? artist.role : 'N/A'}
               </span>
             </div>
           </Link>

@@ -3,9 +3,9 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import Image from 'next/image';
 
-import { GaleryGridSkeleton } from '../galery/_components/galery-grid-skeleton';
 import { BookingRequestSection } from '../_components/booking-request/booking-request-section';
 import { BookingReturnToast } from '../_components/booking/booking-return-toast';
+import { GaleryGridSkeleton } from '../galery/_components/galery-grid-skeleton';
 import { GaleryListLoader } from '../galery/_components/galery-list-loader';
 import { getPublicArtist } from '../_data-access/get-public-artist';
 import { JsonLd } from '@/components/json-ld';
