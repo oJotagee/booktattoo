@@ -126,7 +126,7 @@ export function GaleryList({ artistId, initialData }: GaleryListProps = {}) {
         ))}
       </fieldset>
 
-      {isError ? (
+      {isError || !data ? (
         <p className="text-center text-white/60">
           Não foi possível carregar a galeria, tente novamente mais tarde.
         </p>
