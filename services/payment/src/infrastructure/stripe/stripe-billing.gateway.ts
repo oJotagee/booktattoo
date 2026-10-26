@@ -85,6 +85,7 @@ export class StripeBillingGateway implements BillingGateway {
   }: CreateCheckoutSessionParams): Promise<{ url: string }> {
     const session = await this.stripe.checkout.sessions.create({
       mode: 'subscription',
+      locale: 'pt-BR',
       customer: customerId,
       client_reference_id: userId,
       line_items: [{ price: priceId, quantity: 1 }],
@@ -105,6 +106,7 @@ export class StripeBillingGateway implements BillingGateway {
     const session = await this.stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: this.config.portalReturnUrl,
+      locale: 'pt-BR',
     });
 
     return { url: session.url };
@@ -123,6 +125,7 @@ export class StripeBillingGateway implements BillingGateway {
     const session = await this.stripe.checkout.sessions.create(
       {
         mode: 'payment',
+        locale: 'pt-BR',
         payment_method_types: ['card'],
         customer_email: customerEmail,
         client_reference_id: appointmentId,
