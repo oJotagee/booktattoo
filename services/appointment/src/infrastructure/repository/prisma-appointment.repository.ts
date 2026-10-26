@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { BookingOfferStatus } from '@/domain/entities/booking-offer.entity';
 import { AppointmentMapper } from '../persistence/appointment.mapper';
 import { PrismaService } from '../prisma/prisma.service';
 import type { DayRange } from '@/domain/schedule';
@@ -8,7 +9,6 @@ import {
   type AppointmentEntity,
   AppointmentStatus,
 } from '@/domain/entities/appointment.entity';
-import { BookingOfferStatus } from '@/domain/entities/booking-offer.entity';
 import type {
   AppointmentRepository,
   CreateExclusiveParams,
@@ -64,13 +64,12 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
     return result._sum.depositAmount ?? 0;
   }
 
-  // O advisory lock por tatuador serializa reservas concorrentes: a checagem de
-  // conflito e o insert enxergam o mesmo estado
   async createExclusive({
     appointment,
     day,
     assertAvailable,
   }: CreateExclusiveParams): Promise<void> {
+    // O advisory lock serializa reservas concorrentes do mesmo tatuador.
     await this.prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${appointment.userId}))`;
 
@@ -126,15 +125,57 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
       ...data
     } = AppointmentMapper.toPersistence(appointment);
 
-    await this.prisma.appointment.update({ where: { id }, data });
+    await this.prisma.$transaction(async (tx) => {
+      const previous = await tx.appointment.findUnique({
+        where: { id },
+        select: { status: true, scheduledAt: true, duration: true },
+      });
+      const calendarTask = await tx.calendarSync.findUnique({
+        where: { appointmentId: id },
+        select: { id: true },
+      });
+      await tx.appointment.update({ where: { id }, data });
+      if (
+        data.status === AppointmentStatus.CANCELLED &&
+        (previous?.status === AppointmentStatus.CONFIRMED || calendarTask)
+      ) {
+        await tx.calendarSync.upsert({
+          where: { appointmentId: id },
+          create: { appointmentId: id, operation: 'DELETE' },
+          update: {
+            operation: 'DELETE',
+            status: 'PENDING',
+            attempts: 0,
+            nextAttemptAt: new Date(),
+          },
+        });
+      } else if (
+        data.status === AppointmentStatus.CONFIRMED &&
+        previous &&
+        (previous.status !== AppointmentStatus.CONFIRMED ||
+          previous.scheduledAt.getTime() !== data.scheduledAt.getTime() ||
+          previous.duration !== data.duration)
+      ) {
+        await tx.calendarSync.upsert({
+          where: { appointmentId: id },
+          create: { appointmentId: id, operation: 'UPSERT' },
+          update: {
+            operation: 'UPSERT',
+            status: 'PENDING',
+            attempts: 0,
+            lastError: null,
+            nextAttemptAt: new Date(),
+          },
+        });
+      }
+    });
   }
 
-  // Update condicional: entregas concorrentes do mesmo webhook passam pela leitura
-  // juntas, mas só uma encontra a linha ainda sem `paidAt`
   async recordPayment(
     appointment: AppointmentEntity,
     expectedStatus: AppointmentStatus,
   ): Promise<boolean> {
+    // A atualização condicional garante que só uma entrega confirma o pagamento.
     const {
       id,
       bookingRequestId: _request,
@@ -142,11 +183,24 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
       ...data
     } = AppointmentMapper.toPersistence(appointment);
 
-    const { count } = await this.prisma.appointment.updateMany({
-      where: { id, status: expectedStatus, paidAt: null },
-      data,
+    return this.prisma.$transaction(async (tx) => {
+      const { count } = await tx.appointment.updateMany({
+        where: { id, status: expectedStatus, paidAt: null },
+        data,
+      });
+      if (count === 1 && data.status === AppointmentStatus.CONFIRMED) {
+        await tx.calendarSync.upsert({
+          where: { appointmentId: id },
+          create: { appointmentId: id, operation: 'UPSERT' },
+          update: {
+            operation: 'UPSERT',
+            status: 'PENDING',
+            attempts: 0,
+            nextAttemptAt: new Date(),
+          },
+        });
+      }
+      return count === 1;
     });
-
-    return count === 1;
   }
 }

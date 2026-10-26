@@ -93,6 +93,7 @@ services:
           - /appointments
           - /booking-requests
           - /reminders
+          - /google-calendar
         strip_path: false
       - name: appointment-public-read-routes
         paths:

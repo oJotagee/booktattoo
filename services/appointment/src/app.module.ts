@@ -12,16 +12,20 @@ import { ExpirePendingAppointmentUseCase } from '@/application/use-cases/appoint
 import { FindClientConversationUseCase } from '@/application/use-cases/booking-request/find-client-conversation.use-case';
 import { CreatePublicAppointmentUseCase } from '@/application/use-cases/appointment/create-public-appointment.use-case';
 import { CreateBookingRequestUseCase } from '@/application/use-cases/booking-request/create-booking-request.use-case';
+import { WithdrawBookingOfferUseCase } from '@/application/use-cases/booking-offer/withdraw-booking-offer.use-case';
 import { CloseBookingRequestUseCase } from '@/application/use-cases/booking-request/close-booking-request.use-case';
 import { FindDayAppointmentsUseCase } from '@/application/use-cases/appointment/find-day-appointments.use-case';
 import { GetAppointmentStatsUseCase } from '@/application/use-cases/appointment/get-appointment-stats.use-case';
+import { CreateBookingOfferUseCase } from '@/application/use-cases/booking-offer/create-booking-offer.use-case';
 import { SendClientMessageUseCase } from '@/application/use-cases/booking-request/send-client-message.use-case';
 import { SendArtistMessageUseCase } from '@/application/use-cases/booking-request/send-artist-message.use-case';
 import { PrismaBookingRequestRepository } from './infrastructure/repository/prisma-booking-request.repository';
 import { PublicBookingRequestController } from './presentation/controllers/public-booking-request.controller';
 import { FindRemindersByUserUseCase } from '@/application/use-cases/reminder/find-reminders-by-user.use-case';
-import { FindBlockedTimesUseCase } from '@/application/use-cases/appointment/find-blocked-times.use-case';
+import { PrismaBookingOfferRepository } from './infrastructure/repository/prisma-booking-offer.repository';
 import { CancelAppointmentUseCase } from '@/application/use-cases/appointment/cancel-appointment.use-case';
+import { FindBlockedTimesUseCase } from '@/application/use-cases/appointment/find-blocked-times.use-case';
+import { PayBookingOfferUseCase } from '@/application/use-cases/booking-offer/pay-booking-offer.use-case';
 import { FindReminderByIdUseCase } from '@/application/use-cases/reminder/find-reminder-by-id.use-case';
 import { PrismaAppointmentRepository } from './infrastructure/repository/prisma-appointment.repository';
 import { PublicAppointmentController } from './presentation/controllers/public-appointment.controller';
@@ -31,12 +35,16 @@ import { DeleteReminderUseCase } from '@/application/use-cases/reminder/delete-r
 import { PrismaReminderRepository } from './infrastructure/repository/prisma-reminder.repository';
 import { MailBookingRequestNotifier } from './infrastructure/mail/mail-booking-request-notifier';
 import { BookingRequestController } from './presentation/controllers/booking-request.controller';
+import { GoogleCalendarController } from './presentation/controllers/google-calendar.controller';
+import { GoogleCalendarService } from './infrastructure/google-calendar/google-calendar.service';
 import { BOOKING_REQUEST_REPOSITORY } from './application/port/booking-request-repository.port';
+import { BOOKING_OFFER_REPOSITORY } from './application/port/booking-offer-repository.port';
 import { BOOKING_REQUEST_NOTIFIER } from './application/port/booking-request-notifier.port';
 import { PaymentEventsConsumer } from './infrastructure/messaging/payment-events.consumer';
 import { MailAppointmentNotifier } from './infrastructure/mail/mail-appointment-notifier';
 import { AppointmentController } from './presentation/controllers/appointment.controller';
 import { APPOINTMENT_REPOSITORY } from './application/port/appointment-repository.port';
+import { DepositBookingService } from './application/services/deposit-booking.service';
 import { PaymentEventsHandler } from '@/application/handlers/payment-events.handler';
 import { APPOINTMENT_NOTIFIER } from './application/port/appointment-notifier.port';
 import { ReminderController } from './presentation/controllers/reminder.controller';
@@ -52,12 +60,6 @@ import { ARTIST_GATEWAY } from './application/port/artist-gateway.port';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
 import servicesConfig from './infrastructure/config/services.config';
 import { BOOKING_LINK } from './application/port/booking-link.port';
-import { CreateBookingOfferUseCase } from '@/application/use-cases/booking-offer/create-booking-offer.use-case';
-import { WithdrawBookingOfferUseCase } from '@/application/use-cases/booking-offer/withdraw-booking-offer.use-case';
-import { PayBookingOfferUseCase } from '@/application/use-cases/booking-offer/pay-booking-offer.use-case';
-import { PrismaBookingOfferRepository } from './infrastructure/repository/prisma-booking-offer.repository';
-import { BOOKING_OFFER_REPOSITORY } from './application/port/booking-offer-repository.port';
-import { DepositBookingService } from './application/services/deposit-booking.service';
 
 @Module({
   imports: [
@@ -74,9 +76,11 @@ import { DepositBookingService } from './application/services/deposit-booking.se
     BookingRequestController,
     PublicBookingRequestController,
     HealthController,
+    GoogleCalendarController,
   ],
   providers: [
     PrismaService,
+    GoogleCalendarService,
     CreateReminderUseCase,
     FindReminderByIdUseCase,
     FindRemindersByUserUseCase,

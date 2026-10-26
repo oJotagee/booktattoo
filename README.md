@@ -25,6 +25,7 @@ O frontend fala só com o **API gateway (Kong)** em `http://localhost:8000`, que
 | `/auth`, `/users`, `GET /public/artists` | user |
 | `/services`, `/galeries`, `GET /public/services`, `GET /public/galeries` | catalog |
 | `/appointments`, `/booking-requests`, `/reminders`, `GET`/`POST /public/appointments`, `GET`/`POST /public/booking-requests` | appointment |
+| `/google-calendar` | appointment |
 | `/billing`, `POST /webhooks` | payment |
 
 O Swagger de cada serviço fica direto na porta dele: `http://localhost:<porta>/api/docs`.
