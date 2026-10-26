@@ -1,5 +1,6 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { CopyProfileLinkButton } from './copy-profile-link-button';
+import { GoogleCalendarButton } from './google-calendar-button';
 import { Menu } from './menu';
 
 interface DashboardHeaderProps {
@@ -18,6 +19,7 @@ export default function DashboardHeader({ title, subtitle }: DashboardHeaderProp
 
       <div className="flex items-center gap-2">
         <CopyProfileLinkButton />
+        <GoogleCalendarButton />
         <Menu />
       </div>
     </header>
