@@ -1,5 +1,6 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { ImageOff } from 'lucide-react';
@@ -27,6 +28,8 @@ import {
 
 const ALL_STYLES = 'ALL';
 
+const subscribeNoop = () => () => {};
+
 const STYLE_ITEMS = [
   { value: ALL_STYLES, label: 'Todos os estilos' },
   ...GALERY_STYLES.map((style) => ({ value: style, label: formatGaleryStyle(style) })),
@@ -45,7 +48,13 @@ export function GaleryList({ artistId, initialData }: GaleryListProps = {}) {
   const style = parseGaleryStyle(searchParams.get('style'));
   const matchesInitial = initialData?.page === currentPage && initialData.style === style;
 
-  const { data, isPending, isError, isPlaceholderData } = useQuery({
+  const hydrated = useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  );
+
+  const query = useQuery({
     queryKey: ['public-galeries', artistId ?? 'all', currentPage, style],
     queryFn: () =>
       getAllPublicGaleries({
@@ -59,6 +68,13 @@ export function GaleryList({ artistId, initialData }: GaleryListProps = {}) {
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: true,
   });
+
+  // Until hydrated, render the server snapshot: the shared query cache may hold a stale entry.
+  const useServerSnapshot = !hydrated && matchesInitial;
+  const data = useServerSnapshot ? initialData.data : query.data;
+  const isPending = useServerSnapshot ? false : query.isPending;
+  const isError = useServerSnapshot ? false : query.isError;
+  const isPlaceholderData = useServerSnapshot ? false : query.isPlaceholderData;
 
   function navigate(update: (params: URLSearchParams) => void) {
     const params = new URLSearchParams(searchParams);
