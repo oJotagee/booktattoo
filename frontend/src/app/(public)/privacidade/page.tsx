@@ -5,7 +5,7 @@ import { BASE_OPEN_GRAPH, SITE_NAME } from '@/lib/site';
 import { Footer } from '../_components/footer';
 import { Header } from '../_components/header';
 
-const LAST_UPDATED = '20 de outubro de 2026';
+const LAST_UPDATED = '30 de outubro de 2026';
 
 const title = 'Política de privacidade';
 
@@ -38,6 +38,7 @@ const sections = [
       'Perfil do tatuador: foto, biografia, função, endereço do estúdio, celular, horários de atendimento e as imagens e informações dos flashes publicados.',
       'Agendamento de clientes: nome completo, e-mail, telefone, data e horário escolhidos e o flash reservado.',
       'Pagamento: o sinal é pago no checkout do Stripe. Os dados do cartão são digitados e processados diretamente pelo Stripe; o BookTattoo não recebe nem armazena o número do cartão.',
+      'Google Calendar (opcional): se o tatuador conectar a agenda do Google no painel, guardamos um token de acesso concedido pelo Google, armazenado criptografado, e o identificador dos eventos que o BookTattoo cria na agenda dele.',
       'Dados técnicos: cookies de sessão necessários para manter o tatuador conectado ao painel.',
     ],
   },
@@ -56,39 +57,49 @@ const sections = [
     content: [
       'Com o tatuador responsável pelo flash agendado, que recebe os dados do cliente para realizar o atendimento.',
       'Com o público em geral, inclusive buscadores, apenas o que o tatuador escolhe exibir no perfil: nome, foto, biografia, função, flashes e, se ele ativar a opção, o endereço do estúdio. O celular do tatuador nunca é exibido publicamente.',
-      'Com prestadores de serviço que operam dados em nosso nome: Stripe (pagamentos), Google (login social e mapas), Amazon Web Services (armazenamento de imagens) e Vercel (hospedagem do site). Alguns desses fornecedores podem tratar dados fora do Brasil, com as salvaguardas previstas na LGPD.',
+      'Com prestadores de serviço que operam dados em nosso nome: Stripe (pagamentos), Google (login social, mapas e sincronização com o Google Calendar), Amazon Web Services (armazenamento de imagens) e Vercel (hospedagem do site). Alguns desses fornecedores podem tratar dados fora do Brasil, com as salvaguardas previstas na LGPD.',
       'Com autoridades públicas, quando houver obrigação legal ou ordem judicial.',
       'Não vendemos dados pessoais.',
     ],
   },
   {
-    title: '5. Por quanto tempo guardamos',
+    title: '5. Integração com o Google Calendar',
+    content: [
+      'A integração é opcional e só é ativada quando o tatuador clica em conectar o Google Calendar no painel e autoriza o acesso na tela de consentimento do Google. Solicitamos apenas a permissão de gerenciar eventos (calendar.events).',
+      'Usamos essa permissão para uma única finalidade: manter a agenda do tatuador em dia com os agendamentos feitos no BookTattoo. Quando um agendamento é confirmado, criamos um evento com o título do flash, o nome do cliente, a data, o horário de início e fim e o código do agendamento. Se o agendamento for alterado ou cancelado, atualizamos ou removemos esse mesmo evento.',
+      'O BookTattoo não lê, não copia e não altera nenhum outro evento da agenda do tatuador. Não usamos dados do Google Calendar para publicidade, não os vendemos, não os compartilhamos com terceiros e não os usamos para treinar modelos de inteligência artificial.',
+      'O uso e a transferência de informações recebidas das APIs do Google para qualquer outro aplicativo pelo BookTattoo seguem a Política de Dados do Usuário dos Serviços de API do Google (https://developers.google.com/terms/api-services-user-data-policy), incluindo os requisitos de Uso Limitado.',
+      'O tatuador pode desconectar a agenda a qualquer momento pelo painel. Ao desconectar, revogamos o acesso junto ao Google e apagamos o token armazenado. Os eventos já criados continuam na agenda dele, que pode excluí-los normalmente. O acesso também pode ser revogado em https://myaccount.google.com/permissions.',
+    ],
+  },
+  {
+    title: '6. Por quanto tempo guardamos',
     content: [
       'Os dados da conta ficam armazenados enquanto ela estiver ativa. Os dados de agendamentos e pagamentos são mantidos pelo prazo necessário para cumprir obrigações legais, fiscais e de defesa em eventuais disputas. Depois disso, são excluídos ou anonimizados.',
     ],
   },
   {
-    title: '6. Seus direitos',
+    title: '7. Seus direitos',
     content: [
       'Pela Lei Geral de Proteção de Dados (Lei nº 13.709/2018, art. 18), você pode pedir: confirmação de que tratamos seus dados, acesso, correção, anonimização, bloqueio ou eliminação de dados desnecessários, portabilidade, informação sobre compartilhamentos e revisão de consentimentos.',
       'Envie o pedido para booktattoo4@gmail.com. Responderemos em até 15 dias. Você também pode apresentar reclamação à Autoridade Nacional de Proteção de Dados (ANPD).',
     ],
   },
   {
-    title: '7. Cookies',
+    title: '8. Cookies',
     content: [
       'Usamos apenas cookies essenciais para autenticação no painel do tatuador. Não usamos cookies de publicidade nem de rastreamento próprios.',
       'Quando o tatuador escolhe exibir o endereço do estúdio, o perfil dele mostra um mapa do Google Maps incorporado. Ao carregar esse mapa, o Google pode receber dados técnicos do seu navegador, como endereço IP, e definir cookies próprios, conforme a política de privacidade do Google. As demais páginas do site não carregam o mapa.',
     ],
   },
   {
-    title: '8. Segurança',
+    title: '9. Segurança',
     content: [
       'O site é servido apenas por HTTPS, as senhas são armazenadas como hash e o acesso aos dados é restrito ao necessário para cada função.',
     ],
   },
   {
-    title: '9. Alterações desta política',
+    title: '10. Alterações desta política',
     content: [
       'Podemos atualizar esta política quando houver mudanças no serviço ou na legislação. A data da última atualização fica sempre indicada nesta página.',
     ],
