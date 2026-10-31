@@ -29,9 +29,10 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
     return { title: 'Tatuador não encontrado', robots: { index: false } };
   }
 
-  const title = `${artist.name} — flashes disponíveis`;
-  const description =
-    artist.bio ?? `Veja os flashes de ${artist.name} e agende online. ${DEFAULT_BIO}`;
+  const name = artist.name.trim();
+  const title = `${name} — agendamento de tatuagem e flashes`;
+  const location = artist.address ? ` Estúdio em ${artist.address}.` : '';
+  const description = `Agende sua tatuagem com ${name}.${location} ${artist.bio ?? DEFAULT_BIO}`;
 
   return {
     title,

@@ -11,9 +11,9 @@ export const SITE_NAME = 'BookTattoo';
 export const CONTACT_EMAIL = 'booktattoo4@gmail.com';
 
 export const SITE_DESCRIPTION =
-  'Escolha um flash tattoo exclusivo de tatuadores independentes, reserve data e horário online e pague o sinal com segurança. O restante é pago no estúdio, no dia da sessão.';
+  'Agende sua tatuagem online: escolha um flash exclusivo de tatuadores independentes, reserve data e horário e pague só o sinal. O restante é pago no estúdio, no dia da sessão.';
 
-export const SITE_TITLE = `${SITE_NAME} — Flash tattoo com agendamento online`;
+export const SITE_TITLE = `${SITE_NAME} — Agendamento de tatuagem e flash tattoo online`;
 
 export const BASE_OPEN_GRAPH = {
   type: 'website',

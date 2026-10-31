@@ -6,10 +6,10 @@ import { ArtistListLoader } from './_components/artist-list-loader';
 import { BASE_OPEN_GRAPH, SITE_NAME } from '@/lib/site';
 import { Header } from '../_components/header';
 
-const title = 'Tatuadores';
+const title = 'Tatuadores e estúdios de tatuagem';
 
 const description =
-  'Conheça os tatuadores independentes que agendam pelo BookTattoo, seus estilos e os flashes que cada um tem disponíveis.';
+  'Encontre tatuadores independentes, conheça seus estilos e estúdios e agende sua tatuagem online pelo BookTattoo.';
 
 export const metadata: Metadata = {
   title,
